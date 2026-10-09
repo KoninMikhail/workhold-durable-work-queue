@@ -170,6 +170,22 @@ def _role_wheel_metadata(
     return metadata
 
 
+def test_release_gate_rejects_version_module_drift(tmp_path: Path) -> None:
+    gate = _load_gate()
+    module = tmp_path / "src" / "workhold" / "__init__.py"
+    module.parent.mkdir(parents=True)
+    module.write_text('__version__ = "1.0.0"\n', encoding="utf-8")
+    relative = "src/workhold/__init__.py"
+    with pytest.raises(gate.GateError, match=r"__version__ 1\.0\.0"):
+        gate._assert_version_modules(tmp_path, [relative], "1.0.1")
+    gate._assert_version_modules(tmp_path, [relative], "1.0.0")
+
+
+def test_repository_version_modules_match_manifest() -> None:
+    gate = _load_gate()
+    gate._assert_ci_atomic_publish_shape()
+
+
 def test_role_wheel_metadata_accepts_matching_base_and_async_bounds() -> None:
     gate = _load_gate()
     gate._assert_role_wheel_core_dependencies(

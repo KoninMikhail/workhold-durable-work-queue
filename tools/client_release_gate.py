@@ -36,6 +36,7 @@ CLIENT_DISTRIBUTIONS: tuple[str, ...] = (
 FORBIDDEN_DISTRIBUTIONS = frozenset(
     {"queue-client", "queue_client", "queue-service-client", "queue_service_client"}
 )
+_PY_VERSION_RE = re.compile(r'^__version__\s*=\s*"([^"]+)"', re.MULTILINE)
 _CORE_REQUIREMENT_RE = re.compile(
     r"^workhold-client-core"
     r"(?P<extras>\[[A-Za-z0-9_,.-]+\])?"
@@ -224,6 +225,24 @@ def _assert_coordinated_versions() -> tuple[str, str]:
     return version, expected_spec
 
 
+def _assert_version_modules(root: Path, relative_paths: list[str], version: str) -> None:
+    """``__version__`` in each coordinated module must equal the root version."""
+    if not isinstance(version, str) or not version:
+        raise GateError("root project.version must be a non-empty string")
+    for relative in relative_paths:
+        path = root / relative
+        if not path.is_file():
+            raise GateError(f"missing version module {relative}")
+        match = _PY_VERSION_RE.search(path.read_text(encoding="utf-8"))
+        if match is None:
+            raise GateError(f"missing __version__ assignment in {relative}")
+        module_version = match.group(1)
+        if module_version != version:
+            raise GateError(
+                f"{relative} __version__ {module_version} != root project.version {version}"
+            )
+
+
 def _string_list(data: dict[str, object], key: str) -> list[str]:
     value = data.get(key)
     if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
@@ -258,9 +277,10 @@ def _assert_ci_atomic_publish_shape() -> None:
     expected = [f"packages/{name}/pyproject.toml" for name in CLIENT_DISTRIBUTIONS]
     if version_files != expected:
         raise GateError(f"CI extra_version_files drifted: {version_files!r}")
-    for relative in _string_list(data, "version_py_files"):
-        if not (REPO_ROOT / relative).is_file():
-            raise GateError(f"missing version module {relative}")
+    version_modules = _string_list(data, "version_py_files")
+    with (REPO_ROOT / "pyproject.toml").open("rb") as fh:
+        root_version = tomllib.load(fh)["project"]["version"]
+    _assert_version_modules(REPO_ROOT, version_modules, root_version)
 
     config = json.loads((REPO_ROOT / "release-please-config.json").read_text(encoding="utf-8"))
     package_config = config["packages"]["."]
@@ -269,8 +289,6 @@ def _assert_ci_atomic_publish_shape() -> None:
     expected_extra = ["pyproject.toml", *version_files]
     if extra_paths != expected_extra:
         raise GateError(f"release-please extra-files drifted: {extra_paths!r}")
-    with (REPO_ROOT / "pyproject.toml").open("rb") as fh:
-        root_version = tomllib.load(fh)["project"]["version"]
     initial_version = package_config.get("initial-version") or config.get("initial-version")
     if initial_version != "1.0.0":
         raise GateError(
