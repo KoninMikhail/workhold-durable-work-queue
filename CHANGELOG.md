@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0 (2026-10-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **packaging:** runtime import and console script are workhold. Client distributions are workhold-client-core, workhold-producer, workhold-consumer, and workhold-admin.
+
+### Code Refactoring
+
+* **packaging:** rename distributions and the CLI to workhold ([8b7ef37](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/8b7ef376fa372f7d75975635c560629093f694d2))
+
+## Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
