@@ -34,7 +34,9 @@ Command reference: [../03-reference/01-commands.md](../03-reference/01-commands.
 Release: GitHub Actions release-please on `main`. The first release is `1.0.0`
 (`initial-version`; the manifest stays `0.0.0` until that tag exists).
 Conventional Commits open a release pull request; merging it tags `vX.Y.Z`,
-pushes the runtime image to GHCR as `X.Y.Z`, and publishes the client set in
+pushes the runtime image to GHCR as `X.Y.Z` and, when repository secrets
+`DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are set, also to
+`docker.io/<username>/workhold`. It publishes the client set in
 `release-packages.json` order to PyPI with trusted publishing (`id-token: write`).
 No API token is stored. `workhold-client-core` uses pending publisher
 `release.yml` with any environment. Each role package uses the same workflow

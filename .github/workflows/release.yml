@@ -63,6 +63,8 @@ jobs:
         id: image
         env:
           RELEASE_VERSION: ${{ needs.release-please.outputs.version }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           version="${RELEASE_VERSION#v}"
           if [ -z "${version}" ]; then
@@ -72,8 +74,23 @@ jobs:
             echo "release version is empty"
             exit 1
           fi
-          echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          ghcr="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "name=${ghcr}" >> "$GITHUB_OUTPUT"
           echo "tag=${version}" >> "$GITHUB_OUTPUT"
+          tags="${ghcr}:${version}"$'\n'"${ghcr}:${GITHUB_SHA}"
+          if [ -n "${DOCKERHUB_USERNAME}" ] && [ -n "${DOCKERHUB_TOKEN}" ]; then
+            hub="docker.io/${DOCKERHUB_USERNAME,,}/workhold"
+            tags="${tags}"$'\n'"${hub}:${version}"$'\n'"${hub}:${GITHUB_SHA}"
+            echo "dockerhub=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Docker Hub credentials are unset; pushing GHCR only."
+            echo "dockerhub=false" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "tags<<EOF"
+            printf '%s\n' "${tags}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
@@ -85,6 +102,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        if: steps.image.outputs.dockerhub == 'true'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Push runtime image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -92,9 +115,7 @@ jobs:
           file: Dockerfile
           target: runtime
           push: true
-          tags: |
-            ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
-            ${{ steps.image.outputs.name }}:${{ github.sha }}
+          tags: ${{ steps.image.outputs.tags }}
 
       - name: Publish workhold-client-core
         env:
