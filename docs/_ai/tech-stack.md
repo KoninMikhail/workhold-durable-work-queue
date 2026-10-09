@@ -31,8 +31,7 @@ uv lock --check
 
 Command reference: [../03-reference/01-commands.md](../03-reference/01-commands.md). Env: `DATABASE_URL` and allowlisted `*_FILE` siblings (see `.env.example`); on the host, `uv run` uses only `NAME`.
 
-Release: GitHub Actions release-please on `main`
-([10-release.md](../05-operations/10-release.md)). The first release is `1.0.0`
+Release: GitHub Actions release-please on `main`. The first release is `1.0.0`
 (`initial-version`; the manifest stays `0.0.0` until that tag exists).
 Conventional Commits open a release pull request; merging it tags `vX.Y.Z`,
 pushes the runtime image to GHCR as `X.Y.Z`, and publishes the client set in

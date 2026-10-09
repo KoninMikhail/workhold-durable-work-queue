@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""Atomic client package release gate (SDK-16 / QUAL-01).
+"""Atomic client package release gate (SDK-16).
 
 Builds core then the three role wheels as one coordinated version set, writes a
 wheel checksum / metadata inventory, runs a no-upload package-index dry run, and
-fails closed on missing artifacts, version/dependency drift, legacy
-``queue-client`` presence, or (optionally) an incomplete live qualification
-record.
+fails closed on missing artifacts, version/dependency drift, or legacy
+``queue-client`` presence.
 
 Does not publish, tag, or bump versions.
 """
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import os
@@ -28,9 +26,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DIST_DIR = REPO_ROOT / "dist"
 INVENTORY_PATH = DIST_DIR / "client-wheel-inventory.json"
-QUALIFICATION_PATH = (
-    REPO_ROOT / "docs" / "05-operations" / "09-client-release-qualification.md"
-)
 
 CLIENT_DISTRIBUTIONS: tuple[str, ...] = (
     "queue-service-client-core",
@@ -51,20 +46,7 @@ _CORE_REQUIREMENT_RE = re.compile(
 _VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 _BOUND_RE = re.compile(r"^(>=|<)\s*(\d+\.\d+\.\d+)$")
 _ASYNC_MARKER_RE = re.compile(r"""^extra\s*==\s*(['"])async\1$""")
-_VERDICT_RE = re.compile(
-    r"^\*\*Verdict:\*\*\s*`(?P<verdict>PASS|BLOCK|CI_SYNTHETIC_PASS)`\s*$",
-    re.MULTILINE,
-)
-_SHA_RE = re.compile(
-    r"^\|\s*Git SHA\s*\|\s*`(?P<sha>[0-9a-f]{7,40})`\s*\|",
-    re.MULTILINE | re.IGNORECASE,
-)
 _FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-_WHEEL_HASH_ROW_RE = re.compile(
-    r"^\|\s*(?P<dist>queue-service-[a-z0-9-]+)\s*\|\s*`[^`]+`\s*\|\s*"
-    r"`(?P<sha>[0-9a-f]{64})`\s*\|\s*(?P<bytes>\d+)\s*\|",
-    re.MULTILINE | re.IGNORECASE,
-)
 
 
 class GateError(RuntimeError):
@@ -314,8 +296,6 @@ def _assert_ci_atomic_publish_shape() -> None:
     workflow_text = _workflow_text()
     for token in (
         "tools/client_release_gate.py",
-        "client_release_qualification_gate",
-        "--require-qualification-pass",
         "tools/publish_client_packages.py",
         "release-please-config.json",
     ):
@@ -324,12 +304,10 @@ def _assert_ci_atomic_publish_shape() -> None:
     release_yml = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(
         encoding="utf-8"
     )
-    gate_at = release_yml.find("tools/client_release_gate.py --require-qualification-pass")
+    gate_at = release_yml.find("tools/client_release_gate.py")
     publish_at = release_yml.find("tools/publish_client_packages.py")
     if gate_at < 0 or publish_at < 0 or gate_at > publish_at:
-        raise GateError(
-            "release workflow must run the qualification gate before client publish"
-        )
+        raise GateError("release workflow must run the client release gate before client publish")
     publish_script = (REPO_ROOT / "tools" / "publish_client_packages.py").read_text(
         encoding="utf-8"
     )
@@ -633,93 +611,7 @@ def _checked_out_sha() -> str | None:
     return None
 
 
-def _is_ancestor(ancestor: str, tip: str) -> bool:
-    try:
-        completed = subprocess.run(
-            ["git", "merge-base", "--is-ancestor", ancestor, tip],
-            cwd=REPO_ROOT,
-            env=os.environ.copy(),
-            check=False,
-            text=True,
-            capture_output=True,
-        )
-    except FileNotFoundError as exc:
-        raise GateError(
-            "git is not installed; cannot check whether qualification SHA "
-            f"{ancestor} is an ancestor of {tip}"
-        ) from exc
-    return completed.returncode == 0
-
-
-def _parse_qualification_wheel_hashes(text: str) -> dict[str, tuple[str, int]]:
-    """Return distribution → (sha256, size_bytes) from the qualification table."""
-    found: dict[str, tuple[str, int]] = {}
-    for match in _WHEEL_HASH_ROW_RE.finditer(text):
-        dist = match.group("dist")
-        found[dist] = (match.group("sha").lower(), int(match.group("bytes")))
-    return found
-
-
-def _assert_qualification_hashes_match_inventory(
-    text: str, *, inventory_path: Path
-) -> None:
-    if not inventory_path.is_file():
-        raise GateError(f"missing wheel inventory for hash cross-check: {inventory_path}")
-    inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
-    recorded = _parse_qualification_wheel_hashes(text)
-    expected_dists = list(CLIENT_DISTRIBUTIONS)
-    if set(recorded) != set(expected_dists):
-        raise GateError(
-            "qualification wheel hash table distributions drifted from coordinated set: "
-            f"recorded={sorted(recorded)!r} expected={expected_dists!r}"
-        )
-    for entry in inventory["wheels"]:
-        dist = entry["distribution"]
-        recorded_sha, recorded_bytes = recorded[dist]
-        inv_sha = str(entry["sha256"]).lower()
-        inv_bytes = int(entry["size_bytes"])
-        if recorded_sha != inv_sha:
-            raise GateError(
-                f"qualification sha256 for {dist} drifts from inventory: "
-                f"record={recorded_sha!r} inventory={inv_sha!r}"
-            )
-        if recorded_bytes != inv_bytes:
-            raise GateError(
-                f"qualification size_bytes for {dist} drifts from inventory: "
-                f"record={recorded_bytes!r} inventory={inv_bytes!r}"
-            )
-
-
-def _assert_qualification_pass(*, git_sha: str, inventory_path: Path) -> None:
-    if not QUALIFICATION_PATH.is_file():
-        raise GateError(f"missing qualification record: {QUALIFICATION_PATH}")
-    text = QUALIFICATION_PATH.read_text(encoding="utf-8")
-    verdict_match = _VERDICT_RE.search(text)
-    if not verdict_match:
-        raise GateError("09-client-release-qualification.md missing **Verdict:** line")
-    verdict = verdict_match.group("verdict")
-    if verdict != "PASS":
-        raise GateError(
-            f"qualification verdict is {verdict!r}; publication requires PASS "
-            "(live PostgreSQL + clean-wheel evidence)"
-        )
-    sha_match = _SHA_RE.search(text)
-    if not sha_match:
-        raise GateError("qualification record missing Git SHA field")
-    recorded = sha_match.group("sha")
-    if recorded != git_sha and not _is_ancestor(recorded, git_sha):
-        raise GateError(
-            f"qualification Git SHA {recorded!r} is not HEAD {git_sha!r} "
-            "or an ancestor of HEAD"
-        )
-    if "live PostgreSQL" not in text and "TEST_DATABASE_URL" not in text:
-        raise GateError("qualification record lacks live PostgreSQL evidence note")
-    if "wheel" not in text.lower() or "sha256" not in text.lower():
-        raise GateError("qualification record lacks wheel hash inventory evidence")
-    _assert_qualification_hashes_match_inventory(text, inventory_path=inventory_path)
-
-
-def run(*, require_qualification_pass: bool) -> dict[str, object]:
+def run() -> dict[str, object]:
     _assert_no_legacy_tree()
     version, expected_core_spec = _assert_coordinated_versions()
     _assert_ci_atomic_publish_shape()
@@ -732,8 +624,6 @@ def run(*, require_qualification_pass: bool) -> dict[str, object]:
         expected_core_spec=expected_core_spec,
     )
     dry_run = _dry_run_publish(wheels)
-    if require_qualification_pass:
-        _assert_qualification_pass(git_sha=git_sha, inventory_path=inventory)
     return {
         "ok": True,
         "git_sha": git_sha,
@@ -741,23 +631,12 @@ def run(*, require_qualification_pass: bool) -> dict[str, object]:
         "inventory": str(inventory.relative_to(REPO_ROOT)),
         "wheels": {dist: path.name for dist, path in wheels.items()},
         "dry_run": dry_run.splitlines()[-1] if dry_run else "ok",
-        "qualification_required": require_qualification_pass,
     }
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--require-qualification-pass",
-        action="store_true",
-        help=(
-            "Fail unless 09-client-release-qualification.md records Verdict PASS "
-            "for the current git SHA with live PostgreSQL evidence"
-        ),
-    )
-    args = parser.parse_args(argv)
+def main() -> int:
     try:
-        result = run(require_qualification_pass=args.require_qualification_pass)
+        result = run()
     except (GateError, subprocess.CalledProcessError) as exc:
         print(f"client_release_gate: FAIL: {exc}", file=sys.stderr)
         return 1

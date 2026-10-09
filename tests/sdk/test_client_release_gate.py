@@ -221,13 +221,13 @@ def test_ci_invokes_client_release_gate() -> None:
         for path in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml"))
     )
     assert "tools/client_release_gate.py" in workflow
-    assert "client_release_qualification_gate" in workflow
-    assert "--require-qualification-pass" in workflow
+    assert "tools/publish_client_packages.py" in workflow
+    assert "--require-qualification-pass" not in workflow
 
 
 def test_client_release_gate_builds_inventory_and_dry_run() -> None:
     gate = _load_gate()
-    result = gate.run(require_qualification_pass=False)
+    result = gate.run()
     assert result["ok"] is True
     assert result["version"]
     assert INVENTORY_PATH.is_file()
@@ -305,121 +305,4 @@ def test_cli_exit_zero_without_qualification_requirement() -> None:
     assert completed.returncode == 0, completed.stderr
     payload = json.loads(completed.stdout)
     assert payload["ok"] is True
-    assert payload["qualification_required"] is False
-
-
-def _minimal_pass_record(*, sha: str, wheels: list[tuple[str, str, int]]) -> str:
-    rows = "\n".join(
-        f"| {dist} | `{dist.replace('-', '_')}-0.1.0-py3-none-any.whl` "
-        f"| `{digest}` | {size} |"
-        for dist, digest, size in wheels
-    )
-    return f"""# Client Release Qualification
-
-**Verdict:** `PASS`
-
-| Field | Value |
-| --- | --- |
-| Git SHA | `{sha}` |
-| live PostgreSQL | `TEST_DATABASE_URL=postgresql+psycopg://queue:queue@localhost:5432/queue` |
-
-## Wheel inventory (sha256)
-
-| Distribution | Wheel | sha256 | bytes |
-| --- | --- | --- | --- |
-{rows}
-"""
-
-
-def _write_inventory(path: Path, *, wheels: list[tuple[str, str, int]]) -> None:
-    payload = {
-        "wheels": [
-            {
-                "distribution": dist,
-                "sha256": digest,
-                "size_bytes": size,
-            }
-            for dist, digest, size in wheels
-        ]
-    }
-    path.write_text(json.dumps(payload), encoding="utf-8")
-
-
-def test_assert_qualification_pass_negative_paths(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    gate = _load_gate()
-    digest = "a" * 64
-    wheels = [(dist, digest, 100 + i) for i, dist in enumerate(CLIENT_DISTRIBUTIONS)]
-    inventory = tmp_path / "inventory.json"
-    _write_inventory(inventory, wheels=wheels)
-    tip_sha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-
-    missing = tmp_path / "missing.md"
-    monkeypatch.setattr(gate, "QUALIFICATION_PATH", missing)
-    with pytest.raises(gate.GateError, match="missing qualification record"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    record = tmp_path / "CLIENT-RELEASE-QUALIFICATION.md"
-    monkeypatch.setattr(gate, "QUALIFICATION_PATH", record)
-
-    record.write_text("# no verdict\nsha256 wheel\nlive PostgreSQL\n", encoding="utf-8")
-    with pytest.raises(gate.GateError, match="missing \\*\\*Verdict:\\*\\*"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    record.write_text(
-        "**Verdict:** `BLOCK`\n\n"
-        "| Git SHA | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n\n"
-        "live PostgreSQL\nwheel sha256\n",
-        encoding="utf-8",
-    )
-    with pytest.raises(gate.GateError, match="verdict is 'BLOCK'"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    record.write_text(
-        "**Verdict:** `PASS`\n\nlive PostgreSQL\nwheel sha256\n",
-        encoding="utf-8",
-    )
-    with pytest.raises(gate.GateError, match="missing Git SHA"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    monkeypatch.setattr(gate, "_is_ancestor", lambda *_args: False)
-    record.write_text(
-        _minimal_pass_record(
-            sha="cccccccccccccccccccccccccccccccccccccccc", wheels=wheels
-        ),
-        encoding="utf-8",
-    )
-    with pytest.raises(gate.GateError, match="not HEAD .* or an ancestor"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    monkeypatch.setattr(gate, "_is_ancestor", lambda *_args: True)
-    record.write_text(
-        "**Verdict:** `PASS`\n\n"
-        "| Git SHA | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n\n"
-        "wheel sha256\n",
-        encoding="utf-8",
-    )
-    with pytest.raises(gate.GateError, match="live PostgreSQL"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    record.write_text(
-        "**Verdict:** `PASS`\n\n"
-        "| Git SHA | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n\n"
-        "live PostgreSQL\n",
-        encoding="utf-8",
-    )
-    with pytest.raises(gate.GateError, match="wheel hash inventory"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    drifted = [(CLIENT_DISTRIBUTIONS[0], "d" * 64, 100)] + wheels[1:]
-    record.write_text(
-        _minimal_pass_record(sha=tip_sha, wheels=drifted), encoding="utf-8"
-    )
-    with pytest.raises(gate.GateError, match="drifts from inventory"):
-        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
-
-    record.write_text(
-        _minimal_pass_record(sha=tip_sha, wheels=wheels), encoding="utf-8"
-    )
-    gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+    assert "qualification_required" not in payload

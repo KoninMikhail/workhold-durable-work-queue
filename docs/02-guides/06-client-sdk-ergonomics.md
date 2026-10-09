@@ -192,9 +192,6 @@ uv run pytest tests/sdk tests/conformance/test_client_operation_coverage.py \
 uv run python tools/client_release_gate.py
 ```
 
-Immutable qualification evidence:
-[09-client-release-qualification.md](../05-operations/09-client-release-qualification.md).
-
 ## Next
 
 - Producer: [02-producer-enqueue.md](02-producer-enqueue.md)

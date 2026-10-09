@@ -16,8 +16,6 @@ Start with the [reading path](../00-onboarding/01-reading-path.md).
 | 6 | [06-chaos-testing.md](06-chaos-testing.md) | Kernel chaos-scenario matrix, fault injection, and QUAL-04 commands |
 | 7 | [07-admin-tools.md](07-admin-tools.md) | Safe, dangerous, and break-glass operations |
 | 8 | [08-release-qualification.md](08-release-qualification.md) | Kernel qualification record (synthetic CI evidence) |
-| 9 | [09-client-release-qualification.md](09-client-release-qualification.md) | Role-client set qualification record |
-| 10 | [10-release.md](10-release.md) | GitHub release-please cycle, image, and client publish |
 
 Exact deployment manifests and numeric SLOs follow implementation benchmarks.
 

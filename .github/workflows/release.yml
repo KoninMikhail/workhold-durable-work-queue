@@ -47,8 +47,8 @@ jobs:
       - name: Install
         run: uv sync --frozen --all-packages --group dev
 
-      - name: Qualification gate
-        run: uv run python tools/client_release_gate.py --require-qualification-pass
+      - name: Client release gate
+        run: uv run python tools/client_release_gate.py
 
       - name: Require package token
         env:

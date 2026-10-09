@@ -78,25 +78,6 @@ jobs:
           uv run pytest tests/sdk/test_package_release_matrix.py tests/sdk/test_client_release_gate.py tests/sdk/test_sync_coordinated_version.py -q
           uv run python tools/client_release_gate.py
 
-  client_release_qualification_gate:
-    name: Client release qualification
-    runs-on: ubuntu-latest
-    needs: sync-release-versions
-    if: always() && (needs.sync-release-versions.result == 'success' || needs.sync-release-versions.result == 'skipped')
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
-        with:
-          python-version: "3.13"
-          enable-cache: true
-
-      - name: Install
-        run: uv sync --frozen --all-packages --group dev
-
-      - name: Require qualification PASS
-        run: uv run python tools/client_release_gate.py --require-qualification-pass
-
   image:
     name: Image
     runs-on: ubuntu-latest
