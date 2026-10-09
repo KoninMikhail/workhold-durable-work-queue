@@ -399,7 +399,7 @@ wheels = [
 
 [[package]]
 name = "workhold"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },
@@ -432,7 +432,7 @@ dev = [
 
 [[package]]
 name = "workhold-admin"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "packages/workhold-admin" }
 dependencies = [
     { name = "workhold-client-core" },
@@ -452,7 +452,7 @@ provides-extras = ["async"]
 
 [[package]]
 name = "workhold-client-core"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "packages/workhold-client-core" }
 
 [package.optional-dependencies]
@@ -466,7 +466,7 @@ provides-extras = ["async"]
 
 [[package]]
 name = "workhold-consumer"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "packages/workhold-consumer" }
 dependencies = [
     { name = "workhold-client-core" },
@@ -486,7 +486,7 @@ provides-extras = ["async"]
 
 [[package]]
 name = "workhold-producer"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "packages/workhold-producer" }
 dependencies = [
     { name = "workhold-client-core" },
