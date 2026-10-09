@@ -70,6 +70,8 @@ def publish_packages() -> None:
                 "publish",
                 "--trusted-publishing",
                 "always",
+                "--check-url",
+                "https://pypi.org/simple",
                 *[str(path) for path in artifacts],
             ],
             cwd=REPO_ROOT,

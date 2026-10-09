@@ -39,7 +39,9 @@ pushes the runtime image to GHCR as `X.Y.Z`, and publishes the client set in
 No API token is stored. `workhold-client-core` uses pending publisher
 `release.yml` with any environment. Each role package uses the same workflow
 and its own environment: `pypi-workhold-producer`, `pypi-workhold-consumer`,
-`pypi-workhold-admin`.
+`pypi-workhold-admin`. PyPI allows three pending publishers at once; after a
+package's first upload that publisher is no longer pending. A repeat publish
+skips files already on the index.
 
 API principals: production uses the mounted
 `QUEUE_API_PRINCIPALS_MANIFEST_FILE` secret (roles, rotating generations and
