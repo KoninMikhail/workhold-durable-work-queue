@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.1...v1.0.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* **release:** reject publish when __version__ drifts ([0830393](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/0830393cb7e2ef93564e980ba2e4a41810e8f47b))
+
 ## [1.0.1](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.0...v1.0.1) (2026-10-09)
 
 

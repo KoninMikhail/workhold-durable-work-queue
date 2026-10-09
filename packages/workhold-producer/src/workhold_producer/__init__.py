@@ -43,7 +43,7 @@ from _workhold_client_core.priority import (
 from _workhold_client_core.transport import HttpJsonTransport, encode_path_segment
 from workhold_producer.client import ProducerClient
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 __all__ = [
     "AsyncProducerClient",
