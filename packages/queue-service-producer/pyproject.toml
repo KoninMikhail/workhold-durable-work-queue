@@ -15,7 +15,7 @@ dependencies = [
 # ``queue_service_producer.bridge.postgres_store.PostgresOutboxStore``.
 # Base install stays free of psycopg; the store itself never imports a driver.
 bridge-postgres = [
-    "psycopg[binary]>=3.3.5",
+    "psycopg[binary]>=3.3.6",
 ]
 async = [
     "queue-service-client-core[async]>=1.0.0,<1.1.0",
