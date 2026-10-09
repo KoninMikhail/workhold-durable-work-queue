@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.0...v1.0.1) (2026-10-09)
+
+
+### Documentation
+
+* add contribution guides and GitHub templates ([5ec13bb](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/5ec13bbbcdae9a8c9a2795d526834a47e1453df4))
+
 ## 1.0.0 (2026-10-09)
 
 
