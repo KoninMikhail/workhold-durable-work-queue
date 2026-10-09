@@ -52,6 +52,7 @@ configuration, migrations, Docker profiles, and client development.
 | Deploy and operate in production | [Operations](docs/05-operations/README.md) |
 | Explore architecture and decisions | [Architecture and ADRs](docs/04-architecture/README.md) |
 | Find a specific document | [Documentation index](docs/README.md) |
+| Contribute a change | [Contributing](CONTRIBUTING.md) |
 
 ## Why Workhold?
 
@@ -209,6 +210,7 @@ comparison.
 
 ## Contributing
 
-Workhold is a personal project. Changes go through merge requests on the
-repository remote. AI-assisted contributors should start with
+See [CONTRIBUTING.md](CONTRIBUTING.md). Workhold is a personal project.
+Changes land as pull requests to `main`. Report a vulnerability through
+[SECURITY.md](SECURITY.md). AI-assisted contributors start with
 [AGENTS.md](AGENTS.md).

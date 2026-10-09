@@ -20,6 +20,7 @@ flowchart LR
 | Integrator | [First integration](02-guides/01-integrate-application.md) |
 | Architect / reviewer | [Product boundary](01-concepts/07-product-boundary.md) → [architecture](04-architecture/README.md) |
 | Operator | [Operations](05-operations/README.md) |
+| Contributor | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
 Product overview: [01-concepts/01-overview.md](01-concepts/01-overview.md).
 

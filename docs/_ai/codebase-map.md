@@ -36,7 +36,11 @@ Product: **Workhold - Durable work queue**. Runtime package: `workhold`.
 ├── Dockerfile
 ├── docker/entrypoint.sh        # *_FILE → NAME then exec workhold
 ├── docker-compose.dev.yml      # profiles maintain|relay|apply; see 02-deployment.md
-├── .github/workflows/          # ci.yml and release-please release.yml
+├── .github/                    # workflows, issue and pull request templates, CODEOWNERS
+├── CONTRIBUTING.md             # pull requests, commits, checks
+├── SECURITY.md                 # private vulnerability reports
+├── CODE_OF_CONDUCT.md
+├── SUPPORT.md
 ├── release-please-config.json  # Conventional Commits → changelog and tags
 ├── release-packages.json       # client publish order and version files
 └── CHANGELOG.md                # written by release-please

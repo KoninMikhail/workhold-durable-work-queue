@@ -1,0 +1,39 @@
+name: Feature request
+description: A change to Workhold behavior or to a client
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read the [product boundary](https://github.com/KoninMikhail/workhold-durable-work-queue/blob/main/docs/01-concepts/07-product-boundary.md)
+        and [guarantees](https://github.com/KoninMikhail/workhold-durable-work-queue/blob/main/docs/01-concepts/09-guarantees.md)
+        first. Workhold does not promise exactly-once delivery or a distributed
+        transaction with an application database.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you cannot do today, and who needs it.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: The behavior you want. Mention rejected alternatives if you considered them.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Runtime (workhold)
+        - workhold-client-core
+        - workhold-producer
+        - workhold-consumer
+        - workhold-admin
+        - Operations
+        - Other
+    validations:
+      required: true

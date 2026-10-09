@@ -1,0 +1,46 @@
+name: Bug report
+description: A defect in the runtime, a client, or the documented contract
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If this is a vulnerability, close this form and use a
+        [private security advisory](https://github.com/KoninMikhail/workhold-durable-work-queue/security/advisories/new).
+        Do not paste tokens, DSNs, or claim tokens.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected from the documented contract.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Steps, a request, or a failing test. Redact secrets.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Release tag, image tag, or commit. For a client, the package name and version.
+      placeholder: workhold 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Runtime (workhold)
+        - workhold-client-core
+        - workhold-producer
+        - workhold-consumer
+        - workhold-admin
+        - Documentation
+        - Other
+    validations:
+      required: true

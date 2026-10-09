@@ -1,0 +1,24 @@
+name: Documentation
+description: A doc is wrong, missing, or hard to follow
+labels: ["documentation"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Path or link, for example docs/02-guides/01-integrate-application.md.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested wording
+      description: Optional. Leave empty if you only want to report the gap.
+    validations:
+      required: false

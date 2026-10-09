@@ -39,3 +39,5 @@ Sources of truth:
 | Local setup / Alembic | `docs/00-onboarding/02-local-setup.md` |
 | Agent rules | `.cursor/rules/` |
 | Skills | `.cursor/skills/` |
+| How to contribute | `CONTRIBUTING.md` |
+| Vulnerability reports | `SECURITY.md` |

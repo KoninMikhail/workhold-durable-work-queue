@@ -33,5 +33,7 @@ Compressed repository context for an agent. Product: **Workhold - Durable work q
 | Physical schema (tables/columns) | [../03-reference/02-storage-contract.md](../03-reference/02-storage-contract.md) |
 | Old design proposals | [formats](../03-reference/03-formats.md), [storage](../03-reference/04-storage.md), [HTTP](../03-reference/05-http-api.md) — not normative |
 | Docs contents | [../README.md](../README.md) |
+| How to contribute | [../../CONTRIBUTING.md](../../CONTRIBUTING.md) |
+| Vulnerability reports | [../../SECURITY.md](../../SECURITY.md) |
 
 Knowledge graph: `graphify-out/` (local, gitignored).

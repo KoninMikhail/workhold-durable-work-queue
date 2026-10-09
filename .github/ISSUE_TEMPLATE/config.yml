@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/KoninMikhail/workhold-durable-work-queue/security/advisories/new
+    about: Report a vulnerability in private. Do not open a public issue.
+  - name: Documentation
+    url: https://github.com/KoninMikhail/workhold-durable-work-queue/blob/main/docs/README.md
+    about: Concepts, guides, reference, and operations.
