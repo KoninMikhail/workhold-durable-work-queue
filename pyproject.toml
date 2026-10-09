@@ -10,7 +10,7 @@ requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.20.0",
     "psycopg[binary]>=3.3.5",
-    "sentry-sdk>=2.69.2,<3",
+    "sentry-sdk>=2.71.0,<3",
     "sqlalchemy>=2.0.54",
 ]
 
