@@ -41,9 +41,12 @@ def _publish_url(owner: str) -> str:
 def publish_packages() -> None:
     if os.environ.get("WORKHOLD_PUBLISH") != "1":
         raise PublishError("refusing to publish without WORKHOLD_PUBLISH=1")
-    token = os.environ.get("GH_PACKAGES_TOKEN", "")
+    token = os.environ.get("GH_PACKAGES_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
     if not token:
-        raise PublishError("GH_PACKAGES_TOKEN is required")
+        raise PublishError(
+            "GH_PACKAGES_TOKEN or GITHUB_TOKEN is required. "
+            "Actions passes GITHUB_TOKEN; a classic PAT is only for publishing outside Actions."
+        )
     owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "")
     if not owner:
         raise PublishError("GITHUB_REPOSITORY_OWNER is required")
