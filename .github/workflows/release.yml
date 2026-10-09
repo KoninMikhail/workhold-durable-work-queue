@@ -94,7 +94,47 @@ jobs:
             ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
             ${{ steps.image.outputs.name }}:${{ github.sha }}
 
-      - name: Publish client packages
+      - name: Publish workhold-client-core
         env:
           WORKHOLD_PUBLISH: "1"
+          WORKHOLD_PUBLISH_ONLY: workhold-client-core
+        run: uv run python tools/publish_client_packages.py
+
+  publish-roles:
+    name: Publish ${{ matrix.package }}
+    needs: [release-please, publish]
+    if: >-
+      needs.publish.result == 'success' &&
+      (needs.release-please.outputs.release_created == 'true' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_existing == 'true'))
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: workhold-producer
+            environment: pypi-workhold-producer
+          - package: workhold-consumer
+            environment: pypi-workhold-consumer
+          - package: workhold-admin
+            environment: pypi-workhold-admin
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --frozen --all-packages --group dev
+
+      - name: Publish ${{ matrix.package }}
+        env:
+          WORKHOLD_PUBLISH: "1"
+          WORKHOLD_PUBLISH_ONLY: ${{ matrix.package }}
         run: uv run python tools/publish_client_packages.py

@@ -38,10 +38,16 @@ def _packages() -> list[str]:
 def publish_packages() -> None:
     if os.environ.get("WORKHOLD_PUBLISH") != "1":
         raise PublishError("refusing to publish without WORKHOLD_PUBLISH=1")
+    selected = os.environ.get("WORKHOLD_PUBLISH_ONLY", "").strip()
+    packages = _packages()
+    if selected:
+        if selected not in packages:
+            raise PublishError(f"WORKHOLD_PUBLISH_ONLY {selected!r} is not in release-packages.json")
+        packages = [selected]
     staging = REPO_ROOT / "dist" / "publish"
     if staging.exists():
         shutil.rmtree(staging)
-    for package in _packages():
+    for package in packages:
         out = staging / package
         out.mkdir(parents=True)
         print(f"build {package}")

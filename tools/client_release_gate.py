@@ -313,6 +313,13 @@ def _assert_ci_atomic_publish_shape() -> None:
     )
     if "id-token: write" not in release_yml:
         raise GateError("release workflow must grant id-token: write for PyPI trusted publishing")
+    for environment in (
+        "pypi-workhold-producer",
+        "pypi-workhold-consumer",
+        "pypi-workhold-admin",
+    ):
+        if environment not in release_yml:
+            raise GateError(f"release workflow missing PyPI environment {environment}")
     if "release-packages.json" not in publish_script or "WORKHOLD_PUBLISH" not in publish_script:
         raise GateError(
             "publish_client_packages.py must read release-packages.json and require WORKHOLD_PUBLISH"

@@ -36,8 +36,10 @@ Release: GitHub Actions release-please on `main`. The first release is `1.0.0`
 Conventional Commits open a release pull request; merging it tags `vX.Y.Z`,
 pushes the runtime image to GHCR as `X.Y.Z`, and publishes the client set in
 `release-packages.json` order to PyPI with trusted publishing (`id-token: write`).
-No API token is stored. Each distribution needs a pending publisher on PyPI for
-workflow `release.yml` before the first upload.
+No API token is stored. `workhold-client-core` uses pending publisher
+`release.yml` with any environment. Each role package uses the same workflow
+and its own environment: `pypi-workhold-producer`, `pypi-workhold-consumer`,
+`pypi-workhold-admin`.
 
 API principals: production uses the mounted
 `QUEUE_API_PRINCIPALS_MANIFEST_FILE` secret (roles, rotating generations and
