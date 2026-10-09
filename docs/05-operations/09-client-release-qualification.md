@@ -13,7 +13,7 @@ below. `queue-client` / `queue_service_client` remain absent.
 
 | Field | Value |
 | --- | --- |
-| Git SHA | `f1462618364c248654bd9f64ae53e998470ae259` |
+| Git SHA | `d3450cf317369382ca1eb5dab5ca9397e95ae218` |
 | Qualified note | Wheel inventory refreshed for coordinated `1.0.0`; live PostgreSQL evidence is unchanged |
 | Coordinated version | `1.0.0` (root + four client pyprojects) |
 | Environment | local worktree `.worktrees/21-02-release-qualification` |
