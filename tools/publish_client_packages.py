@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Publish the coordinated client set, core first, to GitHub Packages.
+"""Publish the coordinated client set, core first, to PyPI.
 
-Refuses to upload unless ``WORKHOLD_PUBLISH=1``. Reads the package order from
-``release-packages.json``. Does not bump versions.
+Refuses to upload unless ``WORKHOLD_PUBLISH=1``. Uses GitHub Actions
+trusted publishing (OIDC); no API token is stored. Reads the package
+order from ``release-packages.json``. Does not bump versions.
 """
 
 from __future__ import annotations
@@ -34,24 +35,9 @@ def _packages() -> list[str]:
     return names
 
 
-def _publish_url(owner: str) -> str:
-    return f"https://pypi.pkg.github.com/{owner}/"
-
-
 def publish_packages() -> None:
     if os.environ.get("WORKHOLD_PUBLISH") != "1":
         raise PublishError("refusing to publish without WORKHOLD_PUBLISH=1")
-    token = os.environ.get("GH_PACKAGES_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
-    if not token:
-        raise PublishError(
-            "GH_PACKAGES_TOKEN or GITHUB_TOKEN is required. "
-            "Actions passes GITHUB_TOKEN; a classic PAT is only for publishing outside Actions."
-        )
-    owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "")
-    if not owner:
-        raise PublishError("GITHUB_REPOSITORY_OWNER is required")
-    username = os.environ.get("GH_PACKAGES_USERNAME") or owner
-    url = _publish_url(owner)
     staging = REPO_ROOT / "dist" / "publish"
     if staging.exists():
         shutil.rmtree(staging)
@@ -71,17 +57,13 @@ def publish_packages() -> None:
         )
         if not artifacts:
             raise PublishError(f"uv build produced no artifacts for {package}")
-        print(f"publish {package} -> {url}")
+        print(f"publish {package} -> https://pypi.org/project/{package}/")
         subprocess.run(
             [
                 "uv",
                 "publish",
-                "--publish-url",
-                url,
-                "--username",
-                username,
-                "--password",
-                token,
+                "--trusted-publishing",
+                "always",
                 *[str(path) for path in artifacts],
             ],
             cwd=REPO_ROOT,

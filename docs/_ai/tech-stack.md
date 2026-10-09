@@ -35,8 +35,9 @@ Release: GitHub Actions release-please on `main`. The first release is `1.0.0`
 (`initial-version`; the manifest stays `0.0.0` until that tag exists).
 Conventional Commits open a release pull request; merging it tags `vX.Y.Z`,
 pushes the runtime image to GHCR as `X.Y.Z`, and publishes the client set in
-`release-packages.json` order. Publication uses the workflow `GITHUB_TOKEN`
-(`packages: write`); a classic PAT is not required for that job.
+`release-packages.json` order to PyPI with trusted publishing (`id-token: write`).
+No API token is stored. Each distribution needs a pending publisher on PyPI for
+workflow `release.yml` before the first upload.
 
 API principals: production uses the mounted
 `QUEUE_API_PRINCIPALS_MANIFEST_FILE` secret (roles, rotating generations and

@@ -43,6 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
       packages: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -96,6 +97,4 @@ jobs:
       - name: Publish client packages
         env:
           WORKHOLD_PUBLISH: "1"
-          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_PACKAGES_USERNAME: ${{ github.actor }}
         run: uv run python tools/publish_client_packages.py

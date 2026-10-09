@@ -311,6 +311,8 @@ def _assert_ci_atomic_publish_shape() -> None:
     publish_script = (REPO_ROOT / "tools" / "publish_client_packages.py").read_text(
         encoding="utf-8"
     )
+    if "id-token: write" not in release_yml:
+        raise GateError("release workflow must grant id-token: write for PyPI trusted publishing")
     if "release-packages.json" not in publish_script or "WORKHOLD_PUBLISH" not in publish_script:
         raise GateError(
             "publish_client_packages.py must read release-packages.json and require WORKHOLD_PUBLISH"
