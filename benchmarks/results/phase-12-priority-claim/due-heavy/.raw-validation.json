@@ -1,0 +1,13 @@
+{
+  "raw_classes": [
+    "manifest.json",
+    "environment.json",
+    "workload.json",
+    "conformance.xml",
+    "latencies.jsonl.gz",
+    "postgres-before.json",
+    "postgres-after.json",
+    "plans/index.json"
+  ],
+  "validated_raw_set_digest": "a12dcee46135f60451a9297045daed1cfcb23666f0a059181b05f6e00badb20e"
+}

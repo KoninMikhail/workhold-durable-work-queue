@@ -1,0 +1,8 @@
+{
+  "Plan": {
+    "Index Name": "tasks_active_claim_idx",
+    "Node Type": "Index Scan",
+    "Relation Name": "tasks_active",
+    "Total Cost": 12.5
+  }
+}

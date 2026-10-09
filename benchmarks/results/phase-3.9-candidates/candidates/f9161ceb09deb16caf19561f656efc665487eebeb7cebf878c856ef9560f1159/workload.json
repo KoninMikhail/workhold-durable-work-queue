@@ -1,0 +1,24 @@
+{
+  "baseline_1kib_payload_bytes": 1024,
+  "candidate_id": "f9161ceb09deb16caf19561f656efc665487eebeb7cebf878c856ef9560f1159",
+  "candidate_spec": {
+    "added_index": null,
+    "hash_count": 4,
+    "indexes": null,
+    "kind": "hash",
+    "omitted_index": null,
+    "payload_ceiling_bytes": null,
+    "registry": "complete_replay",
+    "variant": null,
+    "whole_request_limit_bytes": 1048576
+  },
+  "evidence_mode": "synthetic",
+  "evidence_note": "Synthetic candidate measurement for CI selection; not a live reference-host capture.",
+  "latency_sample_count": 260,
+  "measured_seconds": 120.0,
+  "name": "kernel-capacity-candidate",
+  "payload_ceiling_bytes": null,
+  "successful_claims": 60000,
+  "whole_request_limit_bytes": 1048576,
+  "workload_hash": "wl-hash-candidates"
+}

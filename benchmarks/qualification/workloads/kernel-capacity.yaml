@@ -1,0 +1,48 @@
+# Kernel capacity workload matrix (QUAL-03 / ADR 019 / storage-topology).
+# Normative axes: queue cardinality, claimers, payloads, named scenarios.
+# Smoke is a raw measurement subset; full is the one-million terminal envelope.
+
+name: kernel-capacity
+version: 1
+seed: 3908
+
+queue_counts: [1, 10, 100]
+claimer_counts: [1, 8, 32]
+payload_bytes: [1024, 262144, 1048576]
+
+scenarios:
+  - ready
+  - empty
+  - reclaim-heavy
+  - heartbeat-heavy
+  - duplicate-enqueue-storm
+  - complete-replay-storm
+
+hot_operations:
+  - enqueue
+  - claim
+  - heartbeat
+  - complete
+
+modes:
+  smoke:
+    warmup_seconds: 30
+    sample_seconds: 60
+    preseed_tasks: 10000
+  full:
+    warmup_seconds: 120
+    target_claims_per_second: 500
+    terminal_lifecycles: 1000000
+    min_measured_seconds: 300
+    max_claimers: 32
+
+scenario_parameters:
+  reclaim-heavy:
+    expire_once_ratio: 0.20
+  heartbeat-heavy:
+    interval_source: server_recommended_min_safe
+  duplicate-enqueue-storm:
+    duplicate_ratio: 0.90
+    request_count: 100000
+  complete-replay-storm:
+    replay_times: 10

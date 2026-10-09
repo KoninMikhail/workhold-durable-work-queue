@@ -1,0 +1,27 @@
+{
+  "claimers": 32,
+  "evidence_mode": "synthetic",
+  "evidence_note": "Synthetic/compressed Phase 3.9 reference raw evidence for CI: declares the normative 1_000_000 terminal / >=300s envelope and dual-client conformance bindings without a multi-hour live 1M host run. latency_sample_count=344 is the compressed sample size, not a measured 1M-row capture. Re-measure on the reference host before treating as production qualification input.",
+  "fanout_64_sample": {
+    "completes": 10000,
+    "fan_out": 64
+  },
+  "latency_sample_count": 344,
+  "measured_seconds": 320.0,
+  "named_queues": 100,
+  "operation_mix": {
+    "claim": 0.35,
+    "complete_fanout_0": 0.1,
+    "complete_fanout_8": 0.1,
+    "enqueue": 0.2,
+    "fail_cancel_inspect": 0.05,
+    "heartbeat": 0.2
+  },
+  "payload_bytes_baseline": 1024,
+  "profile": "phase-3.9-linux-x86_64-v1",
+  "successful_claims": 160000,
+  "target_claims_per_second": 500,
+  "terminal_lifecycles": 1000000,
+  "warmup_seconds": 120,
+  "workload_hash": "772d19e930ec621bc4a17463cd635f4465119cd8fd2ae25e42f9d8b4ce3095d3"
+}

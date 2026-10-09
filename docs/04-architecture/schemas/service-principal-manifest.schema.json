@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workhold.local/schemas/queue/service-principal-manifest.schema.json",
+  "title": "ServicePrincipalManifest",
+  "description": "Deployment-issued HTTP bearer principals for one queue-service instance. The whole document is secret.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "principals"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "principals": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "principal_id",
+          "role",
+          "queue_scopes",
+          "credentials"
+        ],
+        "properties": {
+          "principal_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "PRODUCER",
+              "WORKER",
+              "OBSERVER",
+              "ADMIN"
+            ]
+          },
+          "queue_scopes": {
+            "type": "array",
+            "maxItems": 256,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z0-9][a-z0-9._-]*$"
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "generation_id",
+                "secret"
+              ],
+              "properties": {
+                "generation_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                },
+                "secret": {
+                  "description": "Opaque bearer secret. Use a deployment-generated value; examples are placeholders only.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "pattern": "^[A-Za-z0-9\\-._~+/]+=*$"
+                }
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "role": {
+                  "const": "ADMIN"
+                }
+              },
+              "required": [
+                "role"
+              ]
+            },
+            "then": {
+              "properties": {
+                "queue_scopes": {
+                  "maxItems": 0
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "queue_scopes": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

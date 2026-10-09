@@ -1,0 +1,122 @@
+{
+  "max_fanout_complete_p99_ns": 409000000,
+  "operations": [
+    {
+      "count": 100,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "claim",
+      "p50_ns": 5900000,
+      "p99_ns": 10800000,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 100,
+      "valid_attempts": 100
+    },
+    {
+      "count": 1,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "claim",
+      "p50_ns": null,
+      "p99_ns": null,
+      "planned_drain": 0,
+      "planned_pause": 1,
+      "scenario": "pause",
+      "success_ratio": null,
+      "successes": 0,
+      "valid_attempts": 0
+    },
+    {
+      "count": 50,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "complete",
+      "p50_ns": 7400000,
+      "p99_ns": 9900000,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 50,
+      "valid_attempts": 50
+    },
+    {
+      "count": 10,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "complete",
+      "p50_ns": 404000000,
+      "p99_ns": 409000000,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "max_fanout",
+      "success_ratio": 1.0,
+      "successes": 10,
+      "valid_attempts": 10
+    },
+    {
+      "count": 50,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "enqueue",
+      "p50_ns": 3200000,
+      "p99_ns": 4450000,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 50,
+      "valid_attempts": 50
+    },
+    {
+      "count": 1,
+      "errors": 0,
+      "invalid_requests": 1,
+      "operation": "enqueue",
+      "p50_ns": null,
+      "p99_ns": null,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "invalid",
+      "success_ratio": null,
+      "successes": 0,
+      "valid_attempts": 0
+    },
+    {
+      "count": 50,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "heartbeat",
+      "p50_ns": 4200000,
+      "p99_ns": 5450000,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 50,
+      "valid_attempts": 50
+    }
+  ],
+  "overall_valid_success_ratio": 1.0,
+  "postgres": {
+    "autovacuum_lag_seconds": 1,
+    "buffer_hits": 900,
+    "dead_tuples": 12,
+    "execution_time_ms": 40,
+    "planning_time_ms": 2,
+    "touched_partitions": [
+      "history_2026_09_19"
+    ],
+    "wal_bytes": 4000
+  },
+  "run_id": "run-fixture-001",
+  "throughput": {
+    "claims_per_second": 500.0,
+    "measured_seconds": 300.0,
+    "successful_claims": 150000
+  },
+  "validated_raw_set_digest": "55949cef6ffdf19c9b31cc58519dbe1f948ea20cbb7455706f5ca19889ee75a3"
+}

@@ -1,0 +1,70 @@
+# Phase 3 qualification reference environment profile (QUAL-03 / QUAL-05).
+# Normative: ADR 019, docs/05-operations/03-observability.md, Plan 03.9-06 artifact contract.
+#
+# Lifecycle (exact):
+#   docker compose -f benchmarks/qualification/docker-compose.qualification.yml pull
+#   docker compose -f benchmarks/qualification/docker-compose.qualification.yml up -d --wait postgres queue-api-1 queue-api-2
+#   uv run python -m benchmarks.qualification.preflight --profile benchmarks/qualification/reference-environment.yaml --compose benchmarks/qualification/docker-compose.qualification.yml --output benchmarks/results/phase-7-postgresql-18.6/environment.json
+#   docker compose -f benchmarks/qualification/docker-compose.qualification.yml down -v
+#
+# Image digests: PostgreSQL resolved from postgres:18.6-alpine (OCI index);
+# Queue digest MUST be replaced with the release-candidate image digest before
+# a binding qualification run (sentinel all-f fails closed against a real RC).
+# Compose has no local `build:` — digests are observed from image: pins (T-039-20 / T-07-01).
+
+profile_id: phase-3.9-linux-x86_64-v1
+schema_version: 1
+
+host:
+  os: linux
+  architecture: x86_64
+  min_logical_cpus: 16
+  min_memory_gib: 32
+  storage_locality: local_ssd
+  co_resident_workload_allowed: false
+
+images:
+  postgres:
+    reference: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+    digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+  queue:
+    reference: queue@sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    digest: sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+
+services:
+  postgres:
+    cpus: 6.0
+    memory_gib: 12
+  queue-api-1:
+    cpus: 3.0
+    memory_gib: 4
+  queue-api-2:
+    cpus: 3.0
+    memory_gib: 4
+  load-generator:
+    cpus: 4.0
+    memory_gib: 4
+
+# Phase 3.2 reviewed connection budget with two API replicas for qualification.
+# committed = 2*4 + 1*2 + 1*2 + 1*2 + 1*2 = 16; usable = 100-10 = 90.
+connection_budget:
+  postgres_max_connections: 100
+  postgres_reserved_connections: 10
+  api_replica_ceiling: 2
+  api_pool_ceiling: 4
+  admin_replica_ceiling: 1
+  admin_pool_ceiling: 2
+  migrate_replica_ceiling: 1
+  migrate_pool_ceiling: 2
+  maintain_replica_ceiling: 1
+  maintain_pool_ceiling: 2
+  relay_replica_ceiling: 1
+  relay_pool_ceiling: 2
+
+schema:
+  expected_head: 039_apply_qualified_storage_layout
+  premake_days: 30
+
+database:
+  must_be_empty: true
+  dedicated: true

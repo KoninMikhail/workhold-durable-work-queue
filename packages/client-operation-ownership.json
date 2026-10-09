@@ -1,0 +1,652 @@
+{
+  "schema_version": 1,
+  "description": "Checked-in mapping from every authenticated OpenAPI operationId to role client surfaces and credential roles. OpenAPI and black-box conformance remain authoritative; this file is not normative over OpenAPI (see docs/04-architecture/09-client-protocol.md).",
+  "approved_multi_client_operations": [
+    "getCapabilities",
+    "getTask",
+    "getQueue",
+    "getStats",
+    "getMaintenanceStatus",
+    "listInspectionTasks",
+    "listInspectionAttempts",
+    "listDeadLetters"
+  ],
+  "operations": [
+    {
+      "operationId": "acknowledgeClaimCancellation",
+      "clients": [
+        "ConsumerClient"
+      ],
+      "credential_roles": [
+        "WORKER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ConsumerClient.claim -> Claim.ack_cancel",
+          "async": "AsyncConsumerClient.claim -> AsyncClaim.ack_cancel"
+        }
+      ],
+      "retry_class": "same-terminal-body"
+    },
+    {
+      "operationId": "activateQueuePolicy",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.activate_queue_policy",
+          "async": "AsyncAdminClient.activate_queue_policy"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "cancelTask",
+      "clients": [
+        "ProducerClient"
+      ],
+      "credential_roles": [
+        "PRODUCER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ProducerClient.cancel_task",
+          "async": "AsyncProducerClient.cancel_task"
+        }
+      ],
+      "retry_class": "same-resource-identity"
+    },
+    {
+      "operationId": "claimTasks",
+      "clients": [
+        "ConsumerClient"
+      ],
+      "credential_roles": [
+        "WORKER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ConsumerClient.claim",
+          "async": "AsyncConsumerClient.claim"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "completeClaim",
+      "clients": [
+        "ConsumerClient"
+      ],
+      "credential_roles": [
+        "WORKER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ConsumerClient.claim -> Claim.complete",
+          "async": "AsyncConsumerClient.claim -> AsyncClaim.complete"
+        }
+      ],
+      "retry_class": "same-terminal-body"
+    },
+    {
+      "operationId": "createQueue",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.create_queue",
+          "async": "AsyncAdminClient.create_queue"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "createQueuePolicy",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.create_queue_policy",
+          "async": "AsyncAdminClient.create_queue_policy"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "dropExpiredPartition",
+      "clients": [
+        "BreakGlassClient"
+      ],
+      "credential_roles": [
+        "BREAK_GLASS"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "BreakGlassClient.drop_expired_partition",
+          "async": "AsyncBreakGlassClient.drop_expired_partition"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "enqueueTask",
+      "clients": [
+        "ProducerClient"
+      ],
+      "credential_roles": [
+        "PRODUCER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ProducerClient.enqueue",
+          "async": "AsyncProducerClient.enqueue"
+        }
+      ],
+      "retry_class": "same-idempotency-key"
+    },
+    {
+      "operationId": "executeBulkCancel",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.execute_bulk_cancel",
+          "async": "AsyncAdminClient.execute_bulk_cancel"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "executeBulkReplay",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.execute_bulk_replay",
+          "async": "AsyncAdminClient.execute_bulk_replay"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "failClaim",
+      "clients": [
+        "ConsumerClient"
+      ],
+      "credential_roles": [
+        "WORKER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ConsumerClient.claim -> Claim.fail",
+          "async": "AsyncConsumerClient.claim -> AsyncClaim.fail"
+        }
+      ],
+      "retry_class": "same-terminal-body"
+    },
+    {
+      "operationId": "forceDeliveryDeadLetter",
+      "clients": [
+        "BreakGlassClient"
+      ],
+      "credential_roles": [
+        "BREAK_GLASS"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "BreakGlassClient.force_delivery_dead_letter",
+          "async": "AsyncBreakGlassClient.force_delivery_dead_letter"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "forceDeliveryReclaim",
+      "clients": [
+        "BreakGlassClient"
+      ],
+      "credential_roles": [
+        "BREAK_GLASS"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "BreakGlassClient.force_delivery_reclaim",
+          "async": "AsyncBreakGlassClient.force_delivery_reclaim"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "forceLeaseExpiry",
+      "clients": [
+        "BreakGlassClient"
+      ],
+      "credential_roles": [
+        "BREAK_GLASS"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "BreakGlassClient.force_lease_expiry",
+          "async": "AsyncBreakGlassClient.force_lease_expiry"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "getCapabilities",
+      "clients": [
+        "ProducerClient",
+        "ConsumerClient",
+        "ObserverClient",
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "PRODUCER",
+        "WORKER",
+        "OBSERVER",
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ProducerClient.get_capabilities",
+          "async": "AsyncProducerClient.get_capabilities"
+        },
+        {
+          "sync": "ConsumerClient.get_capabilities",
+          "async": "AsyncConsumerClient.get_capabilities"
+        },
+        {
+          "sync": "ObserverClient.get_capabilities",
+          "async": "AsyncObserverClient.get_capabilities"
+        },
+        {
+          "sync": "AdminClient.get_capabilities",
+          "async": "AsyncAdminClient.get_capabilities"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "getMaintenanceStatus",
+      "clients": [
+        "ObserverClient",
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "OBSERVER",
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ObserverClient.get_maintenance_status",
+          "async": "AsyncObserverClient.get_maintenance_status"
+        },
+        {
+          "sync": "AdminClient.get_maintenance_status",
+          "async": "AsyncAdminClient.get_maintenance_status"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "getQueue",
+      "clients": [
+        "ObserverClient",
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "OBSERVER",
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ObserverClient.get_queue",
+          "async": "AsyncObserverClient.get_queue"
+        },
+        {
+          "sync": "AdminClient.get_queue",
+          "async": "AsyncAdminClient.get_queue"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "getStats",
+      "clients": [
+        "ObserverClient",
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "OBSERVER",
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ObserverClient.get_stats",
+          "async": "AsyncObserverClient.get_stats"
+        },
+        {
+          "sync": "AdminClient.get_stats",
+          "async": "AsyncAdminClient.get_stats"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "getTask",
+      "clients": [
+        "ProducerClient",
+        "ObserverClient"
+      ],
+      "credential_roles": [
+        "PRODUCER",
+        "OBSERVER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ProducerClient.inspect_task",
+          "async": "AsyncProducerClient.inspect_task"
+        },
+        {
+          "sync": "ObserverClient.get_task",
+          "async": "AsyncObserverClient.get_task"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "heartbeatClaim",
+      "clients": [
+        "ConsumerClient"
+      ],
+      "credential_roles": [
+        "WORKER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ConsumerClient.claim -> Claim.heartbeat",
+          "async": "AsyncConsumerClient.claim -> AsyncClaim.heartbeat"
+        }
+      ],
+      "retry_class": "same-idempotency-key"
+    },
+    {
+      "operationId": "listAdminAudit",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.list_admin_audit",
+          "async": "AsyncAdminClient.list_admin_audit"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "listDeadLetters",
+      "clients": [
+        "ObserverClient",
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "OBSERVER",
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ObserverClient.list_dead_letters",
+          "async": "AsyncObserverClient.list_dead_letters"
+        },
+        {
+          "sync": "AdminClient.list_dead_letters",
+          "async": "AsyncAdminClient.list_dead_letters"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "listInspectionAttempts",
+      "clients": [
+        "ObserverClient",
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "OBSERVER",
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ObserverClient.list_inspection_attempts",
+          "async": "AsyncObserverClient.list_inspection_attempts"
+        },
+        {
+          "sync": "AdminClient.list_inspection_attempts",
+          "async": "AsyncAdminClient.list_inspection_attempts"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "listInspectionTasks",
+      "clients": [
+        "ObserverClient",
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "OBSERVER",
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ObserverClient.list_inspection_tasks",
+          "async": "AsyncObserverClient.list_inspection_tasks"
+        },
+        {
+          "sync": "AdminClient.list_inspection_tasks",
+          "async": "AsyncAdminClient.list_inspection_tasks"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "listQueues",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.list_queues",
+          "async": "AsyncAdminClient.list_queues"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "listTaskAttempts",
+      "clients": [
+        "ObserverClient"
+      ],
+      "credential_roles": [
+        "OBSERVER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ObserverClient.list_task_attempts",
+          "async": "AsyncObserverClient.list_task_attempts"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "previewBulkCancel",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.preview_bulk_cancel",
+          "async": "AsyncAdminClient.preview_bulk_cancel"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "previewBulkReplay",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.preview_bulk_replay",
+          "async": "AsyncAdminClient.preview_bulk_replay"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "raiseReplayLimit",
+      "clients": [
+        "BreakGlassClient"
+      ],
+      "credential_roles": [
+        "BREAK_GLASS"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "BreakGlassClient.raise_replay_limit",
+          "async": "AsyncBreakGlassClient.raise_replay_limit"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "reconcileCounters",
+      "clients": [
+        "BreakGlassClient"
+      ],
+      "credential_roles": [
+        "BREAK_GLASS"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "BreakGlassClient.reconcile_counters",
+          "async": "AsyncBreakGlassClient.reconcile_counters"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "repairRegistryEntry",
+      "clients": [
+        "BreakGlassClient"
+      ],
+      "credential_roles": [
+        "BREAK_GLASS"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "BreakGlassClient.repair_registry_entry",
+          "async": "AsyncBreakGlassClient.repair_registry_entry"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "replayDeadLetter",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.replay_dead_letter",
+          "async": "AsyncAdminClient.replay_dead_letter"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "resolveSubmission",
+      "clients": [
+        "ProducerClient"
+      ],
+      "credential_roles": [
+        "PRODUCER"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "ProducerClient.resolve_submission",
+          "async": "AsyncProducerClient.resolve_submission"
+        }
+      ],
+      "retry_class": "safe-read"
+    },
+    {
+      "operationId": "runMaintenance",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.run_maintenance",
+          "async": "AsyncAdminClient.run_maintenance"
+        }
+      ],
+      "retry_class": "never"
+    },
+    {
+      "operationId": "setQueueState",
+      "clients": [
+        "AdminClient"
+      ],
+      "credential_roles": [
+        "ADMIN"
+      ],
+      "sync_async_surfaces": [
+        {
+          "sync": "AdminClient.set_queue_state",
+          "async": "AsyncAdminClient.set_queue_state"
+        }
+      ],
+      "retry_class": "never"
+    }
+  ]
+}

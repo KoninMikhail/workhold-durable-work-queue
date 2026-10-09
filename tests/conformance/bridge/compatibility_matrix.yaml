@@ -1,0 +1,121 @@
+# Bridge / Queue / intent compatibility matrix (BRDG-02 / Plan 06-07).
+# Derived from Phase 3.1 OpenAPI Capabilities consts and Phase 6 intent schema major 1.
+# Version axes are distinct: queue_protocol_major, queue_schema_revision,
+# bridge_package_version, intent_schema_{major,minor}.
+#
+# durable_idempotent_enqueue is satisfied when enqueue_dedup_ttl_seconds > 0
+# (authoritative Phase 3.1 durable enqueue dedup advertisement) or when an
+# explicit durable_idempotent_enqueue=true additional property is present.
+
+meta:
+  supported_queue_protocol_major: 1
+  supported_intent_schema_major: 1
+  supported_queue_schema_revision: "0001"
+  required_capability: durable_idempotent_enqueue
+
+cases:
+  - id: intent-1.0_queue-1_cap-present_supported
+    bridge_policy: current
+    intent_schema_major: 1
+    intent_schema_minor: 0
+    intent_extensions: {}
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: null
+    expected: supported
+
+  - id: intent-1.1-additive_queue-1_cap-present_supported
+    bridge_policy: current
+    intent_schema_major: 1
+    intent_schema_minor: 1
+    intent_extensions:
+      correlation_hint: ops-trace
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: null
+    expected: supported
+
+  - id: intent-1.1-additive_old-bridge_tolerates_extensions
+    bridge_policy: older_tolerant
+    intent_schema_major: 1
+    intent_schema_minor: 1
+    intent_extensions:
+      future_field: 42
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: null
+    expected: supported
+
+  - id: intent-1.0_queue-1_unknown-error_explicit-unknown
+    bridge_policy: current
+    intent_schema_major: 1
+    intent_schema_minor: 0
+    intent_extensions: {}
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: future_error_code_xyz
+    expected: unknown_extensible
+
+  - id: intent-2.0_queue-1_cap-present_rejected
+    bridge_policy: current
+    intent_schema_major: 2
+    intent_schema_minor: 0
+    intent_extensions: {}
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: null
+    expected: rejected
+
+  - id: intent-1.0_queue-2_cap-present_rejected
+    bridge_policy: current
+    intent_schema_major: 1
+    intent_schema_minor: 0
+    intent_extensions: {}
+    queue_protocol_major: 2
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: null
+    expected: rejected
+
+  - id: intent-1.0_queue-1_cap-missing_rejected
+    bridge_policy: current
+    intent_schema_major: 1
+    intent_schema_minor: 0
+    intent_extensions: {}
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: false
+    unknown_extensible_error: null
+    expected: rejected
+
+  - id: intent-1.0_queue-1_cap-unknown_rejected
+    bridge_policy: current
+    intent_schema_major: 1
+    intent_schema_minor: 0
+    intent_extensions: {}
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: null
+    discovery: unknown
+    unknown_extensible_error: null
+    expected: rejected
+
+  - id: downgrade_intent-2-persisted_rejected
+    bridge_policy: current
+    intent_schema_major: 2
+    intent_schema_minor: 0
+    intent_extensions: {}
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: null
+    expected: rejected
+    preserve_pending: true
+
+  - id: mixed-replica_intent-1.0_and_1.1_supported
+    bridge_policy: mixed_current_and_older
+    intent_schema_major: 1
+    intent_schema_minor: 1
+    intent_extensions:
+      additive: true
+    queue_protocol_major: 1
+    durable_idempotent_enqueue: true
+    unknown_extensible_error: null
+    expected: supported
+    mixed_replica_replays: 50

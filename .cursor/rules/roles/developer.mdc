@@ -1,0 +1,43 @@
+---
+description: Developer rules
+globs: src/**/*
+alwaysApply: false
+---
+
+# Developer role
+
+## Coding standard and code quality
+
+* All code you generate or modify always strictly matches the standards adopted in the project. That includes formatting, naming, file structure, and the rest.
+* Code must always be absolutely simple, clean, and easy for other developers to understand. Avoid excess complexity.
+* Use meaningful names for variables, methods, and classes. Prioritize readability.
+* Add comments only where they are truly needed to explain complex logic or non-obvious decisions. Do not comment the obvious.
+* Public API and module documentation follows **project** standards (`AGENTS.md`, `.cursor/rules/`, `docs/`).
+* Always follow best practices and conventions when they do not reduce simplicity and readability.
+
+## Workflow and review
+
+You always follow this step-by-step process strictly. Before each step and after it, you always "think out loud", describing your reasoning, plan, and results.
+
+1. **Analysis and clarification:**
+  * Carefully analyze the incoming requests.
+  * If the requirements are unclear, incomplete, or ambiguous, ask clarifying questions.
+  * State and write down your understanding of the task and every assumption you made.
+2. **Code research:**
+  * Compile and write down the full list of files mentioned in the task or relevant to completing it.
+  * Use tools to study the current codebase. Read (read_file) each file from that list in full, so you have the full context. Always read files only in full.
+  * When new context arrives, update the list of relevant files. If the list should be extended, return to the first step and compile a new file list.
+3. **Planning:**
+  * Develop a detailed, step-by-step plan for the task. Break the problem into small, independent, verifiable subtasks.
+  * Write the plan down before you start executing it. The plan must be as detailed as possible.
+4. **Incremental implementation:**
+  * Make changes in small, logical parts (increments) according to the plan. Do not try to implement everything at once.
+5. **Analysis after each change:**
+  * After each incremental change, run the corresponding analyses and a code review to check correctness.
+  * If analyses or code review fail, return to the previous step, fix the error, and repeat the analysis.
+6. **Iteration:**
+  * Repeat the "Research -> Implementation -> Analysis" cycles until the root cause is eliminated and all tests pass.
+7. **Final verification:**
+  * After all tests pass, do a final analysis of the whole solution. Confirm that it fully matches the original request, is reliable, follows best practice, and accounts for every edge case.
+
+Always remember that your code and proposals will be reviewed by other TechLead developers after final verification.

@@ -1,0 +1,87 @@
+---
+description: Memory Bank — compressed project context for the agent between sessions
+alwaysApply: true
+---
+
+# Memory Bank
+
+Agent memory resets between sessions. **Memory Bank** is a compressed snapshot of the project; read it **before every task**.
+
+Detailed code documentation lives in the repository **`docs/`** (numbered sections `00-*` … — rule **`docs-structure.mdc`**). Memory Bank **links** to long guides; it does not duplicate them.
+
+## Location
+
+**`docs/_ai/`** is the Memory Bank root. Entry point: `docs/_ai/README.md` (file map and links to `docs/`).
+
+When bootstrapping a project, also add **`AGENTS.md`** at the root (a short link to `docs/_ai/`).
+
+## Initialization (once per project)
+
+On the first use of this rule, create `docs/_ai/` and fill at least the files in the table below.
+If something is missing from the repo — **ask the team**; do not invent it.
+
+| File | What to record at initialization |
+| --- | --- |
+| `README.md` | Memory-bank file list, reading order, links to `docs/00-*` … (see `docs-structure.mdc`) |
+| `project-brief.md` | What the repository is, boundaries, key top-level architectural decisions |
+| `tech-stack.md` | Languages, frameworks, package manager, **check commands** (lint/test/build), env, external services |
+| `architecture.md` | Layers/modules, main patterns, where to put new code |
+| `codebase-map.md` | **Repository directory structure** (`src/`, `test/`, packages… tree), naming, how to find a typical module |
+
+### Optional (by project type)
+
+| File | When it is needed |
+| --- | --- |
+| `product-context.md` | A product with users and roles (not a library / infra-only) |
+| `data-flow.md` | A non-trivial end-to-end flow (report, pipeline, queue) |
+| `workflow.md` | Branches, MR, releases — if not covered by other rules |
+| `testing.md` | How and what to test in this repo |
+| `module-documentation.md` | Local standard for module docs/JSDoc (if the project has one) |
+
+### Extra files when needed
+
+The minimum above is not an exhaustive list. You may add files under `docs/_ai/` when the topic is **stable** and **often needed by the agent**, but does not warrant a full guide in `docs/`:
+
+- examples: `integrations.md`, `auth.md`, `deployment.md`, `monorepo-layout.md`, `glossary.md`;
+- name — kebab-case, one topic per file;
+- **must** add the file to `docs/_ai/README.md` (map + when to read);
+- do not duplicate long reference from `docs/` — a link plus a short extract;
+- do not spawn files "for one task" — ephemeral context stays in chat / MR.
+
+**Do not create:** `active-context.md`, `progress.md` — current focus and task status live in chat / MR; the memory bank is only stable project context.
+
+## Required reading (order)
+
+| # | File | Purpose |
+| --- | --- | --- |
+| 1 | `docs/_ai/README.md` | Memory-bank map |
+| 2 | `docs/_ai/project-brief.md` | What the project is |
+| 3 | `docs/_ai/tech-stack.md` | Stack and commands |
+| 4 | `docs/_ai/architecture.md` | How the code is structured |
+| 5 | `docs/_ai/codebase-map.md` | Where things live |
+
+Then — optional and **extra** files from `docs/_ai/`, if they are listed in the README and relevant to the task.
+
+## Where to look (pattern)
+
+Look in **codebase-map.md** and in the project **`docs/`**, not in the memory bank:
+
+| Looking for… | Usually |
+| --- | --- |
+| Env / config | `codebase-map.md` → config; `docs/` reference |
+| DB schema / domain | `architecture.md` + reference docs |
+| HTTP / API | `architecture.md` + api docs |
+| Tests | `tech-stack.md` (commands) + `testing.md` |
+| Module standard | `module-documentation.md` or project rules/skills |
+
+## Updating the Memory Bank
+
+Update `docs/_ai/` when:
+
+- repository structure or stack changed;
+- a stable pattern appeared that is not in `architecture.md`;
+- a new extra file was added — update `docs/_ai/README.md`.
+
+On the request **«update memory bank»** — review **all** memory-bank files and sync them with the code.
+
+Edit priority: `codebase-map.md` / `architecture.md` → `tech-stack.md` → the rest.

@@ -1,0 +1,28 @@
+# Phase 3.9 release-gate workload (QUAL-03 / SDK-02 / Plan 03.9-11).
+# Profile binds to reference-environment phase-3.9-linux-x86_64-v1.
+# Full mode: exactly 1_000_000 terminal lifecycles and >= 300 measured seconds.
+# Fan-out-64 completes are a separate sample and are not merged into baseline mix.
+
+name: release-gate
+version: 1
+profile: phase-3.9-linux-x86_64-v1
+
+named_queues: 100
+claimers: 32
+payload_bytes_baseline: 1024
+warmup_seconds: 120
+target_claims_per_second: 500
+terminal_lifecycles: 1000000
+min_measured_seconds: 300
+
+operation_mix:
+  claim: 0.35
+  enqueue: 0.20
+  heartbeat: 0.20
+  complete_fanout_0: 0.10
+  complete_fanout_8: 0.10
+  fail_cancel_inspect: 0.05
+
+fanout_64_sample:
+  completes: 10000
+  fan_out: 64

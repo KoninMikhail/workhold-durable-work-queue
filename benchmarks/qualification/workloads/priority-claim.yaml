@@ -1,0 +1,21 @@
+# Phase 12 bounded priority claim qualification (WORK-16 / Plan 12-10).
+# Live PostgreSQL 18.6 evidence against the priority-first claim index.
+
+name: priority-claim
+version: 1
+qualification_profile: priority-claim
+profile: phase-3.9-linux-x86_64-v1
+
+claimers: 32
+target_claims_per_second: 500
+warmup_seconds: 5
+sample_seconds: 30
+preseed_tasks: 90000
+payload_bytes_baseline: 1024
+
+hot_path_scope: claim-only
+
+priority_workloads:
+  - due-heavy
+  - future-high-heavy
+  - reclaim-heavy

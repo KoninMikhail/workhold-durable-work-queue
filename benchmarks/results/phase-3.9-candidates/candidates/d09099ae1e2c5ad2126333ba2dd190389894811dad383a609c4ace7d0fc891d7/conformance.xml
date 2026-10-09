@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="queue-qualification" tests="4" failures="0" errors="0" skipped="0">
+  <testsuite name="raw_http" tests="2" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="client_variant" value="raw_http"/>
+      <property name="run_id" value="cand-d09099ae1e2c5ad2"/>
+      <property name="environment_hash" value="env-hash-candidates"/>
+      <property name="workload_hash" value="wl-hash-candidates"/>
+      <property name="candidate_id" value="d09099ae1e2c5ad2126333ba2dd190389894811dad383a609c4ace7d0fc891d7"/>
+      <property name="schema_revision" value="0001_physical_contract_foundations"/>
+      <property name="catalog_signature" value="catalog-7d262706eaa1004d82f0767327c07964"/>
+    </properties>
+    <testcase classname="kernel" name="enqueue_claim_complete" time="0.01"/>
+    <testcase classname="kernel" name="heartbeat" time="0.01"/>
+  </testsuite>
+  <testsuite name="sdk" tests="2" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="client_variant" value="sdk"/>
+      <property name="run_id" value="cand-d09099ae1e2c5ad2"/>
+      <property name="environment_hash" value="env-hash-candidates"/>
+      <property name="workload_hash" value="wl-hash-candidates"/>
+      <property name="candidate_id" value="d09099ae1e2c5ad2126333ba2dd190389894811dad383a609c4ace7d0fc891d7"/>
+      <property name="schema_revision" value="0001_physical_contract_foundations"/>
+      <property name="catalog_signature" value="catalog-7d262706eaa1004d82f0767327c07964"/>
+    </properties>
+    <testcase classname="kernel" name="enqueue_claim_complete" time="0.01"/>
+    <testcase classname="kernel" name="heartbeat" time="0.01"/>
+  </testsuite>
+</testsuites>

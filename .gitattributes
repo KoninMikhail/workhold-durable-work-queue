@@ -1,0 +1,2 @@
+# Force LF for container entrypoint (CRLF breaks shebang under Linux).
+docker/entrypoint.sh text eol=lf

@@ -1,0 +1,46 @@
+{
+  "artifact_classes": {
+    "checksums": [
+      "SHA256SUMS"
+    ],
+    "derived": [
+      "summary.json",
+      "qualification.json",
+      "report.md"
+    ],
+    "raw": [
+      "manifest.json",
+      "environment.json",
+      "workload.json",
+      "conformance.xml",
+      "latencies.jsonl.gz",
+      "postgres-before.json",
+      "postgres-after.json",
+      "plans/index.json"
+    ]
+  },
+  "bundle_stage": "final",
+  "catalog_signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+  "conformance": {
+    "path": "conformance.xml",
+    "variants": [
+      "raw_http",
+      "sdk"
+    ]
+  },
+  "ended_at_utc": "2026-09-19T06:05:20Z",
+  "environment_hash": "da3e34dc7051decb8374f34d69e876c881ab93ed933b7ed1da3ab08cfcaa5e97",
+  "evidence_mode": "synthetic",
+  "git_sha": "1612ebf590c9379ad4cb1159f53e7a9687081041",
+  "image_digests": {
+    "postgres": "sha256:3c5c8892d184f738f4fe282d14ddaa613a38f00f4189d2d94725ebe6f2909ddb",
+    "queue": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "latency_sample_count": 344,
+  "run_id": "run-phase39-reference-001",
+  "schema_revision": "039_apply_qualified_storage_layout",
+  "schema_version": 1,
+  "started_at_utc": "2026-09-19T06:00:00Z",
+  "validated_raw_set_digest": "f9173e888dc6c98d096ef25406ca1d60163bf7a02e8883fbb297a4476fdf75d1",
+  "workload_hash": "772d19e930ec621bc4a17463cd635f4465119cd8fd2ae25e42f9d8b4ce3095d3"
+}

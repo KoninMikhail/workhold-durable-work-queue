@@ -1,0 +1,21 @@
+{
+  "pypi_packages": [
+    "queue-service-client-core",
+    "queue-service-producer",
+    "queue-service-consumer",
+    "queue-service-admin"
+  ],
+  "extra_version_files": [
+    "packages/queue-service-client-core/pyproject.toml",
+    "packages/queue-service-producer/pyproject.toml",
+    "packages/queue-service-consumer/pyproject.toml",
+    "packages/queue-service-admin/pyproject.toml"
+  ],
+  "version_py_files": [
+    "src/queue_service/__init__.py",
+    "packages/queue-service-client-core/src/_queue_service_client_core/__init__.py",
+    "packages/queue-service-producer/src/queue_service_producer/__init__.py",
+    "packages/queue-service-consumer/src/queue_service_consumer/__init__.py",
+    "packages/queue-service-admin/src/queue_service_admin/__init__.py"
+  ]
+}

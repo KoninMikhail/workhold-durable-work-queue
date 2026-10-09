@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workhold.local/schemas/queue/application-outbox-intent.schema.json",
+  "title": "ApplicationOutboxIntent",
+  "description": "Versioned immutable enqueue-intent envelope written to an application-owned outbox. Machine-readable companion to docs/04-architecture/10-application-outbox-bridge.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_namespace",
+    "source_row_id",
+    "target_queue",
+    "enqueue_request",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Intent envelope major version. Unsupported majors MUST be rejected by bridges; additive fields use extensions or later minor documentation under the same major.",
+      "type": "integer",
+      "const": 1
+    },
+    "source_namespace": {
+      "description": "Application-selected opaque namespace that scopes source_row_id uniqueness within the application trust boundary. Not trimmed; whitespace is significant.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "source_row_id": {
+      "description": "Opaque application-owned outbox row identity within source_namespace. Not trimmed; whitespace is significant. MUST NOT contain control characters.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "target_queue": {
+      "description": "Named Work Queue that the bridge will enqueue into after the application transaction commits.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9._-]{0,126}[a-zA-Z0-9])?$"
+    },
+    "enqueue_request": {
+      "description": "Immutable Queue enqueue body (OpenAPI EnqueueTaskRequest shape). MUST NOT change after first successful publication attempt that Queue accepted or conflicted on fingerprint.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["payload", "priority"],
+      "properties": {
+        "payload": {
+          "description": "Application-owned opaque JSON payload for the Queue task."
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": -32768,
+          "maximum": 32767
+        },
+        "available_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "created_at": {
+      "description": "Intent creation time in UTC (RFC 3339 / ISO-8601). Used for lag = now - oldest pending created_at.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "traceparent": {
+      "description": "Optional W3C traceparent header value propagated into Queue enqueue when present.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "tracestate": {
+      "description": "Optional W3C tracestate header value propagated into Queue enqueue when present.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "extensions": {
+      "description": "Additive application/bridge extension area. Unknown keys MUST be ignored by older bridges under the same schema_version major. MUST NOT alter identity, target_queue, or enqueue_request semantics.",
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "ended_at_utc": "2026-09-19T00:10:00Z",
+  "environment_hash": "env-hash-aaa",
+  "git_sha": "abc123def456",
+  "image_digests": {
+    "postgres": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "queue": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "postgres_version": "16.6",
+  "started_at_utc": "2026-09-19T00:00:00Z"
+}

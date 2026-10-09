@@ -1,0 +1,62 @@
+{
+  "artifact_classes": {
+    "checksums": [
+      "SHA256SUMS"
+    ],
+    "derived": [
+      "summary.json",
+      "qualification.json",
+      "report.md"
+    ],
+    "raw": [
+      "manifest.json",
+      "environment.json",
+      "workload.json",
+      "conformance.xml",
+      "latencies.jsonl.gz",
+      "postgres-before.json",
+      "postgres-after.json",
+      "plans/index.json"
+    ]
+  },
+  "bundle_stage": "final",
+  "catalog_signature": "admin_audit_log_queue_audit_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+  "conformance": {
+    "path": "conformance.xml",
+    "variants": [
+      "raw_http",
+      "sdk"
+    ]
+  },
+  "ended_at_utc": "2026-09-19T16:26:56Z",
+  "environment_hash": "e8abc071061e5b637d8e111282d6910a4812984407485813627754e77ba00bc5",
+  "evidence_mode": "live",
+  "evidence_package": "phase-12-priority-claim",
+  "git_sha": "a9c33848e889a2708a68e3eccee4372635617d06",
+  "image_digests": {
+    "postgres": "sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd",
+    "queue": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "latency_sample_count": 17499,
+  "physical_signature": {
+    "columns": [
+      "queue_id",
+      "state_code",
+      "priority DESC",
+      "available_at",
+      "id"
+    ],
+    "index_name": "tasks_active_claim_idx",
+    "schema_revision": "1201_bounded_priority_claim_ordering",
+    "table": "tasks_active"
+  },
+  "physical_signature_digest": "07c55cba9ac1fd6ad0d6bb30b0a58eb4b6b7bfaddc89b9cdabc22344f235d498",
+  "priority_workload": "due-heavy",
+  "qualification_profile": "priority-claim",
+  "run_id": "phase12-priority-due-heavy-23c1518a8046",
+  "schema_revision": "1201_bounded_priority_claim_ordering",
+  "schema_version": 1,
+  "started_at_utc": "2026-09-19T16:26:56Z",
+  "validated_raw_set_digest": "a12dcee46135f60451a9297045daed1cfcb23666f0a059181b05f6e00badb20e",
+  "workload_hash": "f8fcab2e489be457556662eac2cb4d74902736ddcf7e2039a9d1cbfca88466b4"
+}

@@ -1,0 +1,425 @@
+"""Atomic client release gate: dry-run publish + wheel inventory (SDK-16)."""
+
+from __future__ import annotations
+
+import importlib.util
+import json
+import os
+import re
+import subprocess
+import sys
+from email.message import Message
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+GATE_PATH = REPO_ROOT / "tools" / "client_release_gate.py"
+INVENTORY_PATH = REPO_ROOT / "dist" / "client-wheel-inventory.json"
+
+CLIENT_DISTRIBUTIONS = (
+    "queue-service-client-core",
+    "queue-service-producer",
+    "queue-service-consumer",
+    "queue-service-admin",
+)
+
+
+def _load_gate():
+    spec = importlib.util.spec_from_file_location("client_release_gate", GATE_PATH)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _write_synthetic_release_tree(
+    root: Path,
+    *,
+    version: str = "1.2.7",
+    overrides: dict[tuple[str, str], list[str]] | None = None,
+) -> None:
+    overrides = overrides or {}
+    package_versions = {
+        "queue-service-client-core": version,
+        "queue-service-producer": version,
+        "queue-service-consumer": version,
+        "queue-service-admin": version,
+    }
+    (root / "pyproject.toml").write_text(
+        f'[project]\nname = "queue"\nversion = "{version}"\n',
+        encoding="utf-8",
+    )
+    for dist, package_version in package_versions.items():
+        package_dir = root / "packages" / dist
+        package_dir.mkdir(parents=True)
+        if dist == "queue-service-client-core":
+            dependencies: list[str] = []
+            async_dependencies = ["httpx>=0.28"]
+        else:
+            dependencies = [
+                "queue-service-client-core>=1.2.0,<1.3.0"
+            ]
+            async_dependencies = [
+                "queue-service-client-core[async]>=1.2.0,<1.3.0"
+            ]
+        dependencies = overrides.get((dist, "dependencies"), dependencies)
+        async_dependencies = overrides.get(
+            (dist, "optional-dependencies.async"), async_dependencies
+        )
+        deps_toml = ",\n".join(f'  "{dep}"' for dep in dependencies)
+        async_toml = ",\n".join(f'  "{dep}"' for dep in async_dependencies)
+        (package_dir / "pyproject.toml").write_text(
+            f"""[project]
+name = "{dist}"
+version = "{package_version}"
+dependencies = [
+{deps_toml}
+]
+
+[project.optional-dependencies]
+async = [
+{async_toml}
+]
+""",
+            encoding="utf-8",
+        )
+
+
+def test_synthetic_nonzero_patch_derives_and_accepts_coordinated_minor(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    gate = _load_gate()
+    _write_synthetic_release_tree(tmp_path)
+    monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
+    version, expected = gate._assert_coordinated_versions()
+    assert version == "1.2.7"
+    assert expected == ">=1.2.0,<1.3.0"
+
+
+@pytest.mark.parametrize(
+    ("section", "requirements", "diagnostic"),
+    [
+        (
+            "dependencies",
+            ["queue-service-client-core>=0.1.0,<0.2.0"],
+            "dependencies",
+        ),
+        (
+            "optional-dependencies.async",
+            ["queue-service-client-core[async]>=0.1.0,<0.2.0"],
+            "optional-dependencies.async",
+        ),
+        (
+            "dependencies",
+            ["queue-service-client-core>=1.2.1,<1.3.0"],
+            "dependencies",
+        ),
+        (
+            "dependencies",
+            ["queue-service-client-core>=1.2.0,<1.4.0"],
+            "dependencies",
+        ),
+        (
+            "dependencies",
+            [],
+            "dependencies",
+        ),
+        (
+            "dependencies",
+            [
+                "queue-service-client-core>=1.2.0,<1.3.0",
+                "queue-service-client-core>=1.2.0,<1.3.0",
+            ],
+            "dependencies",
+        ),
+    ],
+)
+def test_synthetic_release_rejects_core_dependency_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    section: str,
+    requirements: list[str],
+    diagnostic: str,
+) -> None:
+    gate = _load_gate()
+    role = "queue-service-consumer"
+    _write_synthetic_release_tree(
+        tmp_path,
+        overrides={(role, section): requirements},
+    )
+    monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
+    with pytest.raises(
+        gate.GateError,
+        match=rf"{role}.*{re.escape(diagnostic)}",
+    ):
+        gate._assert_coordinated_versions()
+
+
+def _role_wheel_metadata(
+    *,
+    base: str = "queue-service-client-core<1.3.0,>=1.2.0",
+    async_requirement: str = (
+        "queue-service-client-core[async]<1.3.0,>=1.2.0; extra == 'async'"
+    ),
+) -> Message:
+    metadata = Message()
+    metadata["Requires-Dist"] = base
+    metadata["Requires-Dist"] = async_requirement
+    return metadata
+
+
+def test_role_wheel_metadata_accepts_matching_base_and_async_bounds() -> None:
+    gate = _load_gate()
+    gate._assert_role_wheel_core_dependencies(
+        "queue-service-producer",
+        _role_wheel_metadata(),
+        expected_lower="1.2.0",
+        expected_upper="1.3.0",
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("base", "queue-service-client-core<0.2.0,>=0.1.0"),
+        (
+            "async",
+            "queue-service-client-core[async]<0.2.0,>=0.1.0; extra == 'async'",
+        ),
+        (
+            "async",
+            "queue-service-client-core[async]<1.3.0,>=1.2.0; extra == 'other'",
+        ),
+    ],
+)
+def test_role_wheel_metadata_rejects_stale_or_mismarked_core_requirement(
+    field: str,
+    value: str,
+) -> None:
+    gate = _load_gate()
+    metadata = (
+        _role_wheel_metadata(base=value)
+        if field == "base"
+        else _role_wheel_metadata(async_requirement=value)
+    )
+    with pytest.raises(gate.GateError, match=rf"queue-service-admin.*{field}"):
+        gate._assert_role_wheel_core_dependencies(
+            "queue-service-admin",
+            metadata,
+            expected_lower="1.2.0",
+            expected_upper="1.3.0",
+        )
+
+
+def test_ci_invokes_client_release_gate() -> None:
+    payload = json.loads((REPO_ROOT / "release-packages.json").read_text(encoding="utf-8"))
+    assert "queue-client" not in payload["pypi_packages"]
+    workflow = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml"))
+    )
+    assert "tools/client_release_gate.py" in workflow
+    assert "client_release_qualification_gate" in workflow
+    assert "--require-qualification-pass" in workflow
+
+
+def test_client_release_gate_builds_inventory_and_dry_run() -> None:
+    gate = _load_gate()
+    result = gate.run(require_qualification_pass=False)
+    assert result["ok"] is True
+    assert result["version"]
+    assert INVENTORY_PATH.is_file()
+    inventory = json.loads(INVENTORY_PATH.read_text(encoding="utf-8"))
+    assert inventory["coordinated_version"] == result["version"]
+    assert inventory["distributions"] == list(CLIENT_DISTRIBUTIONS)
+    assert inventory["forbidden_absent"]
+    assert "queue-client" in inventory["forbidden_absent"]
+    assert len(inventory["wheels"]) == 4
+    names = [entry["distribution"] for entry in inventory["wheels"]]
+    assert names == list(CLIENT_DISTRIBUTIONS)
+    for entry in inventory["wheels"]:
+        assert re_sha256(entry["sha256"])
+        assert entry["metadata"]["name"] == entry["distribution"]
+        assert entry["metadata"]["version"] == inventory["coordinated_version"]
+    # Dependency graph: roles depend on core only.
+    assert inventory["dependency_graph"]["queue-service-client-core"] == []
+    for role in CLIENT_DISTRIBUTIONS[1:]:
+        assert inventory["dependency_graph"][role] == ["queue-service-client-core"]
+
+
+def re_sha256(value: str) -> bool:
+    return len(value) == 64 and all(c in "0123456789abcdef" for c in value)
+
+
+def _git_missing(*_args: object, **_kwargs: object) -> None:
+    raise FileNotFoundError(2, "No such file or directory", "git")
+
+
+def test_git_sha_uses_ci_commit_sha_when_git_is_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gate = _load_gate()
+    monkeypatch.setattr(gate, "_run", _git_missing)
+    sha = "b" * 40
+    monkeypatch.setenv("CI_COMMIT_SHA", sha.upper())
+    assert gate._git_sha() == sha
+
+
+def test_git_sha_reads_checkout_without_git_or_ci_sha(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    gate = _load_gate()
+    monkeypatch.setattr(gate, "_run", _git_missing)
+    monkeypatch.delenv("CI_COMMIT_SHA", raising=False)
+    sha = "c" * 40
+    git_dir = tmp_path / ".git" / "refs" / "heads"
+    git_dir.mkdir(parents=True)
+    (tmp_path / ".git" / "HEAD").write_text("ref: refs/heads/dev\n", encoding="utf-8")
+    (git_dir / "dev").write_text(sha + "\n", encoding="utf-8")
+    monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
+    assert gate._git_sha() == sha
+
+
+def test_git_sha_fails_closed_without_git_ci_sha_or_checkout(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    gate = _load_gate()
+    monkeypatch.setattr(gate, "_run", _git_missing)
+    monkeypatch.delenv("CI_COMMIT_SHA", raising=False)
+    monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
+    with pytest.raises(gate.GateError, match="git is not installed"):
+        gate._git_sha()
+
+
+def test_cli_exit_zero_without_qualification_requirement() -> None:
+    completed = subprocess.run(
+        [sys.executable, str(GATE_PATH)],
+        cwd=REPO_ROOT,
+        env=os.environ.copy(),
+        check=False,
+        text=True,
+        capture_output=True,
+    )
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["ok"] is True
+    assert payload["qualification_required"] is False
+
+
+def _minimal_pass_record(*, sha: str, wheels: list[tuple[str, str, int]]) -> str:
+    rows = "\n".join(
+        f"| {dist} | `{dist.replace('-', '_')}-0.1.0-py3-none-any.whl` "
+        f"| `{digest}` | {size} |"
+        for dist, digest, size in wheels
+    )
+    return f"""# Client Release Qualification
+
+**Verdict:** `PASS`
+
+| Field | Value |
+| --- | --- |
+| Git SHA | `{sha}` |
+| live PostgreSQL | `TEST_DATABASE_URL=postgresql+psycopg://queue:queue@localhost:5432/queue` |
+
+## Wheel inventory (sha256)
+
+| Distribution | Wheel | sha256 | bytes |
+| --- | --- | --- | --- |
+{rows}
+"""
+
+
+def _write_inventory(path: Path, *, wheels: list[tuple[str, str, int]]) -> None:
+    payload = {
+        "wheels": [
+            {
+                "distribution": dist,
+                "sha256": digest,
+                "size_bytes": size,
+            }
+            for dist, digest, size in wheels
+        ]
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_assert_qualification_pass_negative_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    gate = _load_gate()
+    digest = "a" * 64
+    wheels = [(dist, digest, 100 + i) for i, dist in enumerate(CLIENT_DISTRIBUTIONS)]
+    inventory = tmp_path / "inventory.json"
+    _write_inventory(inventory, wheels=wheels)
+    tip_sha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+
+    missing = tmp_path / "missing.md"
+    monkeypatch.setattr(gate, "QUALIFICATION_PATH", missing)
+    with pytest.raises(gate.GateError, match="missing qualification record"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    record = tmp_path / "CLIENT-RELEASE-QUALIFICATION.md"
+    monkeypatch.setattr(gate, "QUALIFICATION_PATH", record)
+
+    record.write_text("# no verdict\nsha256 wheel\nlive PostgreSQL\n", encoding="utf-8")
+    with pytest.raises(gate.GateError, match="missing \\*\\*Verdict:\\*\\*"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    record.write_text(
+        "**Verdict:** `BLOCK`\n\n"
+        "| Git SHA | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n\n"
+        "live PostgreSQL\nwheel sha256\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(gate.GateError, match="verdict is 'BLOCK'"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    record.write_text(
+        "**Verdict:** `PASS`\n\nlive PostgreSQL\nwheel sha256\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(gate.GateError, match="missing Git SHA"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    monkeypatch.setattr(gate, "_is_ancestor", lambda *_args: False)
+    record.write_text(
+        _minimal_pass_record(
+            sha="cccccccccccccccccccccccccccccccccccccccc", wheels=wheels
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(gate.GateError, match="not HEAD .* or an ancestor"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    monkeypatch.setattr(gate, "_is_ancestor", lambda *_args: True)
+    record.write_text(
+        "**Verdict:** `PASS`\n\n"
+        "| Git SHA | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n\n"
+        "wheel sha256\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(gate.GateError, match="live PostgreSQL"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    record.write_text(
+        "**Verdict:** `PASS`\n\n"
+        "| Git SHA | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n\n"
+        "live PostgreSQL\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(gate.GateError, match="wheel hash inventory"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    drifted = [(CLIENT_DISTRIBUTIONS[0], "d" * 64, 100)] + wheels[1:]
+    record.write_text(
+        _minimal_pass_record(sha=tip_sha, wheels=drifted), encoding="utf-8"
+    )
+    with pytest.raises(gate.GateError, match="drifts from inventory"):
+        gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)
+
+    record.write_text(
+        _minimal_pass_record(sha=tip_sha, wheels=wheels), encoding="utf-8"
+    )
+    gate._assert_qualification_pass(git_sha=tip_sha, inventory_path=inventory)

@@ -1,0 +1,28 @@
+---
+description: Enforce stateless task execution, summaries, and independent dual review
+alwaysApply: true
+---
+
+# Subagent execution gate
+
+For every implementation task in a pending `.planning/ROADMAP.md` phase:
+
+1. Read and follow `.planning/EXECUTION-CONTRACT.md`.
+2. Give a simple stateless executor a self-contained task packet with one outcome,
+   requirement IDs, exact sources, scope, files, acceptance criteria and commands.
+3. Reject unresolved product or architecture decisions back to planning.
+4. Require the executor's durable task `SUMMARY.md` before review.
+5. Launch both fresh reviewers concurrently with the same frozen inputs:
+   - `cursor-grok-4.5-high-fast`
+   - `composer-2.5-fast`
+6. Forbid each reviewer from reading sibling review artifacts or modifying files.
+7. Persist reports only after both reviewers finish.
+8. Update Graphify after code changes, before reviews.
+9. Accept only two `PASS` verdicts. Treat disagreement as `BLOCK`; create a focused
+   fix task and rerun both reviews from scratch.
+
+Task reviews supplement tests and phase verification; they never replace them.
+
+After **all** of phases 15–21 (including 20.1) are complete, run one full
+sequential codebase review with fixes as found — see
+`.planning/EXECUTION-CONTRACT.md` § "Full sequential code review".

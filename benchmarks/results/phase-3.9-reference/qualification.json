@@ -1,0 +1,57 @@
+{
+  "checks": {
+    "claims_per_second": {
+      "actual": 500.0,
+      "limit": 500.0,
+      "pass": true
+    },
+    "max_fanout_complete_p99_ns": {
+      "actual": 86300000,
+      "limit": null,
+      "note": "reported separately; never merged into baseline complete p99",
+      "pass": true
+    },
+    "p99_baseline_complete_ns": {
+      "actual": 5980000,
+      "limit": 200000000,
+      "pass": true
+    },
+    "p99_claim_ns": {
+      "actual": 1980000,
+      "limit": 100000000,
+      "pass": true
+    },
+    "p99_enqueue_ns": {
+      "actual": 2490000,
+      "limit": 100000000,
+      "pass": true
+    },
+    "p99_heartbeat_ns": {
+      "actual": 1045000,
+      "limit": 100000000,
+      "pass": true
+    },
+    "valid_success_ratio": {
+      "actual": 1.0,
+      "limit": 0.999,
+      "pass": true
+    }
+  },
+  "evidence_mode": "synthetic",
+  "production_qualified": false,
+  "run_id": "run-phase39-reference-001",
+  "sources": {
+    "adr_019": "docs/04-architecture/adr/019-initial-production-gate.md",
+    "adr_023": "docs/04-architecture/adr/023-qualified-kernel-storage-profile.md",
+    "observability": "docs/05-operations/observability.md"
+  },
+  "thresholds": {
+    "claims_per_second_min": 500.0,
+    "p99_baseline_complete_ns_max": 200000000,
+    "p99_enqueue_claim_heartbeat_ns_max": 100000000,
+    "valid_success_ratio_min": 0.999
+  },
+  "validated_raw_set_digest": "f9173e888dc6c98d096ef25406ca1d60163bf7a02e8883fbb297a4476fdf75d1",
+  "verdict": "CI_SYNTHETIC_PASS",
+  "verdict_note": "Synthetic CI evidence met numeric thresholds; NOT a live production qualification PASS."
+}

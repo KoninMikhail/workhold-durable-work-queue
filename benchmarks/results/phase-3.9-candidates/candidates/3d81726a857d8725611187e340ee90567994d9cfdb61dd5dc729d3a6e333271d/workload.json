@@ -1,0 +1,35 @@
+{
+  "baseline_1kib_payload_bytes": 1024,
+  "candidate_id": "3d81726a857d8725611187e340ee90567994d9cfdb61dd5dc729d3a6e333271d",
+  "candidate_spec": {
+    "added_index": "tasks_active_claim_idx_alt_priority_first",
+    "hash_count": null,
+    "indexes": [
+      "admin_audit_log_queue_audit_idx",
+      "admin_replay_expires_at_idx",
+      "complete_replay_expires_at_idx",
+      "delivery_events_terminal_event_idx",
+      "enqueue_dedup_expires_at_idx",
+      "task_attempts_task_claimed_idx",
+      "tasks_active_claim_idx",
+      "tasks_active_claim_idx_alt_priority_first",
+      "tasks_terminal_spawn_lineage_idx",
+      "tasks_terminal_task_terminal_idx"
+    ],
+    "kind": "index",
+    "omitted_index": null,
+    "payload_ceiling_bytes": null,
+    "registry": null,
+    "variant": "add_benchmark_candidate",
+    "whole_request_limit_bytes": 1048576
+  },
+  "evidence_mode": "synthetic",
+  "evidence_note": "Synthetic candidate measurement for CI selection; not a live reference-host capture.",
+  "latency_sample_count": 260,
+  "measured_seconds": 120.0,
+  "name": "kernel-capacity-candidate",
+  "payload_ceiling_bytes": null,
+  "successful_claims": 60000,
+  "whole_request_limit_bytes": 1048576,
+  "workload_hash": "wl-hash-candidates"
+}

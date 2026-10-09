@@ -1,0 +1,10 @@
+{
+  "candidate_count": 24,
+  "mode": "synthetic",
+  "note": "Aggregate candidate-index package \u2014 not a final qualification bundle; must not declare bundle_stage=final.",
+  "package_kind": "candidate-index",
+  "phase": "3.9",
+  "requirement": "QUAL-03",
+  "schema_revision": "0001_physical_contract_foundations",
+  "schema_version": 1
+}

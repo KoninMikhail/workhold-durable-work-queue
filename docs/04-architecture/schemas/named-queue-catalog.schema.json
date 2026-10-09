@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workhold.local/schemas/queue/named-queue-catalog.schema.json",
+  "title": "NamedQueueCatalog",
+  "description": "Versioned named-queue catalog envelope mounted at QUEUE_CATALOG_PATH for one-shot queue apply (ensure-exists). Machine-readable companion to docs/05-operations/02-deployment.md and docs/08-examples/07-named-queue-catalog.md. Not a runtime desired-state document.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "queues"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Catalog envelope major version. Unsupported majors MUST fail closed before any write.",
+      "type": "integer",
+      "const": 1
+    },
+    "queues": {
+      "description": "Named Work Queues to ensure-exists. Duplicate name values fail closed. Order is apply order; mid-run failure may leave earlier creates committed.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "initial_policy"
+        ],
+        "properties": {
+          "name": {
+            "description": "OpenAPI named-queue name (lowercase).",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          },
+          "initial_policy": {
+            "description": "Initial retry policy used only when the queue is created. Existing queues (any state/policy) are skipped; apply never activates a new policy version.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "enabled",
+              "max_attempts",
+              "backoff_strategy",
+              "retry_delay_seconds"
+            ],
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "max_attempts": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "backoff_strategy": {
+                "type": "string",
+                "const": "fixed"
+              },
+              "retry_delay_seconds": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 86400
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

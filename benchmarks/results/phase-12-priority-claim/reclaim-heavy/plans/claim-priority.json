@@ -1,0 +1,101 @@
+{
+  "Plan": {
+    "Async Capable": false,
+    "Disabled": false,
+    "Node Type": "Limit",
+    "Parallel Aware": false,
+    "Plan Rows": 1,
+    "Plan Width": 24,
+    "Plans": [
+      {
+        "Async Capable": false,
+        "Disabled": false,
+        "Node Type": "LockRows",
+        "Parallel Aware": false,
+        "Parent Relationship": "Outer",
+        "Plan Rows": 1475,
+        "Plan Width": 24,
+        "Plans": [
+          {
+            "Async Capable": false,
+            "Disabled": false,
+            "Node Type": "Sort",
+            "Parallel Aware": false,
+            "Parent Relationship": "Outer",
+            "Plan Rows": 1475,
+            "Plan Width": 24,
+            "Plans": [
+              {
+                "Alias": "tasks_active",
+                "Async Capable": false,
+                "Disabled": false,
+                "Filter": "(((state_code = ANY ('{1,2}'::integer[])) AND (available_at <= transaction_timestamp())) OR ((state_code = 3) AND (lease_expires_at <= transaction_timestamp())))",
+                "Node Type": "Bitmap Heap Scan",
+                "Parallel Aware": false,
+                "Parent Relationship": "Outer",
+                "Plan Rows": 1475,
+                "Plan Width": 24,
+                "Plans": [
+                  {
+                    "Async Capable": false,
+                    "Disabled": false,
+                    "Node Type": "BitmapOr",
+                    "Parallel Aware": false,
+                    "Parent Relationship": "Outer",
+                    "Plan Rows": 1504,
+                    "Plan Width": 0,
+                    "Plans": [
+                      {
+                        "Async Capable": false,
+                        "Disabled": false,
+                        "Index Cond": "((queue_id = '1'::smallint) AND (state_code = ANY ('{1,2}'::integer[])) AND (available_at <= transaction_timestamp()))",
+                        "Index Name": "tasks_active_claim_idx",
+                        "Node Type": "Bitmap Index Scan",
+                        "Parallel Aware": false,
+                        "Parent Relationship": "Member",
+                        "Plan Rows": 1475,
+                        "Plan Width": 0,
+                        "Startup Cost": 0.0,
+                        "Total Cost": 80.26
+                      },
+                      {
+                        "Async Capable": false,
+                        "Disabled": false,
+                        "Index Cond": "((queue_id = '1'::smallint) AND (state_code = 3))",
+                        "Index Name": "tasks_active_claim_idx",
+                        "Node Type": "Bitmap Index Scan",
+                        "Parallel Aware": false,
+                        "Parent Relationship": "Member",
+                        "Plan Rows": 29,
+                        "Plan Width": 0,
+                        "Startup Cost": 0.0,
+                        "Total Cost": 4.71
+                      }
+                    ],
+                    "Startup Cost": 85.7,
+                    "Total Cost": 85.7
+                  }
+                ],
+                "Recheck Cond": "(((queue_id = '1'::smallint) AND (state_code = ANY ('{1,2}'::integer[])) AND (available_at <= transaction_timestamp())) OR ((queue_id = '1'::smallint) AND (state_code = 3)))",
+                "Relation Name": "tasks_active",
+                "Startup Cost": 85.7,
+                "Total Cost": 2293.65
+              }
+            ],
+            "Sort Key": [
+              "priority DESC",
+              "available_at",
+              "id"
+            ],
+            "Startup Cost": 2301.03,
+            "Total Cost": 2304.71
+          }
+        ],
+        "Startup Cost": 2301.03,
+        "Total Cost": 2319.46
+      }
+    ],
+    "Startup Cost": 2301.03,
+    "Total Cost": 2301.04
+  }
+}

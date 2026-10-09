@@ -1,0 +1,158 @@
+# Phase 3 qualification stack — profile phase-3.9-linux-x86_64-v1 (QUAL-03 / QUAL-05).
+# Normative: ADR 019; connection budget from Phase 3.2; readiness from Phase 3.2/3.8.
+#
+# Lifecycle (exact):
+#   docker compose -f benchmarks/qualification/docker-compose.qualification.yml pull
+#   docker compose -f benchmarks/qualification/docker-compose.qualification.yml up -d --wait postgres queue-api-1 queue-api-2
+#   uv run python -m benchmarks.qualification.preflight --profile benchmarks/qualification/reference-environment.yaml --compose benchmarks/qualification/docker-compose.qualification.yml --output benchmarks/results/phase-7-postgresql-18.6/environment.json
+#   docker compose -f benchmarks/qualification/docker-compose.qualification.yml down -v
+#
+# Digests are observed from image: pins (no local build) and reconciled to the
+# profile before load (T-039-20 / T-07-01). Queue RC digest slot remains the all-f
+# sentinel until a real release-candidate digest is substituted.
+# PostgreSQL data root is /var/lib/postgresql (PG 18+); volume qualification-pgdata-18
+# is incompatible with leftover PG 16 volumes — always down -v before recreate.
+#
+# Steady-state CPU budget: postgres 6 + api 3+3 + load-generator 4 = 16 (no oversubscription).
+# Memory: 12 + 4 + 4 + 4 = 24 GiB on a >=32 GiB host.
+
+name: queue-qualification
+
+x-queue-runtime: &queue-runtime
+  # Digest-pinned RC image only — no `build:` so qualification cannot silently
+  # substitute a locally built image for the profile digest.
+  image: queue@sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  init: true
+  environment: &queue-env
+    PYTHONUNBUFFERED: "1"
+    DATABASE_URL: postgresql+psycopg://queue:queue@postgres:5432/queue
+    QUEUE_ENVIRONMENT: development
+    QUEUE_LISTENER_TLS_MODE: plaintext_public
+    QUEUE_POSTGRES_MAX_CONNECTIONS: "100"
+    QUEUE_POSTGRES_RESERVED_CONNECTIONS: "10"
+    QUEUE_API_REPLICA_CEILING: "2"
+    QUEUE_API_POOL_CEILING: "4"
+    QUEUE_ADMIN_REPLICA_CEILING: "1"
+    QUEUE_ADMIN_POOL_CEILING: "2"
+    QUEUE_MIGRATE_REPLICA_CEILING: "1"
+    QUEUE_MIGRATE_POOL_CEILING: "2"
+    QUEUE_MAINTAIN_REPLICA_CEILING: "1"
+    QUEUE_MAINTAIN_POOL_CEILING: "2"
+    QUEUE_RELAY_REPLICA_CEILING: "1"
+    QUEUE_RELAY_POOL_CEILING: "2"
+    QUEUE_SHUTDOWN_GRACE_SECONDS: "5"
+    QUEUE_PARTITION_PREMAKE_DAYS: "30"
+    QUEUE_PAYLOAD_RETENTION_DAYS: "90"
+    QUEUE_API_BEARER_TOKEN: qualification-token-current
+    QUEUE_API_BEARER_TOKEN_PREVIOUS: ""
+    QUEUE_APPLICATION_HOST: "0.0.0.0"
+    QUEUE_APPLICATION_PORT: "8080"
+    QUEUE_ADMIN_HOST: "0.0.0.0"
+    QUEUE_ADMIN_PORT: "8081"
+  networks:
+    - qualification-internal
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    # OCI index digest for postgres:18.6-alpine (not amd64-only manifest).
+    image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+    environment:
+      POSTGRES_USER: queue
+      POSTGRES_PASSWORD: queue
+      POSTGRES_DB: queue
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    command:
+      - postgres
+      - -c
+      - max_connections=100
+    cpus: 6.0
+    mem_limit: 12g
+    volumes:
+      - qualification-pgdata-18:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U queue -d queue"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - qualification-internal
+
+  migrate:
+    <<: *queue-runtime
+    command: ["migrate"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  queue-api-1:
+    <<: *queue-runtime
+    command: ["api"]
+    cpus: 3.0
+    mem_limit: 4g
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  queue-api-2:
+    <<: *queue-runtime
+    command: ["api"]
+    cpus: 3.0
+    mem_limit: 4g
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  load-generator:
+    image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+    # Placeholder runtime until Plan 03.9-08 wires the capacity runner image.
+    # Resource envelope is binding for the reference profile.
+    command: ["sleep", "infinity"]
+    cpus: 4.0
+    mem_limit: 4g
+    networks:
+      - qualification-internal
+    depends_on:
+      queue-api-1:
+        condition: service_healthy
+      queue-api-2:
+        condition: service_healthy
+
+networks:
+  qualification-internal:
+    driver: bridge
+    internal: true
+
+volumes:
+  qualification-pgdata-18:

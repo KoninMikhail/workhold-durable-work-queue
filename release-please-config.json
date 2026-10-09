@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "f1462618364c248654bd9f64ae53e998470ae259",
+  "release-type": "simple",
+  "initial-version": "1.0.0",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "include-component-in-tag": false,
+  "changelog-sections": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance" },
+    { "type": "security", "section": "Security" },
+    { "type": "build", "section": "Build" },
+    { "type": "docs", "section": "Documentation" },
+    { "type": "refactor", "section": "Code Refactoring" },
+    { "type": "ci", "section": "CI", "hidden": true },
+    { "type": "chore", "section": "Miscellaneous", "hidden": true },
+    { "type": "test", "section": "Tests", "hidden": true },
+    { "type": "style", "section": "Style", "hidden": true }
+  ],
+  "packages": {
+    ".": {
+      "component": "queue-service",
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
+          "path": "packages/queue-service-client-core/pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
+          "path": "packages/queue-service-producer/pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
+          "path": "packages/queue-service-consumer/pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
+          "path": "packages/queue-service-admin/pyproject.toml",
+          "jsonpath": "$.project.version"
+        }
+      ]
+    }
+  }
+}

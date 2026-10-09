@@ -1,0 +1,47 @@
+{
+  "artifact_classes": {
+    "checksums": [
+      "SHA256SUMS"
+    ],
+    "derived": [
+      "summary.json",
+      "qualification.json",
+      "report.md"
+    ],
+    "raw": [
+      "manifest.json",
+      "environment.json",
+      "workload.json",
+      "conformance.xml",
+      "latencies.jsonl.gz",
+      "postgres-before.json",
+      "postgres-after.json",
+      "plans/index.json"
+    ]
+  },
+  "bundle_stage": "final",
+  "candidate_id": "44f139e2e27faa2730f33cb099e25843db3c91c5b05b73b3cdedc31b92faacea",
+  "catalog_signature": "catalog-4443d89e8f538f8144fcda08d5937456",
+  "conformance": {
+    "path": "conformance.xml",
+    "variants": [
+      "raw_http",
+      "sdk"
+    ]
+  },
+  "ended_at_utc": "2026-09-19T00:10:00Z",
+  "environment_hash": "env-hash-candidates",
+  "evidence_mode": "synthetic",
+  "git_sha": "synthetic-candidates",
+  "image_digests": {
+    "postgres": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "queue": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "latency_sample_count": 260,
+  "run_id": "cand-44f139e2e27faa27",
+  "schema_revision": "0001_physical_contract_foundations",
+  "schema_version": 1,
+  "started_at_utc": "2026-09-19T00:00:00Z",
+  "validated_raw_set_digest": "07451085e97999ebf1e1c732396e2ec4242223e221eca3e6c3654b07a9c9c162",
+  "workload_hash": "wl-hash-candidates"
+}

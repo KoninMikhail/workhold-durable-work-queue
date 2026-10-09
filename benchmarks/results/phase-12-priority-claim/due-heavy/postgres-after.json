@@ -1,0 +1,21 @@
+{
+  "autovacuum_lag_seconds": 26,
+  "buffer_hits": 383958948,
+  "buffers": {
+    "blk_read_time": 0.0,
+    "shared_blks_hit": 383958948,
+    "shared_blks_read": 231561
+  },
+  "captured_at_utc": "2026-09-19T16:26:55Z",
+  "dead_tuples": 46628,
+  "environment_hash": "e8abc071061e5b637d8e111282d6910a4812984407485813627754e77ba00bc5",
+  "execution_time_ms": 0,
+  "pg_stat_statements_available": false,
+  "planning_time_ms": 0,
+  "probe_source": "live",
+  "touched_partitions": [],
+  "wal": {
+    "wal_lsn": "1/C0E49C60"
+  },
+  "wal_bytes": 0
+}

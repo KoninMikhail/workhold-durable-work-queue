@@ -1,0 +1,36 @@
+{
+  "max_fanout_complete_p99_ns": null,
+  "operations": [
+    {
+      "count": 17499,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "claim",
+      "p50_ns": 16360200,
+      "p99_ns": 52271600,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 17499,
+      "valid_attempts": 17499
+    }
+  ],
+  "overall_valid_success_ratio": 1.0,
+  "postgres": {
+    "autovacuum_lag_seconds": 26,
+    "buffer_hits": 396847708,
+    "dead_tuples": 46628,
+    "execution_time_ms": 0,
+    "planning_time_ms": 0,
+    "touched_partitions": [],
+    "wal_bytes": 0
+  },
+  "run_id": "phase12-priority-reclaim-heavy-e3df21f3fc29",
+  "throughput": {
+    "claims_per_second": 583.3,
+    "measured_seconds": 30.0,
+    "successful_claims": 17499
+  },
+  "validated_raw_set_digest": "bde59093c3cbcae6f875f47d23fba5f2963223460b5a700e923ce89faf7acbd9"
+}

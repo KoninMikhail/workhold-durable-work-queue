@@ -1,0 +1,597 @@
+{
+  "candidates": [
+    {
+      "bundle_checksum": "7dec214b9fce0e0d69a68dced1f9b758153b5130bef0d00ee8b7850dc319dd04",
+      "bundle_path": "candidates/090769667a21ce321a65234eb1b195f61c52c67a11eaeb246a7a71187101f25e",
+      "candidate_id": "090769667a21ce321a65234eb1b195f61c52c67a11eaeb246a7a71187101f25e",
+      "catalog_signature": "catalog-562c77036c5cdaf93456902634e5f9e2",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "tasks_terminal_spawn_lineage_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "786d105787b82fc9cf4d2fc846f1007aeec315ba14b3ac0ea6eb97c7bbbb405d",
+      "bundle_path": "candidates/0cfc016a8637efdadacc6e87b538592d0c60af6d0408ae93b37c91759d804441",
+      "candidate_id": "0cfc016a8637efdadacc6e87b538592d0c60af6d0408ae93b37c91759d804441",
+      "catalog_signature": "catalog-8320c8292886c2bc3b48bfb56c55afc6",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "complete_replay:16",
+      "spec": {
+        "added_index": null,
+        "hash_count": 16,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "complete_replay",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "96adb8a3695fb9045c94c6cb992fd61ef0e9b8c5ab4de7cb0228fc28808770f4",
+      "bundle_path": "candidates/11e061f9281a96d75b8d1ebabb01a09b1cec408e5fc669c15df19c1d25965a5e",
+      "candidate_id": "11e061f9281a96d75b8d1ebabb01a09b1cec408e5fc669c15df19c1d25965a5e",
+      "catalog_signature": "catalog-27c00f5f03cb7eb36d78b3528ffb3f9e",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "delivery_events_terminal_event_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "e6f75079e6506772a428f8e2e8c4810909f8fb4836ec09f3e228ab848deb8de0",
+      "bundle_path": "candidates/15d5e1d25b678ae15d511c4c5e64a8f93d2077e4f31ff4eee1580bb47b9b730a",
+      "candidate_id": "15d5e1d25b678ae15d511c4c5e64a8f93d2077e4f31ff4eee1580bb47b9b730a",
+      "catalog_signature": "catalog-d6c837541cdb554efd28e861aecc29c1",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "enqueue_dedup_expires_at_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "b2da6c9b45a73c500c3f77c0a70cf0f64bbc6e9d8b733f52bff81b1805485424",
+      "bundle_path": "candidates/23429191b401d82578a7e00da52121fba62544f392f0e12ec1637014731e62df",
+      "candidate_id": "23429191b401d82578a7e00da52121fba62544f392f0e12ec1637014731e62df",
+      "catalog_signature": "catalog-63e3eccc093bfb16e7b0b0d563906288",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "tasks_terminal_task_terminal_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "3a9a89fe3d012112d2ea4072d7a4990ca133bb2711b5cee7e26a698d93a7079e",
+      "bundle_path": "candidates/3d81726a857d8725611187e340ee90567994d9cfdb61dd5dc729d3a6e333271d",
+      "candidate_id": "3d81726a857d8725611187e340ee90567994d9cfdb61dd5dc729d3a6e333271d",
+      "catalog_signature": "catalog-c78926ec68df2b4bd7e20f2938b948a6",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_active_claim_idx_alt_priority_first,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": "tasks_active_claim_idx_alt_priority_first",
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_active_claim_idx_alt_priority_first",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "add_benchmark_candidate",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "d6d3c5ae58aa9ff41260dde76945a83614fbe92beab9bfd2e2c4df63a7af76fb",
+      "bundle_path": "candidates/3ebbfbfa2f5acab157993db4c4761d54082f5d66f17216240b98c31c4f02cc5c",
+      "candidate_id": "3ebbfbfa2f5acab157993db4c4761d54082f5d66f17216240b98c31c4f02cc5c",
+      "catalog_signature": "catalog-dc7f89807dcb0d38158f140f9818ee99",
+      "kind": "payload",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "262144",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": null,
+        "kind": "payload",
+        "omitted_index": null,
+        "payload_ceiling_bytes": 262144,
+        "registry": null,
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "8c0ec9b28aed66c5a8a1ac6ef0f92d9f626685f61ffe6b5eb7273eff590519f9",
+      "bundle_path": "candidates/44f139e2e27faa2730f33cb099e25843db3c91c5b05b73b3cdedc31b92faacea",
+      "candidate_id": "44f139e2e27faa2730f33cb099e25843db3c91c5b05b73b3cdedc31b92faacea",
+      "catalog_signature": "catalog-4443d89e8f538f8144fcda08d5937456",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "enqueue_dedup:1",
+      "spec": {
+        "added_index": null,
+        "hash_count": 1,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "enqueue_dedup",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "0e613ab5067f9cc8e8c7ade516ef4ec764db34e63c93cf0dd76533a7b51a5bc6",
+      "bundle_path": "candidates/6b686bee2210361f9a468908d5e047eb81aa6c46d06eeaf354fd12a874edb60b",
+      "candidate_id": "6b686bee2210361f9a468908d5e047eb81aa6c46d06eeaf354fd12a874edb60b",
+      "catalog_signature": "catalog-9094da8716da74bb2e0a45c621d73e08",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "admin_audit_log_queue_audit_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "5b85aa15a4950e37cd9b0b327ba25c8fb2a78fec604f31d0933a363c8c843fad",
+      "bundle_path": "candidates/72e0c61ae17ed9dcac6eeec3769ec2c82688310bba67fbe92ec8740612c8281c",
+      "candidate_id": "72e0c61ae17ed9dcac6eeec3769ec2c82688310bba67fbe92ec8740612c8281c",
+      "catalog_signature": "catalog-7ed49d8dc2b3cccc4788195eec44302f",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_active_claim_idx_alt_available_first,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": "tasks_active_claim_idx_alt_available_first",
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_active_claim_idx_alt_available_first",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "add_benchmark_candidate",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "2aff30f008e37509b9f4b725cf497dc1dc46b71c347a9a55f62ec7ad642fc6d4",
+      "bundle_path": "candidates/8284fa569a30f9ab0d5349b1e22506e91bbf9efbed192770b49ec9ca1c9ab328",
+      "candidate_id": "8284fa569a30f9ab0d5349b1e22506e91bbf9efbed192770b49ec9ca1c9ab328",
+      "catalog_signature": "catalog-adb1403802edc494e95b68309cbbfc10",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "complete_replay:8",
+      "spec": {
+        "added_index": null,
+        "hash_count": 8,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "complete_replay",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "7eb815effc186e6fd99f5095401062ea646ab8984a7d75c8a15565dce04a9191",
+      "bundle_path": "candidates/ae8a28c1953ef7a91ab96a16219bfc629a6efb3ee8c9a58b145c0e4bd47ff64b",
+      "candidate_id": "ae8a28c1953ef7a91ab96a16219bfc629a6efb3ee8c9a58b145c0e4bd47ff64b",
+      "catalog_signature": "catalog-66f91bf558f0dce897134eba53cb67f3",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "enqueue_dedup:16",
+      "spec": {
+        "added_index": null,
+        "hash_count": 16,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "enqueue_dedup",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "04eee3addd4f17cbae20863b7cd3d8d73e1fb4eb3094d28853df44d613bfc037",
+      "bundle_path": "candidates/af1f864a346052282af4f59ec9634e952d995d59a0abd843d6af9fec2ff6dfbd",
+      "candidate_id": "af1f864a346052282af4f59ec9634e952d995d59a0abd843d6af9fec2ff6dfbd",
+      "catalog_signature": "catalog-cc61f080d239d642c134278ef624e35e",
+      "kind": "payload",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "1048576",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": null,
+        "kind": "payload",
+        "omitted_index": null,
+        "payload_ceiling_bytes": 1048576,
+        "registry": null,
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "1025e3e7430a040f4e9a679a17436f4eb8a7fff864f22ab5c600e7cac7f7bed5",
+      "bundle_path": "candidates/c35229f846f2d54a56a54b5ca8e6e459a1d9c46425c57d9c68a4b7e30338184d",
+      "candidate_id": "c35229f846f2d54a56a54b5ca8e6e459a1d9c46425c57d9c68a4b7e30338184d",
+      "catalog_signature": "catalog-23b57678260039c4c5b9655c8ca962df",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "complete_replay:1",
+      "spec": {
+        "added_index": null,
+        "hash_count": 1,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "complete_replay",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "5dc273ac2924d17261e0152f1366b3609f40818f33ad3e1decf7f1242c26877c",
+      "bundle_path": "candidates/cbea11794cf866b53260af3926ae9ffae8e090bdd5b006c00c7d8a914ebc2972",
+      "candidate_id": "cbea11794cf866b53260af3926ae9ffae8e090bdd5b006c00c7d8a914ebc2972",
+      "catalog_signature": "catalog-8036b97b6d3bc910b9f83a9ad59a15fa",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "complete_replay:32",
+      "spec": {
+        "added_index": null,
+        "hash_count": 32,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "complete_replay",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "eb108dadb4bde144b858faed677eeb8fc0ee7d0b8b8663a65c9666938df70ab1",
+      "bundle_path": "candidates/d09099ae1e2c5ad2126333ba2dd190389894811dad383a609c4ace7d0fc891d7",
+      "candidate_id": "d09099ae1e2c5ad2126333ba2dd190389894811dad383a609c4ace7d0fc891d7",
+      "catalog_signature": "catalog-7d262706eaa1004d82f0767327c07964",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "enqueue_dedup:4",
+      "spec": {
+        "added_index": null,
+        "hash_count": 4,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "enqueue_dedup",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "288025331d7d8b155bab4e346e9378b4571c5e3d37443fa86ea7789ee2cb30a5",
+      "bundle_path": "candidates/d46792cafdfa9ca8c98074c25152d03e637e41ac561b91410ac65a91d467d9f4",
+      "candidate_id": "d46792cafdfa9ca8c98074c25152d03e637e41ac561b91410ac65a91d467d9f4",
+      "catalog_signature": "catalog-5f2f12f7bc4972c385435602b99f70bd",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "enqueue_dedup:32",
+      "spec": {
+        "added_index": null,
+        "hash_count": 32,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "enqueue_dedup",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "66cd0fbac938e009726eec7b1418fa46855b9a9cb96ec7c06c34fedffa03b4b9",
+      "bundle_path": "candidates/d9dff6491f80fcd90d3e7a18ab26cf07f9eb4d0a33989ecce3c3b94d0549a094",
+      "candidate_id": "d9dff6491f80fcd90d3e7a18ab26cf07f9eb4d0a33989ecce3c3b94d0549a094",
+      "catalog_signature": "catalog-c3bb9dca640ad61cb32f56830d610d8a",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "tasks_active_claim_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "5959f20ab71a2e489ff7ef27a23e6650e6944d70e427f2b224dad9bf47f5ee1e",
+      "bundle_path": "candidates/dc666f84f62b9b7ba3b6b078a32a4a66b71e610235a59050c07930b55004ccb4",
+      "candidate_id": "dc666f84f62b9b7ba3b6b078a32a4a66b71e610235a59050c07930b55004ccb4",
+      "catalog_signature": "catalog-013ff66f625f8e2e7cbdfc0894c9ad8a",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "admin_replay_expires_at_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "61ce3b4a1ca729afecbdbb9192d531371b2bc710354f1107d2d3338c77ad3f25",
+      "bundle_path": "candidates/dcabc6ad820bd389eda4c4b6657aceff34779fd51417796d4db2451e89424e79",
+      "candidate_id": "dcabc6ad820bd389eda4c4b6657aceff34779fd51417796d4db2451e89424e79",
+      "catalog_signature": "catalog-ca78dceb998c527e238b121ab0abb676",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "baseline",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "65590868e77c66aa2ef70a40f3feaad92f88812a15dfd53fc0a4c7438ae9122f",
+      "bundle_path": "candidates/dd89ad863010dc0ce67290f781010fecb2cd5ebcff989993162cd459c870955a",
+      "candidate_id": "dd89ad863010dc0ce67290f781010fecb2cd5ebcff989993162cd459c870955a",
+      "catalog_signature": "catalog-44801c7fc085d64cbc74903b336c24cd",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "enqueue_dedup:8",
+      "spec": {
+        "added_index": null,
+        "hash_count": 8,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "enqueue_dedup",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "666e4890159433c379511f32c517dedbb4a412a6dcfbceb438060a2a302c2fa4",
+      "bundle_path": "candidates/e0ec72bcec3968a9226f9b4fbefd14ce814c5ad30bbc1c831155f25e66195e78",
+      "candidate_id": "e0ec72bcec3968a9226f9b4fbefd14ce814c5ad30bbc1c831155f25e66195e78",
+      "catalog_signature": "catalog-21f46b7df1b7218bdd1f81d106ea7473",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "complete_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "task_attempts_task_claimed_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "0d32f553151a46dbd9e4e22d99c212ab128fe8dc9569aa49a248f0aa0575285a",
+      "bundle_path": "candidates/f86c8f5eef7fcb05136141bb4e41c04dd6c1373a9faea780f168dd2139e21148",
+      "candidate_id": "f86c8f5eef7fcb05136141bb4e41c04dd6c1373a9faea780f168dd2139e21148",
+      "catalog_signature": "catalog-fbae01c83f5a72ffbc44e512a8393878",
+      "kind": "index",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,delivery_events_terminal_event_idx,enqueue_dedup_expires_at_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx",
+      "spec": {
+        "added_index": null,
+        "hash_count": null,
+        "indexes": [
+          "admin_audit_log_queue_audit_idx",
+          "admin_replay_expires_at_idx",
+          "delivery_events_terminal_event_idx",
+          "enqueue_dedup_expires_at_idx",
+          "task_attempts_task_claimed_idx",
+          "tasks_active_claim_idx",
+          "tasks_terminal_spawn_lineage_idx",
+          "tasks_terminal_task_terminal_idx"
+        ],
+        "kind": "index",
+        "omitted_index": "complete_replay_expires_at_idx",
+        "payload_ceiling_bytes": null,
+        "registry": null,
+        "variant": "omit",
+        "whole_request_limit_bytes": 1048576
+      }
+    },
+    {
+      "bundle_checksum": "9fd0ae2871302f1fe3d9f37d04efe8942525f8c93b511d54153e894377c31a6b",
+      "bundle_path": "candidates/f9161ceb09deb16caf19561f656efc665487eebeb7cebf878c856ef9560f1159",
+      "candidate_id": "f9161ceb09deb16caf19561f656efc665487eebeb7cebf878c856ef9560f1159",
+      "catalog_signature": "catalog-505da5a86eca62ba05c819380b6f2a33",
+      "kind": "hash",
+      "schema_revision": "0001_physical_contract_foundations",
+      "signature": "complete_replay:4",
+      "spec": {
+        "added_index": null,
+        "hash_count": 4,
+        "indexes": null,
+        "kind": "hash",
+        "omitted_index": null,
+        "payload_ceiling_bytes": null,
+        "registry": "complete_replay",
+        "variant": null,
+        "whole_request_limit_bytes": 1048576
+      }
+    }
+  ]
+}

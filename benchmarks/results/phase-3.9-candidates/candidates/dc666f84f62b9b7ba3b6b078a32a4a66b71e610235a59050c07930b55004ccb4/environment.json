@@ -1,0 +1,11 @@
+{
+  "candidate_id": "dc666f84f62b9b7ba3b6b078a32a4a66b71e610235a59050c07930b55004ccb4",
+  "catalog_signature": "catalog-013ff66f625f8e2e7cbdfc0894c9ad8a",
+  "environment_hash": "env-hash-candidates",
+  "git_sha": "synthetic-candidates",
+  "image_digests": {
+    "postgres": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "queue": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "schema_revision": "0001_physical_contract_foundations"
+}

@@ -1,0 +1,114 @@
+---
+description: Root README.md — repository landing, quick start, navigation; does not duplicate docs/
+globs: README.md,AGENTS.md,CONTRIBUTING.md
+alwaysApply: false
+---
+
+# Root `README.md`
+
+**README** is the repository landing page: in 30 seconds the reader understands **what this is**, **who needs it**, **how to start**, and **where to go next**.
+
+Long-lived documentation lives in **`docs/`** (rule **`docs-structure.mdc`**). README does **not** replace guides, reference, and architecture.
+
+## Roles of root files
+
+| File | Purpose | Audience |
+| --- | --- | --- |
+| **`README.md`** | Landing: what/why, quick start, navigation | Everyone |
+| **`AGENTS.md`** | Entry point for AI agents: rules, sources of truth, commands | Cursor, Codex, Aider, and others |
+| **`CONTRIBUTING.md`** | How to contribute: branches, MR, review, checklist | Contributors |
+| **`SECURITY.md`** | How to report a vulnerability, security contact | Security / everyone |
+| **`CHANGELOG.md`** | Release history (if you version) | PM, dev, ops |
+
+**Do not mix:** architecture rules and long how-tos belong in `docs/` or `AGENTS.md`, not in README.
+
+## "30-second test"
+
+Without scrolling, the reader must get answers to:
+
+1. **What** this repository is (1–2 sentences)
+2. **Who** needs it (role, team, product)
+3. **How** to get the first result (≤5 steps)
+4. **Where** to go next (link table)
+
+## Required sections (order)
+
+| # | Section | Contents |
+| --- | --- | --- |
+| 1 | **H1 + description** | Name + 1–2 sentences: what the repo does and why it exists |
+| 2 | **Quick start** | Minimum to the first useful result (clone → install → run / copy → use) |
+| 3 | **Where next** | Table: topic → file/folder (`docs/`, `AGENTS.md`, `CONTRIBUTING.md`) |
+| 4 | **Repository structure** | Directory tree, ≤15 lines; top level only |
+| 5 | **Contributing / ownership** | Short, or a link to `CONTRIBUTING.md`; where to write (issue, channel) |
+
+Optional by profile: prerequisites, badges, "by role" matrix, artifact catalog.
+
+## Repository profiles
+
+Pick **one** profile at bootstrap. Templates — **`templates/readme/`**.
+
+| Profile | When | README emphasis |
+| --- | --- | --- |
+| **application** | Service, SPA, backend with `src/` | stack, env, run commands, link to `AGENTS.md` + `docs/00-onboarding/` |
+| **library** | Templates, SDK, shared packages | artifact catalog, install/copy, matrix by role or type |
+| **infra** | Helm, Terraform, CI configs | prerequisites, deploy/apply, env matrix, link to `docs/05-operations/` |
+| **monorepo** | Several packages/applications | package map + "where to start" for each |
+
+A mixed repo — pick the **dominant** profile; secondary material is a separate section or a link.
+
+## Link to `docs/`
+
+| Question | Where |
+| --- | --- |
+| First run, env, first MR | `docs/00-onboarding/` |
+| Terms, domain, glossary | `docs/01-concepts/` |
+| Step-by-step how-to | `docs/02-guides/` |
+| Env, API, CLI, configs | `docs/03-reference/` |
+| Architecture, ADR | `docs/04-architecture/` |
+| Deploy, on-call, prod | `docs/05-operations/` |
+| Compressed snapshot for agents | `docs/_ai/` (rule **`memory-bank.mdc`**) |
+
+README **links** to `docs/` sections; it does not copy their contents.
+
+## Application + AI agents
+
+For product repositories the typical split is:
+
+```
+README.md     → human: clone, run, links
+AGENTS.md     → agent: rules, architecture, commands, sources of truth
+docs/         → depth for humans and agents
+docs/_ai/     → memory bank (compressed context)
+```
+
+README may be shorter than `AGENTS.md`. Duplicating rule lists in both files is **unnecessary**: in README one line "AI rules → [AGENTS.md](AGENTS.md)".
+
+## Maintainability
+
+Update README **in the same MR** that changes what it describes:
+
+| Change in the repo | Action in README |
+| --- | --- |
+| New public artifact (skill, package, service) | Row in the catalog / tree |
+| Quick start changed (commands, env, install path) | Quick start section |
+| New significant `docs/` section | Row in "Where next" |
+| Owner / MR process changed | Ownership / CONTRIBUTING |
+
+## Anti-patterns
+
+- Long guides, API reference, runbooks — only in `docs/`
+- Ephemeral status ("we are doing X now", sprint) — MR / chat
+- Duplicating `docs/_ai/` or whole sections from `docs/04-architecture/`
+- Secrets, tokens, passwords, internal credentials
+- README as the only documentation file (no `docs/` in a growing application repo)
+- Artifact catalog without links or with broken paths
+- `wiki/` or `documentation/` at the root in parallel with `docs/`
+
+## Related artifacts
+
+| Artifact | Role |
+| --- | --- |
+| `templates/readme/*.md` | starter templates by profile |
+| rule `docs-structure.mdc` | `docs/` tree |
+| rule `memory-bank.mdc` | `docs/_ai/` for agents |
+| rule `adr.mdc` | repo-level ADR |

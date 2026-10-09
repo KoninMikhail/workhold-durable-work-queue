@@ -1,0 +1,26 @@
+[project]
+name = "queue-service-consumer"
+version = "1.0.0"
+description = "Workhold consumer client (claim, fenced leases, and ConsumerSupervisor)"
+authors = [
+    { name = "Mikhail Konin", email = "dev.konin@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "queue-service-client-core>=1.0.0,<1.1.0",
+]
+
+[project.optional-dependencies]
+async = [
+    "queue-service-client-core[async]>=1.0.0,<1.1.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.11.30,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "queue_service_consumer"
+
+[tool.uv.sources]
+queue-service-client-core = { workspace = true }

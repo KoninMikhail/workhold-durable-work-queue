@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "principals": [
+    {
+      "principal_id": "orders-producer",
+      "role": "PRODUCER",
+      "queue_scopes": [
+        "orders"
+      ],
+      "credentials": [
+        {
+          "generation_id": "previous",
+          "secret": "replace-me-producer-previous"
+        },
+        {
+          "generation_id": "current",
+          "secret": "replace-me-producer-current"
+        }
+      ]
+    },
+    {
+      "principal_id": "orders-worker",
+      "role": "WORKER",
+      "queue_scopes": [
+        "orders"
+      ],
+      "credentials": [
+        {
+          "generation_id": "worker-current",
+          "secret": "replace-me-worker-current"
+        }
+      ]
+    },
+    {
+      "principal_id": "operations-observer",
+      "role": "OBSERVER",
+      "queue_scopes": [
+        "orders",
+        "orders.audit"
+      ],
+      "credentials": [
+        {
+          "generation_id": "observer-current",
+          "secret": "replace-me-observer-current"
+        }
+      ]
+    },
+    {
+      "principal_id": "operations-admin",
+      "role": "ADMIN",
+      "queue_scopes": [],
+      "credentials": [
+        {
+          "generation_id": "admin-current",
+          "secret": "replace-me-admin-current"
+        }
+      ]
+    }
+  ]
+}

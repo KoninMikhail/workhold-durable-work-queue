@@ -1,0 +1,26 @@
+{
+  "claimers": 32,
+  "errors": 0,
+  "evidence_mode": "live",
+  "hot_path_scope": "claim-only",
+  "latency_sample_count": 17499,
+  "measured_seconds": 30.0,
+  "name": "priority-claim",
+  "physical_signature_digest": "07c55cba9ac1fd6ad0d6bb30b0a58eb4b6b7bfaddc89b9cdabc22344f235d498",
+  "priority_distribution": {
+    "due_rows": 80000,
+    "due_rows_per_queue": 2500,
+    "future_rows": 16000,
+    "future_rows_per_queue": 500,
+    "priority_workload": "future-high-heavy",
+    "queues": 32
+  },
+  "priority_workload": "future-high-heavy",
+  "qualification_profile": "priority-claim",
+  "sample_seconds": 30,
+  "successful_claims": 17499,
+  "target_claims_per_second": 500,
+  "valid_attempts": 17499,
+  "warmup_seconds": 5,
+  "workload_hash": "b24643e6f24279d237d9a000b17f21306e5b5e67f25b13410cdca898d746f97a"
+}

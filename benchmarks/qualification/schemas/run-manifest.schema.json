@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://queue.local/schemas/run-manifest.schema.json",
+  "title": "Queue qualification run manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "bundle_stage",
+    "evidence_mode",
+    "latency_sample_count",
+    "environment_hash",
+    "workload_hash",
+    "schema_revision",
+    "catalog_signature",
+    "git_sha",
+    "image_digests",
+    "started_at_utc",
+    "ended_at_utc",
+    "conformance",
+    "artifact_classes"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "bundle_stage": { "type": "string", "enum": ["raw", "final"] },
+    "evidence_mode": {
+      "type": "string",
+      "enum": ["live", "synthetic", "compressed"],
+      "description": "live = measured reference-host capture; synthetic|compressed = CI fixture (not production PASS without --allow-synthetic)"
+    },
+    "latency_sample_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Count of rows in latencies.jsonl.gz; distinct from declared terminal_lifecycles envelope"
+    },
+    "environment_hash": { "type": "string", "minLength": 1 },
+    "workload_hash": { "type": "string", "minLength": 1 },
+    "schema_revision": { "type": "string", "minLength": 1 },
+    "catalog_signature": { "type": "string", "minLength": 1 },
+    "git_sha": { "type": "string", "minLength": 1 },
+    "image_digests": {
+      "type": "object",
+      "required": ["queue", "postgres"],
+      "properties": {
+        "queue": { "type": "string", "minLength": 1 },
+        "postgres": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": { "type": "string" }
+    },
+    "started_at_utc": { "type": "string", "minLength": 1 },
+    "ended_at_utc": { "type": "string", "minLength": 1 },
+    "validated_raw_set_digest": { "type": "string", "minLength": 1 },
+    "conformance": {
+      "type": "object",
+      "required": ["path", "variants"],
+      "properties": {
+        "path": { "type": "string", "const": "conformance.xml" },
+        "variants": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "string", "enum": ["raw_http", "sdk"] },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "artifact_classes": {
+      "type": "object",
+      "required": ["raw", "derived", "checksums"],
+      "properties": {
+        "raw": {
+          "type": "array",
+          "const": [
+            "manifest.json",
+            "environment.json",
+            "workload.json",
+            "conformance.xml",
+            "latencies.jsonl.gz",
+            "postgres-before.json",
+            "postgres-after.json",
+            "plans/index.json"
+          ]
+        },
+        "derived": {
+          "type": "array",
+          "const": ["summary.json", "qualification.json", "report.md"]
+        },
+        "checksums": {
+          "type": "array",
+          "const": ["SHA256SUMS"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "queues": [
+    {
+      "name": "orders",
+      "initial_policy": {
+        "enabled": true,
+        "max_attempts": 5,
+        "backoff_strategy": "fixed",
+        "retry_delay_seconds": 30
+      }
+    }
+  ]
+}

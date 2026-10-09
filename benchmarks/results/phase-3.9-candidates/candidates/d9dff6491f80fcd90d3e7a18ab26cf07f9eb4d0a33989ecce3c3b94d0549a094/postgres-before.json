@@ -1,0 +1,12 @@
+{
+  "autovacuum_lag_seconds": 0,
+  "buffer_hits": 0,
+  "dead_tuples": 0,
+  "environment_hash": "env-hash-candidates",
+  "execution_time_ms": 1,
+  "index_bytes": 0,
+  "planning_time_ms": 1,
+  "touched_partitions": [],
+  "unsafe_hot_seq_scan": false,
+  "wal_bytes": 0
+}

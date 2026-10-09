@@ -1,0 +1,44 @@
+[project]
+name = "queue_service"
+version = "1.0.0"
+description = "Workhold - Durable work queue"
+authors = [
+    { name = "Mikhail Konin", email = "dev.konin@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.20.0",
+    "psycopg[binary]>=3.3.5",
+    "sentry-sdk>=2.69.2,<3",
+    "sqlalchemy>=2.0.54",
+]
+
+[project.scripts]
+queue = "queue_service.cli:run"
+
+[build-system]
+requires = ["uv_build>=0.11.30,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "queue_service"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.25",
+    "httpx>=0.28.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "packages/queue-service-client-core",
+    "packages/queue-service-producer",
+    "packages/queue-service-consumer",
+    "packages/queue-service-admin",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

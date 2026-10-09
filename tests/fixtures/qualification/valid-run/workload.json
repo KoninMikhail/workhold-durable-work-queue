@@ -1,0 +1,10 @@
+{
+  "evidence_mode": "live",
+  "latency_sample_count": 262,
+  "measured_seconds": 300,
+  "profile": "phase-3.9-linux-x86_64-v1",
+  "successful_claims": 150000,
+  "target_claims_per_second": 500,
+  "terminal_lifecycles": 1000000,
+  "workload_hash": "wl-hash-bbb"
+}

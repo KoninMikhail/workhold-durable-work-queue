@@ -1,0 +1,57 @@
+{
+  "checks": {
+    "claims_per_second": {
+      "actual": 500.0,
+      "limit": 500.0,
+      "pass": true
+    },
+    "max_fanout_complete_p99_ns": {
+      "actual": 409000000,
+      "limit": null,
+      "note": "reported separately; never merged into baseline complete p99",
+      "pass": true
+    },
+    "p99_baseline_complete_ns": {
+      "actual": 9900000,
+      "limit": 200000000,
+      "pass": true
+    },
+    "p99_claim_ns": {
+      "actual": 10800000,
+      "limit": 100000000,
+      "pass": true
+    },
+    "p99_enqueue_ns": {
+      "actual": 4450000,
+      "limit": 100000000,
+      "pass": true
+    },
+    "p99_heartbeat_ns": {
+      "actual": 5450000,
+      "limit": 100000000,
+      "pass": true
+    },
+    "valid_success_ratio": {
+      "actual": 1.0,
+      "limit": 0.999,
+      "pass": true
+    }
+  },
+  "evidence_mode": "live",
+  "production_qualified": true,
+  "run_id": "run-fixture-001",
+  "sources": {
+    "adr_019": "docs/04-architecture/adr/019-initial-production-gate.md",
+    "adr_023": "docs/04-architecture/adr/023-qualified-kernel-storage-profile.md",
+    "observability": "docs/05-operations/observability.md"
+  },
+  "thresholds": {
+    "claims_per_second_min": 500.0,
+    "p99_baseline_complete_ns_max": 200000000,
+    "p99_enqueue_claim_heartbeat_ns_max": 100000000,
+    "valid_success_ratio_min": 0.999
+  },
+  "validated_raw_set_digest": "55949cef6ffdf19c9b31cc58519dbe1f948ea20cbb7455706f5ca19889ee75a3",
+  "verdict": "PASS",
+  "verdict_note": "Live reference-host evidence met ADR 019 thresholds."
+}

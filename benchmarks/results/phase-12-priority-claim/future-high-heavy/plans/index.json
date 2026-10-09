@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "operation": "claim",
+      "path": "plans/claim-priority.json",
+      "scenario": "future-high-heavy"
+    }
+  ]
+}

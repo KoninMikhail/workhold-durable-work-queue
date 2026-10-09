@@ -1,0 +1,26 @@
+{
+  "captured_at_utc": "2026-09-19T16:28:20Z",
+  "environment_hash": "b60b8c45da94f629ccb92130bc505561c0d00b46b208b6d602cab851a3806b21",
+  "git_sha": "a9c33848e889a2708a68e3eccee4372635617d06",
+  "image_digests": {
+    "postgres": "sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd",
+    "queue": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "index_definition": "CREATE INDEX tasks_active_claim_idx ON pq12_reclaim_heavy_3bcd4646.tasks_active USING btree (queue_id, state_code, priority DESC, available_at, id)",
+  "physical_signature": {
+    "columns": [
+      "queue_id",
+      "state_code",
+      "priority DESC",
+      "available_at",
+      "id"
+    ],
+    "index_name": "tasks_active_claim_idx",
+    "schema_revision": "1201_bounded_priority_claim_ordering",
+    "table": "tasks_active"
+  },
+  "physical_signature_digest": "07c55cba9ac1fd6ad0d6bb30b0a58eb4b6b7bfaddc89b9cdabc22344f235d498",
+  "postgres_version": "18.6",
+  "profile_id": "phase-3.9-linux-x86_64-v1",
+  "schema_revision": "1201_bounded_priority_claim_ordering"
+}

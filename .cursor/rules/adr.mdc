@@ -1,0 +1,91 @@
+---
+description: ADR — when to record an architectural decision, where to put it (repo-level), supersede
+globs: docs/**/adr/**,docs/04-architecture/**
+alwaysApply: false
+---
+
+# ADR — Architecture Decision Records
+
+An **ADR** records **why** an architectural approach was chosen, not only **how** it is built.
+
+Workflow and template — skill **`create-adr`**.
+`docs/` tree — rule **`docs-structure.mdc`**.
+
+## Level: repository
+
+| Path | Format | Size |
+| --- | --- | --- |
+| `docs/04-architecture/adr/<nnn>-<slug>.md` | classic ADR | up to **~40 lines** |
+
+Legacy: `docs/adr/` — do not create in new projects.
+
+Local decisions inside a module — a short section in the module `docs/` or a comment in architecture; a **separate ADR** only if the decision affects several modules or the whole repo.
+
+## Gate: is an ADR needed
+
+| Situation | ADR |
+| --- | --- |
+| Pattern by project convention, no dispute | ❌ |
+| Choice between **2+** approaches with trade-offs | ✅ |
+| Rejecting the team's "obvious" pattern | ✅ |
+| Auth, deploy, service contract, data migration, event bus | ✅ |
+| "Why the business works this way" | ❌ → concepts / product doc |
+| Data flow, invariants, diagram | ❌ → `architecture.md` |
+
+If unsure — a short ADR is better than context lost six months later.
+
+## Where **not** to write an ADR
+
+| Question | File |
+| --- | --- |
+| How data flows / layers / components | `docs/04-architecture/*.md` |
+| Why the product / BR / roles | `docs/01-concepts/` |
+| HTTP fields, env, CLI | `docs/03-reference/` |
+| How-to "how to run" | `docs/02-guides/` |
+
+An ADR **supplements** architecture with a "why this way" link; it does not replace it.
+
+## Naming
+
+`001-slug.md`, `002-slug.md` — the next number = max + 1 in `docs/04-architecture/adr/`.
+The adr folder has a **`README.md`** table of contents (table ADR | Title | Status).
+
+## Contents (required blocks)
+
+**Status**, **Date**, **Scope** + **Context**, **Decision**, **Alternatives** (table), **Consequences**, **References**.
+
+Write the **decision in the present tense** ("we use …"), not as minutes of a discussion.
+
+## Lifecycle
+
+| Status | When |
+| --- | --- |
+| **Accepted** | the decision is in effect |
+| **Superseded** | replaced by a new ADR |
+
+- **One file = one decision.** Do not merge unrelated choices.
+- **Do not delete** outdated ADRs — in the old file header: `> **Superseded by** [new-slug.md](…)`; update the README table of contents.
+- A new decision on the **same topic** — a new file + supersede; do not rewrite history in place (except typos).
+
+## Links after create / update
+
+1. **`docs/04-architecture/*.md`** — inline "see [adr/…](…)" next to a non-obvious choice.
+2. **`docs/04-architecture/adr/README.md`** — a row in the table.
+3. Root **`docs/README.md`** — a link to the architecture/adr section when needed.
+4. Optional footer `Refs: #id` in the ADR, if the decision comes from a tracked task.
+
+## Anti-patterns
+
+- An ADR in a PR comment instead of a file in the repo
+- One `misc.md` for every decision
+- An ADR without rejected alternatives
+- Duplicating whole sections from architecture.md inside the ADR
+- `progress.md` / `active-context.md` instead of an ADR
+- A repo ADR in `docs/02-guides/` or at the `docs/` root without `04-architecture/adr/`
+
+## Related artifacts
+
+| Artifact | Role |
+| --- | --- |
+| skill `create-adr` | draft, template, self-check |
+| rule `docs-structure.mdc` | where in the `docs/` tree |

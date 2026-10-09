@@ -1,0 +1,161 @@
+# Local role-separated topology (ADR-015 / DEP-01..03 / SEC-04).
+# One immutable runtime image; migrate is one-shot; API does not migrate on start.
+# Admin listener stays on the internal network only (not published to the host).
+# Plaintext public binding is development-only — production must set
+# QUEUE_ENVIRONMENT=production with direct_tls or trusted_private_tls_termination.
+
+x-queue-runtime: &queue-runtime
+  image: queue:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+    target: runtime
+  init: true
+  env_file:
+    - path: .env
+      required: false
+  environment: &queue-env
+    PYTHONUNBUFFERED: "1"
+    DATABASE_URL: postgresql+psycopg://queue:queue@postgres:5432/queue
+    QUEUE_ENVIRONMENT: ${QUEUE_ENVIRONMENT:-development}
+    QUEUE_LISTENER_TLS_MODE: ${QUEUE_LISTENER_TLS_MODE:-plaintext_public}
+    QUEUE_POSTGRES_MAX_CONNECTIONS: ${QUEUE_POSTGRES_MAX_CONNECTIONS:-100}
+    QUEUE_POSTGRES_RESERVED_CONNECTIONS: ${QUEUE_POSTGRES_RESERVED_CONNECTIONS:-10}
+    QUEUE_API_REPLICA_CEILING: ${QUEUE_API_REPLICA_CEILING:-1}
+    QUEUE_API_POOL_CEILING: ${QUEUE_API_POOL_CEILING:-4}
+    QUEUE_ADMIN_REPLICA_CEILING: ${QUEUE_ADMIN_REPLICA_CEILING:-1}
+    QUEUE_ADMIN_POOL_CEILING: ${QUEUE_ADMIN_POOL_CEILING:-2}
+    QUEUE_MIGRATE_REPLICA_CEILING: ${QUEUE_MIGRATE_REPLICA_CEILING:-1}
+    QUEUE_MIGRATE_POOL_CEILING: ${QUEUE_MIGRATE_POOL_CEILING:-2}
+    QUEUE_APPLY_REPLICA_CEILING: ${QUEUE_APPLY_REPLICA_CEILING:-1}
+    QUEUE_APPLY_POOL_CEILING: ${QUEUE_APPLY_POOL_CEILING:-2}
+    QUEUE_MAINTAIN_REPLICA_CEILING: ${QUEUE_MAINTAIN_REPLICA_CEILING:-1}
+    QUEUE_MAINTAIN_POOL_CEILING: ${QUEUE_MAINTAIN_POOL_CEILING:-2}
+    QUEUE_RELAY_REPLICA_CEILING: ${QUEUE_RELAY_REPLICA_CEILING:-1}
+    QUEUE_RELAY_POOL_CEILING: ${QUEUE_RELAY_POOL_CEILING:-2}
+    QUEUE_SHUTDOWN_GRACE_SECONDS: ${QUEUE_SHUTDOWN_GRACE_SECONDS:-5}
+    QUEUE_PARTITION_PREMAKE_DAYS: ${QUEUE_PARTITION_PREMAKE_DAYS:-30}
+    QUEUE_PAYLOAD_RETENTION_DAYS: ${QUEUE_PAYLOAD_RETENTION_DAYS:-90}
+    QUEUE_API_BEARER_TOKEN: ${QUEUE_API_BEARER_TOKEN:-dev-token-current}
+    # Use `-` (not `:-`) so an explicitly empty previous token clears rotation overlap.
+    QUEUE_API_BEARER_TOKEN_PREVIOUS: ${QUEUE_API_BEARER_TOKEN_PREVIOUS-dev-token-previous}
+    QUEUE_APPLICATION_HOST: "0.0.0.0"
+    QUEUE_APPLICATION_PORT: "8080"
+    QUEUE_ADMIN_HOST: "0.0.0.0"
+    QUEUE_ADMIN_PORT: "8081"
+  networks:
+    - queue-internal
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    # PostgreSQL 18.6 alpine (D-01/D-02). Leftover named volume `queue-pgdata` and
+    # host PG 16 datadirs are unsupported — destroy/recreate with:
+    #   docker compose -f docker-compose.dev.yml down -v
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_USER: queue
+      POSTGRES_PASSWORD: queue
+      POSTGRES_DB: queue
+      # Keep headroom above the declared role pool budget (10 reserved + 14 committed).
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    command:
+      - postgres
+      - -c
+      - max_connections=100
+    ports:
+      - "5432:5432"
+    volumes:
+      # PG 18 official image uses /var/lib/postgresql (not .../data). New volume name.
+      - queue-pgdata-18:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U queue -d queue"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - queue-internal
+
+  migrate:
+    <<: *queue-runtime
+    command: ["migrate"]
+    restart: "no"
+
+  api:
+    <<: *queue-runtime
+    command: ["api"]
+    # Application plane only — admin stays unpublished (private Compose network).
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  maintain:
+    <<: *queue-runtime
+    profiles: ["maintain"]
+    command: ["maintain"]
+    restart: "no"
+    # depends_on documents intended order for `compose up --profile maintain`.
+    # Against a live migrate+api stack, prefer:
+    #   docker compose --profile maintain run --no-deps --rm maintain
+    # so Compose does not re-orchestrate migrate/postgres (flaky on Windows Docker).
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  relay:
+    <<: *queue-runtime
+    profiles: ["relay"]
+    # Reserved until Delivery Outbox (Phase 5); assert fail-closed startup.
+    command: ["relay"]
+    restart: "no"
+    # Same as maintain: use `run --no-deps` for one-shots over a running stack.
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  apply:
+    <<: *queue-runtime
+    profiles: ["apply"]
+    command: ["apply"]
+    restart: "no"
+    # Optional one-shot catalog ensure-exists (CTRL-10). API must not depends_on apply.
+    # Against a live migrate+api stack, prefer:
+    #   docker compose --profile apply run --no-deps --rm apply
+    environment:
+      <<: *queue-env
+      QUEUE_CATALOG_PATH: /etc/queue/catalog.json
+    volumes:
+      - ./docs/08-examples/named-queue-catalog.example.json:/etc/queue/catalog.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+networks:
+  queue-internal:
+    driver: bridge
+    internal: false
+
+volumes:
+  queue-pgdata-18:

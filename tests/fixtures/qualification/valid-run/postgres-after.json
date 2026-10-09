@@ -1,0 +1,12 @@
+{
+  "autovacuum_lag_seconds": 1,
+  "buffer_hits": 900,
+  "dead_tuples": 12,
+  "environment_hash": "env-hash-aaa",
+  "execution_time_ms": 40,
+  "planning_time_ms": 2,
+  "touched_partitions": [
+    "history_2026_09_19"
+  ],
+  "wal_bytes": 5000
+}

@@ -1,0 +1,74 @@
+---
+description: Auto-commits at key points + Conventional Commits (stack-agnostic)
+alwaysApply: true
+---
+
+# Auto-commits and Conventional Commits
+
+Make commits yourself at key points — do not wait for a separate request every time. Commit logically
+complete chunks in a **working state**; do not commit something you know is broken.
+
+Message format in detail — skill `commit-messages` (if installed).
+
+## When to commit (key points)
+
+- A logical block is done: a feature increment, a refactoring step, a fix, a documentation block, config.
+- Before a risky or large change — a checkpoint of the current working state.
+- After successful **local project checks** (if they exist and fit the size of the change).
+- One atomic commit = one meaning; do not commit every tiny change and do not mix unrelated changes.
+
+### Which checks to run
+
+See what is accepted **in this repository** (do not invent commands):
+
+- README, CONTRIBUTING, `Makefile`, `package.json` scripts, `pyproject.toml`, CI config.
+- Typical examples: lint, format, typecheck, unit tests, build — **only if the project documents them**.
+- No explicit standard — minimum `git status` + `git diff`; do not block a commit because npm/go/cargo is absent if the user did not ask for a run.
+
+## What NOT to do
+
+- Do NOT `git push` without an explicit request. Do NOT force-push. Do NOT `--amend` commits that are already pushed.
+- Do NOT commit secrets (`.env`, keys, tokens, credentials) or junk.
+- Do NOT use interactive wrappers (`git-cz`, `npm run commit`, and similar) — commit directly with `git commit`.
+- Do NOT change git config. Do NOT bypass hooks (`--no-verify`).
+
+## Message format (Conventional Commits)
+
+`type(scope): short description` → blank line → body (what/why) → optional footer.
+
+- **type**: `feat` | `fix` | `docs` | `style` | `refactor` | `perf` | `test` | `build` | `ci` | `chore` | `revert`.
+- **scope** (optional): module, package, area — as the repo does; lowercase, unless another convention exists.
+- **subject**: language as in the repository `git log` history; concise, no trailing period; header ≤100 characters.
+- **body**: what and why (not a line-by-line diff); lists — short lines.
+- **breaking change**: `type!:` in the header or a footer `BREAKING CHANGE: ...`.
+- Optional footer `Refs: #…`, if the work is tied to a tracked issue.
+
+A multiline message — HEREDOC (bash):
+
+```bash
+git commit -m "$(cat <<'EOF'
+fix(auth): fix redirect after logout
+
+Cause: the session was not cleared on the client.
+Check: logout → login as another user.
+EOF
+)"
+```
+
+## Git hooks
+
+If the repository has hooks — **follow them**; do not bypass them:
+
+- **commit-msg** — message format; if rejected, fix the text and commit again.
+- **pre-commit / pre-push** — lint/format/test; a hook may change files after the commit.
+
+Behavior with hooks:
+
+1. Commit **rejected** — fix the cause, make a **new** commit (not amend, if amend is not appropriate under user rules).
+2. Commit **succeeded**, the hook **wrote extra files** — add them; `--amend` only if HEAD is not pushed and user rules allow it.
+3. Before the commit — `git status` + `git diff`, so staging contains only what belongs.
+
+## Releases and versioning
+
+Release tools (`standard-version`, changesets, semantic-release, manual tags, and similar) —
+**only on an explicit user request**. Do not bump the version, changelog, or publish on your own.

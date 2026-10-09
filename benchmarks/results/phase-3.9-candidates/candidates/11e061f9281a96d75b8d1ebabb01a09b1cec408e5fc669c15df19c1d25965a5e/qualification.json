@@ -1,0 +1,53 @@
+{
+  "checks": {
+    "claims_per_second": {
+      "actual": 500.0,
+      "limit": 500.0,
+      "pass": true
+    },
+    "max_fanout_complete_p99_ns": {
+      "actual": 409000000,
+      "limit": null,
+      "note": "reported separately; never merged into baseline complete p99",
+      "pass": true
+    },
+    "p99_baseline_complete_ns": {
+      "actual": 50000000,
+      "limit": 200000000,
+      "pass": true
+    },
+    "p99_claim_ns": {
+      "actual": 13417817,
+      "limit": 100000000,
+      "pass": true
+    },
+    "p99_enqueue_ns": {
+      "actual": 13417817,
+      "limit": 100000000,
+      "pass": true
+    },
+    "p99_heartbeat_ns": {
+      "actual": 13417817,
+      "limit": 100000000,
+      "pass": true
+    },
+    "valid_success_ratio": {
+      "actual": 1.0,
+      "limit": 0.999,
+      "pass": true
+    }
+  },
+  "run_id": "cand-11e061f9281a96d7",
+  "sources": {
+    "adr": "docs/04-architecture/adr/019-initial-production-gate.md",
+    "observability": "docs/05-operations/observability.md"
+  },
+  "thresholds": {
+    "claims_per_second_min": 500.0,
+    "p99_baseline_complete_ns_max": 200000000,
+    "p99_enqueue_claim_heartbeat_ns_max": 100000000,
+    "valid_success_ratio_min": 0.999
+  },
+  "validated_raw_set_digest": "87923add9ee8198a73e52f5235a79693439b5d14f7f26670b0e46e9d35fe1443",
+  "verdict": "PASS"
+}

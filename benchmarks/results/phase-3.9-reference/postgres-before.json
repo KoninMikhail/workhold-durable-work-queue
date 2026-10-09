@@ -1,0 +1,8 @@
+{
+  "autovacuum_lag_seconds": 0,
+  "buffer_hits": 100,
+  "dead_tuples": 0,
+  "environment_hash": "da3e34dc7051decb8374f34d69e876c881ab93ed933b7ed1da3ab08cfcaa5e97",
+  "touched_partitions": [],
+  "wal_bytes": 1000
+}

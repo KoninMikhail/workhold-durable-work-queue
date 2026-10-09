@@ -1,0 +1,8 @@
+{
+  "files": [
+    {
+      "operation": "claim",
+      "path": "plans/claim-baseline.json"
+    }
+  ]
+}

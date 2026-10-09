@@ -1,0 +1,64 @@
+# Isolated Phase 3.1 conformance topology.
+# Does not alter docker-compose.dev.yml semantics.
+services:
+  conformance-postgres:
+    # Digest-pinned OCI index for postgres:18.6-alpine (not amd64-only manifest).
+    image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+    environment:
+      POSTGRES_USER: queue
+      POSTGRES_PASSWORD: queue
+      POSTGRES_DB: queue
+    # Ephemeral only — no host or named volume for PostgreSQL data.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U queue -d queue"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  conformance-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - conformance-venv:/app/.venv
+    ports:
+      - "8080:8080"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      QUEUE_CONTRACT_HOST: "0.0.0.0"
+      QUEUE_CONTRACT_PORT: "8080"
+      DATABASE_URL: postgresql+psycopg://queue:queue@conformance-postgres:5432/queue
+    command:
+      [
+        "uv",
+        "run",
+        "--group",
+        "dev",
+        "python",
+        "-m",
+        "queue_service.contract_stub",
+      ]
+    # TCP/process health only — must not interpret any HTTP/protocol response
+    # as conformance evidence.
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import socket; s=socket.create_connection(('127.0.0.1', 8080), 2); s.close()",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    depends_on:
+      conformance-postgres:
+        condition: service_healthy
+    init: true
+
+volumes:
+  conformance-venv:

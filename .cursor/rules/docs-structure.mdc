@@ -1,0 +1,83 @@
+---
+description: Repository documentation structure docs/ — numbered sections NN-kebab-case
+globs: docs/**/*
+alwaysApply: false
+---
+
+# `docs/` structure (repository)
+
+**Repository** documentation lives in `docs/` with **numbered** sections. Reading order = folder order.
+
+**Do not confuse:**
+
+| Path | Purpose |
+| --- | --- |
+| **`README.md`** (root) | Repo landing — rule **`readme.mdc`** |
+| `docs/00-*` … `docs/05-*` | Long-lived docs for humans and agents |
+| `docs/_ai/` | Memory Bank — compressed snapshot (rule `memory-bank.mdc`) |
+| `src/.../<module>/docs/` | Optional **module** docs — if the project uses them |
+
+## Naming
+
+- Section: **`NN-kebab-case/`** — two digits, hyphen, lowercase (`03-reference`, not `reference` and not `3-reference`).
+- Files inside: **kebab-case.md**; when order is needed — a `01-` prefix in the file name.
+- **`docs/README.md`** — table of contents for the whole tree (section table + key files).
+
+## Base sections (template)
+
+| Section | Contents |
+| --- | --- |
+| `00-onboarding/` | Quick start: clone, env, first run, "where to look next" |
+| `01-concepts/` | Terms, domain, glossary, "how the product works" without code details |
+| `02-guides/` | How-to: scenarios, step-by-step instructions, developer runbooks |
+| `03-reference/` | Reference: env, API surface, schemas, CLI, configs — **facts**, little prose |
+| `04-architecture/` | System design, layers, diagrams, repo-level ADR (`adr/`) |
+| `05-operations/` | Deploy, monitoring, incidents, backups, prod access |
+
+The **00–05** set is the starter; at project bootstrap create the ones you need. Do not create empty sections.
+
+## Where to put new material
+
+| Content type | Section |
+| --- | --- |
+| "How to run locally / first MR" | `00-onboarding/` |
+| "What X is in the product" | `01-concepts/` |
+| "How to do Y step by step" | `02-guides/` |
+| Env table, OpenAPI, DTO fields | `03-reference/` |
+| C4, hexagonal, data flow, repo ADR | `04-architecture/` |
+| Helm, CI/CD, on-call, logs | `05-operations/` |
+
+If unsure — **reference** (facts) vs **guide** (actions) vs **concepts** (meaning).
+
+## New sections and files
+
+- A new **section** — the next number: `06-…`, only if it does not fit in 00–05; **update** `docs/README.md`.
+- A new **file** — into an existing section; add a link in the section README or the root `docs/README.md`.
+- **Do not** create parallel trees (`doc/`, `documentation/`, `wiki/` at the root) — one `docs/`.
+- **Do not** put ephemeral notes (sprint status, "we are doing this now") — MR / chat.
+
+## Link to Memory Bank
+
+`docs/_ai/` **links** to `docs/NN-*`; it does not copy long guides:
+
+- in `docs/_ai/README.md` — a table "topic → `docs/03-reference/…`";
+- an extract in the memory bank only if the agent needs it every time without opening a large reference.
+
+## Link to ADR
+
+Repo-level ADR: `docs/04-architecture/adr/` — rule **`adr.mdc`**, skill **`create-adr`**.
+
+Format: `NNN-slug.md` + a `README.md` table of contents in the adr folder.
+
+## Anti-patterns
+
+- Files at the `docs/` root without a number (except `README.md`, `_ai/`).
+- Renaming `03-reference` → `reference` (breaks sort order and links).
+- Duplicating the same text in `docs/` and `docs/_ai/`.
+- Putting repo-level architecture in `src/` instead of `docs/04-architecture/`.
+
+## When docs change
+
+1. New material — into the correct **numbered** section.
+2. Update the table of contents (`docs/README.md` and, if needed, the section README).
+3. If "how the project is structured" changed — sync `docs/_ai/architecture.md` (short + link).

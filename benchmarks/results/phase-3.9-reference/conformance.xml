@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="queue-qualification" tests="4" failures="0" errors="0" skipped="0">
+  <testsuite name="raw_http" tests="2" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="client_variant" value="raw_http"/>
+      <property name="run_id" value="run-phase39-reference-001"/>
+      <property name="environment_hash" value="da3e34dc7051decb8374f34d69e876c881ab93ed933b7ed1da3ab08cfcaa5e97"/>
+      <property name="workload_hash" value="772d19e930ec621bc4a17463cd635f4465119cd8fd2ae25e42f9d8b4ce3095d3"/>
+      <property name="git_sha" value="1612ebf590c9379ad4cb1159f53e7a9687081041"/>
+      <property name="schema_revision" value="039_apply_qualified_storage_layout"/>
+      <property name="catalog_signature" value="admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx"/>
+    </properties>
+    <testcase classname="kernel" name="enqueue_claim_complete" time="0.01"/>
+    <testcase classname="kernel" name="heartbeat" time="0.01"/>
+  </testsuite>
+  <testsuite name="sdk" tests="2" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="client_variant" value="sdk"/>
+      <property name="run_id" value="run-phase39-reference-001"/>
+      <property name="environment_hash" value="da3e34dc7051decb8374f34d69e876c881ab93ed933b7ed1da3ab08cfcaa5e97"/>
+      <property name="workload_hash" value="772d19e930ec621bc4a17463cd635f4465119cd8fd2ae25e42f9d8b4ce3095d3"/>
+      <property name="git_sha" value="1612ebf590c9379ad4cb1159f53e7a9687081041"/>
+      <property name="schema_revision" value="039_apply_qualified_storage_layout"/>
+      <property name="catalog_signature" value="admin_audit_log_queue_audit_idx,admin_replay_expires_at_idx,complete_replay_expires_at_idx,delivery_events_terminal_event_idx,task_attempts_task_claimed_idx,tasks_active_claim_idx,tasks_terminal_spawn_lineage_idx,tasks_terminal_task_terminal_idx"/>
+    </properties>
+    <testcase classname="kernel" name="enqueue_claim_complete" time="0.01"/>
+    <testcase classname="kernel" name="heartbeat" time="0.01"/>
+  </testsuite>
+</testsuites>

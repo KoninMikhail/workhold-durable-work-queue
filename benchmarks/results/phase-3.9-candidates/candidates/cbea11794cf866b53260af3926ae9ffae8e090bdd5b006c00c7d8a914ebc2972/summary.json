@@ -1,0 +1,100 @@
+{
+  "candidate_id": "cbea11794cf866b53260af3926ae9ffae8e090bdd5b006c00c7d8a914ebc2972",
+  "candidate_kind": "hash",
+  "candidate_signature": "complete_replay:32",
+  "max_fanout_complete_p99_ns": 409000000,
+  "operations": [
+    {
+      "count": 100,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "claim",
+      "p50_ns": 12164745,
+      "p99_ns": 12214745,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 100,
+      "valid_attempts": 100
+    },
+    {
+      "count": 50,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "complete",
+      "p50_ns": 49975000,
+      "p99_ns": 50000000,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 50,
+      "valid_attempts": 50
+    },
+    {
+      "count": 10,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "complete",
+      "p50_ns": 404000000,
+      "p99_ns": 409000000,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "max_fanout",
+      "success_ratio": 1.0,
+      "successes": 10,
+      "valid_attempts": 10
+    },
+    {
+      "count": 50,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "enqueue",
+      "p50_ns": 12189745,
+      "p99_ns": 12214745,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 50,
+      "valid_attempts": 50
+    },
+    {
+      "count": 50,
+      "errors": 0,
+      "invalid_requests": 0,
+      "operation": "heartbeat",
+      "p50_ns": 12189745,
+      "p99_ns": 12214745,
+      "planned_drain": 0,
+      "planned_pause": 0,
+      "scenario": "baseline",
+      "success_ratio": 1.0,
+      "successes": 50,
+      "valid_attempts": 50
+    }
+  ],
+  "overall_valid_success_ratio": 1.0,
+  "postgres": {
+    "autovacuum_lag_seconds": 1,
+    "buffer_hits": 900,
+    "dead_tuples": 12,
+    "execution_time_ms": 40,
+    "index_bytes": 0,
+    "measured_run_seconds": 120.0,
+    "planning_time_ms": 2,
+    "touched_partitions": [
+      "history_2026_09_19"
+    ],
+    "unsafe_hot_seq_scan": false,
+    "wal_bytes": 17945
+  },
+  "run_id": "cand-cbea11794cf866b5",
+  "throughput": {
+    "claims_per_second": 500.0,
+    "measured_seconds": 120.0,
+    "successful_claims": 60000
+  },
+  "validated_raw_set_digest": "7666498980b803a41c73c9581da62e3870d034bbbb8a69a82da4a43056781bad"
+}
