@@ -13,7 +13,7 @@ must not become a third unbounded pool beside migrate and maintain.
 
 ## Decision
 
-The fifth image command is `queue apply` (admin stays a plane of `api`, not a CLI role).
+The fifth image command is `workhold apply` (admin stays a plane of `api`, not a CLI role).
 The catalog path is the absolute `QUEUE_CATALOG_PATH` (an environment variable of the apply role, not a
 `DeploymentSettings` field). HTTP listeners are not started; the `api` compose service does not
 `depends_on` apply. Advisory lock `QUEUAPLY` = `0x5155455541504C59`, separate

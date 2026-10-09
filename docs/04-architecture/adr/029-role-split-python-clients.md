@@ -1,5 +1,7 @@
 # 029. Role-split producer/consumer/admin Python clients
 
+> **Distribution names superseded by** [030-workhold-distribution-names.md](030-workhold-distribution-names.md). Role split remains Accepted.
+
 **Status:** Accepted  
 **Date:** 2026-09-22  
 **Scope:** Python client distributions, package layout, operation ownership

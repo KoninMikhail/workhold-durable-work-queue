@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import pytest
 
-from queue_service.observability.metrics import (
+from workhold.observability.metrics import (
     ALLOWED_LABEL_KEYS,
     KernelMetrics,
 )
-from queue_service.operations.break_glass import record_break_glass_success
+from workhold.operations.break_glass import record_break_glass_success
 
 
 _BREAK_GLASS_METRIC_NAMES = frozenset(

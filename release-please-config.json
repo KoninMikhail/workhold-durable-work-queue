@@ -21,7 +21,7 @@
   ],
   "packages": {
     ".": {
-      "component": "queue-service",
+      "component": "workhold",
       "extra-files": [
         {
           "type": "toml",
@@ -30,22 +30,22 @@
         },
         {
           "type": "toml",
-          "path": "packages/queue-service-client-core/pyproject.toml",
+          "path": "packages/workhold-client-core/pyproject.toml",
           "jsonpath": "$.project.version"
         },
         {
           "type": "toml",
-          "path": "packages/queue-service-producer/pyproject.toml",
+          "path": "packages/workhold-producer/pyproject.toml",
           "jsonpath": "$.project.version"
         },
         {
           "type": "toml",
-          "path": "packages/queue-service-consumer/pyproject.toml",
+          "path": "packages/workhold-consumer/pyproject.toml",
           "jsonpath": "$.project.version"
         },
         {
           "type": "toml",
-          "path": "packages/queue-service-admin/pyproject.toml",
+          "path": "packages/workhold-admin/pyproject.toml",
           "jsonpath": "$.project.version"
         }
       ]

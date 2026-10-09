@@ -1,7 +1,7 @@
 """Role package boundary proofs (SDK-03 / SDK-04).
 
 Public distributions are independently installable shells that depend only on
-compatible exact-minor ``queue-service-client-core``. Operation implementations
+compatible exact-minor ``workhold-client-core``. Operation implementations
 belong to later phases; this file guards packaging isolation only.
 """
 
@@ -23,56 +23,56 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DIST_DIR = REPO_ROOT / "dist"
 
 ROLE_PACKAGES: dict[str, dict[str, object]] = {
-    "queue-service-producer": {
-        "import": "queue_service_producer",
-        "wheel_prefix": "queue_service_producer",
+    "workhold-producer": {
+        "import": "workhold_producer",
+        "wheel_prefix": "workhold_producer",
         "public_names": ("ProducerClient",),
         "forbidden_imports": (
-            "queue_service_admin",
-            "queue_service_consumer",
-            "queue_service",
+            "workhold_admin",
+            "workhold_consumer",
+            "workhold",
             "queue_service_client",
         ),
     },
-    "queue-service-consumer": {
-        "import": "queue_service_consumer",
-        "wheel_prefix": "queue_service_consumer",
+    "workhold-consumer": {
+        "import": "workhold_consumer",
+        "wheel_prefix": "workhold_consumer",
         "public_names": ("ConsumerClient", "ConsumerSupervisor"),
         "forbidden_imports": (
-            "queue_service_admin",
-            "queue_service_producer",
-            "queue_service",
+            "workhold_admin",
+            "workhold_producer",
+            "workhold",
             "queue_service_client",
         ),
     },
-    "queue-service-admin": {
-        "import": "queue_service_admin",
-        "wheel_prefix": "queue_service_admin",
+    "workhold-admin": {
+        "import": "workhold_admin",
+        "wheel_prefix": "workhold_admin",
         "public_names": ("ObserverClient", "AdminClient", "BreakGlassClient"),
         "forbidden_imports": (
-            "queue_service_producer",
-            "queue_service_consumer",
-            "queue_service",
+            "workhold_producer",
+            "workhold_consumer",
+            "workhold",
             "queue_service_client",
         ),
     },
 }
 
 FORBIDDEN_TOP_LEVEL = {
-    "queue_service",
+    "workhold",
     "queue_service_client",
-    "_queue_service_client_core",
+    "_workhold_client_core",
 }
-SERVER_DEP_NAMES = {"queue", "queue-service", "queue_service"}
+SERVER_DEP_NAMES = {"queue", "workhold"}
 OTHER_ROLE_DEPS = {
-    "queue-service-producer",
-    "queue-service-consumer",
-    "queue-service-admin",
+    "workhold-producer",
+    "workhold-consumer",
+    "workhold-admin",
     "queue-client",
 }
 
 _CORE_EXACT_MINOR = re.compile(
-    r"^queue-service-client-core(?P<spec>\s*[^;]*?)(?:\s*;.*)?$",
+    r"^workhold-client-core(?P<spec>\s*[^;]*?)(?:\s*;.*)?$",
     re.IGNORECASE,
 )
 
@@ -131,7 +131,7 @@ def _requirement_name(req: str) -> str:
 
 
 def _assert_exact_minor_core(requires: list[str]) -> None:
-    core_reqs = [r for r in requires if _requirement_name(r) == "queue-service-client-core"]
+    core_reqs = [r for r in requires if _requirement_name(r) == "workhold-client-core"]
     assert len(core_reqs) == 1, f"expected exactly one core dependency, got {requires}"
     m = _CORE_EXACT_MINOR.match(core_reqs[0].strip())
     assert m is not None, core_reqs[0]
@@ -149,14 +149,14 @@ def _assert_exact_minor_core(requires: list[str]) -> None:
 def role_and_core_wheels() -> dict[str, Path]:
     DIST_DIR.mkdir(exist_ok=True)
     patterns = (
-        "queue_service_producer-*.whl",
-        "queue_service_consumer-*.whl",
-        "queue_service_admin-*.whl",
-        "queue_service_client_core-*.whl",
-        "queue-service-producer-*.whl",
-        "queue-service-consumer-*.whl",
-        "queue-service-admin-*.whl",
-        "queue-service-client-core-*.whl",
+        "workhold_producer-*.whl",
+        "workhold_consumer-*.whl",
+        "workhold_admin-*.whl",
+        "workhold_client_core-*.whl",
+        "workhold-producer-*.whl",
+        "workhold-consumer-*.whl",
+        "workhold-admin-*.whl",
+        "workhold-client-core-*.whl",
     )
     for pattern in patterns:
         for stale in DIST_DIR.glob(pattern):
@@ -167,7 +167,7 @@ def role_and_core_wheels() -> dict[str, Path]:
             "uv",
             "build",
             "--package",
-            "queue-service-client-core",
+            "workhold-client-core",
             "--out-dir",
             str(DIST_DIR),
         ]
@@ -176,7 +176,7 @@ def role_and_core_wheels() -> dict[str, Path]:
         _run(["uv", "build", "--package", dist, "--out-dir", str(DIST_DIR)])
 
     wheels = {
-        "queue-service-client-core": _latest_wheel("queue_service_client_core"),
+        "workhold-client-core": _latest_wheel("workhold_client_core"),
     }
     for dist, meta in ROLE_PACKAGES.items():
         wheels[dist] = _latest_wheel(str(meta["wheel_prefix"]))
@@ -220,7 +220,7 @@ def test_role_wheel_depends_only_on_exact_minor_core(
     _assert_exact_minor_core(pure)
     for req in pure:
         name = _requirement_name(req)
-        assert name == "queue-service-client-core", f"unexpected runtime dep: {req}"
+        assert name == "workhold-client-core", f"unexpected runtime dep: {req}"
         assert name not in SERVER_DEP_NAMES
         assert name not in (OTHER_ROLE_DEPS - {dist_name})
 
@@ -235,7 +235,7 @@ def test_clean_venv_imports_role_shell_without_cross_role_or_server(
     public_names = tuple(cfg["public_names"])  # type: ignore[arg-type]
     forbidden = tuple(cfg["forbidden_imports"])  # type: ignore[arg-type]
     role_wheel = role_and_core_wheels[dist_name]
-    core_wheel = role_and_core_wheels["queue-service-client-core"]
+    core_wheel = role_and_core_wheels["workhold-client-core"]
 
     with tempfile.TemporaryDirectory(prefix=f"{import_name}-boundary-") as tmp:
         venv = Path(tmp) / "venv"
@@ -271,8 +271,8 @@ for name in ({forbidden_repr},):
     else:
         raise SystemExit(f"{{name}} must not be importable from {{mod.__name__}}-only install")
 
-if {import_name!r} != "queue_service_admin":
-    for name in ("queue_service_admin", "queue_service_admin.break_glass"):
+if {import_name!r} != "workhold_admin":
+    for name in ("workhold_admin", "workhold_admin.break_glass"):
         try:
             importlib.import_module(name)
         except ModuleNotFoundError:

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from queue_service_producer.bridge.idempotency import bridge_idempotency_key
+from workhold_producer.bridge.idempotency import bridge_idempotency_key
 
 # Frozen protocol vectors — accidental algorithm changes MUST fail these pins.
 GOLDEN_VECTORS: list[tuple[str, str, str]] = [
@@ -49,7 +49,7 @@ GOLDEN_VECTORS: list[tuple[str, str, str]] = [
 _KEY_RE = re.compile(r"^bridge:v1:[a-z0-9_-]+$")
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _FRESH_PROCESS_SCRIPT = """\
-from queue_service_producer.bridge.idempotency import bridge_idempotency_key
+from workhold_producer.bridge.idempotency import bridge_idempotency_key
 vectors = {vectors!r}
 for ns, row, expected in vectors:
     got = bridge_idempotency_key(ns, row)
@@ -134,8 +134,8 @@ def test_golden_vectors_across_1000_fresh_processes() -> None:
     script = _FRESH_PROCESS_SCRIPT.format(vectors=GOLDEN_VECTORS)
     env = os.environ.copy()
     # Prefer the workspace editable producer package when PYTHONPATH is needed.
-    producer_src = str(_REPO_ROOT / "packages" / "queue-service-producer" / "src")
-    core_src = str(_REPO_ROOT / "packages" / "queue-service-client-core" / "src")
+    producer_src = str(_REPO_ROOT / "packages" / "workhold-producer" / "src")
+    core_src = str(_REPO_ROOT / "packages" / "workhold-client-core" / "src")
     prefix = producer_src + os.pathsep + core_src
     env["PYTHONPATH"] = (
         prefix + os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else prefix

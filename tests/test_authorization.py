@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from queue_service.security.authorization import (
+from workhold.security.authorization import (
     AuthorizationContext,
     AuthorizationDenied,
     Authorizer,
@@ -19,7 +19,7 @@ from queue_service.security.authorization import (
     QUEUE_SCOPED_OPERATIONS,
     ROLE_OPERATION_GRANTS,
 )
-from queue_service.security.principals import Principal, ServiceRole
+from workhold.security.principals import Principal, ServiceRole
 
 # Closed operation families for the exhaustive role matrix.
 OPERATION_FAMILIES: dict[str, frozenset[Operation]] = {

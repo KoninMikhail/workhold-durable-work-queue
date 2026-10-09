@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://workhold.local/schemas/queue/named-queue-catalog.schema.json",
   "title": "NamedQueueCatalog",
-  "description": "Versioned named-queue catalog envelope mounted at QUEUE_CATALOG_PATH for one-shot queue apply (ensure-exists). Machine-readable companion to docs/05-operations/02-deployment.md and docs/08-examples/07-named-queue-catalog.md. Not a runtime desired-state document.",
+  "description": "Versioned named-queue catalog envelope mounted at QUEUE_CATALOG_PATH for one-shot workhold apply (ensure-exists). Machine-readable companion to docs/05-operations/02-deployment.md and docs/08-examples/07-named-queue-catalog.md. Not a runtime desired-state document.",
   "type": "object",
   "additionalProperties": false,
   "required": [

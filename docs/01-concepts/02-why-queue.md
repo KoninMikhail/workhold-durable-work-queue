@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Concepts](README.md) › **Why queue**
 
-A short page for the application developer: why to take Workhold (`queue-service`), how the service differs from RabbitMQ and Kafka, and when the tools complement each other.
+A short page for the application developer: why to take Workhold, how the service differs from RabbitMQ and Kafka, and when the tools complement each other.
 
 ## Why Workhold for developers
 
@@ -32,7 +32,7 @@ Envelope: up to 1 million tasks/day and hundreds of claims/s per instance.
 
 ## Comparison with RabbitMQ and Kafka
 
-| | queue-service | RabbitMQ | Kafka |
+| | workhold | RabbitMQ | Kafka |
 | --- | --- | --- | --- |
 | Model | per-app Work Queue + Delivery Outbox | message broker | event log |
 | Fenced leases | yes | competing consumers without a core fenced lease | consumer groups / offsets |
@@ -58,7 +58,7 @@ flowchart LR
 
 ## When they complement each other
 
-queue-service owns enqueue / claim / lease / complete / `spawn[]` / Delivery Outbox.
+workhold owns enqueue / claim / lease / complete / `spawn[]` / Delivery Outbox.
 
 A broker (if one is needed) carries already committed delivery events as a channel **after** commit — not a second claim/ack core.
 
@@ -68,7 +68,7 @@ A broker (if one is needed) carries already committed delivery events as a chann
 
 ## When Workhold is not needed
 
-Do not place two claim/ack cores side by side (queue-service and a broker "as a task queue").
+Do not place two claim/ack cores side by side (workhold and a broker "as a task queue").
 
 | You only need… | Take |
 | --- | --- |

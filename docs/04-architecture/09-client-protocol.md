@@ -26,7 +26,7 @@ The response always contains `tasks: []`, even when empty. Each item carries the
 payload, policy version, and a claim with a public ID, secret token, generation,
 `claimed_at`, and expiry. Lease-operation paths contain the public `claim_id`;
 the secret `claim_token` is passed in a protected header and never in URL/query/logs.
-Metadata includes queue-service-store server time and the recommended heartbeat interval.
+Metadata includes workhold store server time and the recommended heartbeat interval.
 
 The MVP validates `max_tasks=1`. Bounded long polling is enabled: `wait_seconds`
 is a strict integer `0..20` (server max = advertised `max_wait_seconds=20`).
@@ -45,11 +45,11 @@ timeout in production must be **≥ 30 s** (server max + 10 s).
 
 1. Claim from explicitly subscribed queues.
 2. Start the heartbeat at the server-recommended interval, with jitter.
-3. Process outside queue-service transactions.
+3. Process outside workhold transactions.
 4. Observe cooperative cancellation on heartbeat and at application checkpoints.
 5. Complete, fail, or acknowledge a requested cancellation with an idempotent body
    fingerprint.
-6. On `lease_lost`, stop every queue-service mutation and hand the loss to application code.
+6. On `lease_lost`, stop every workhold mutation and hand the loss to application code.
 7. On shutdown, stop claiming; finish within grace or let the lease expire.
 
 SDK convenience loops must not hide lease loss, automatically retry a different
@@ -57,21 +57,21 @@ terminal body, or claim more work than the handler's capacity.
 
 ## SDK surfaces
 
-Role-split public distributions (see [ADR 029](adr/029-role-split-python-clients.md)):
+Role-split public distributions (role split: [ADR 029](adr/029-role-split-python-clients.md); names: [ADR 030](adr/030-workhold-distribution-names.md)):
 
-- producer (`queue_service_producer.ProducerClient`): enqueue, resolve
+- producer (`workhold_producer.ProducerClient`): enqueue, resolve
   submission, producer-authorized inspect, and cancel; optional
-  `queue_service_producer.bridge` via producer extra;
-- consumer (`queue_service_consumer.ConsumerClient` /
+  `workhold_producer.bridge` via producer extra;
+- consumer (`workhold_consumer.ConsumerClient` /
   `ConsumerSupervisor`): claim, heartbeat, complete, fail, `ack_cancel`, and
   an optional supervised loop (wire identifiers remain `WorkerBearer` /
   `worker_id`);
-- admin package (`queue_service_admin`): separately credentialed
+- admin package (`workhold_admin`): separately credentialed
   `ObserverClient`, `AdminClient`, and `BreakGlassClient` for observer reads,
   routine admin, and break-glass repair.
 
 Shared transport, errors, and models live in the dependency-only
-`queue-service-client-core` (`_queue_service_client_core`) without operation
+`workhold-client-core` (`_workhold_client_core`) without operation
 client classes. Credentials and packages are separated enough that application
 pods do not receive admin capabilities. Dual base URLs: public `/v1` and private
 `/admin/v1`.
@@ -102,4 +102,4 @@ negotiation.
 Every client implementation must pass protocol tests for enqueue
 idempotency, claim fencing, stale heartbeat and complete, uncertain complete
 replay, cancellation, queue state gates, structured failure, and authorization.
-Tests run against a real queue-service/PostgreSQL instance, not SDK mocks.
+Tests run against a real workhold/PostgreSQL instance, not SDK mocks.

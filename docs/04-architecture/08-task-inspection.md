@@ -2,11 +2,11 @@
 
 **Status:** Accepted architecture
 
-queue-service stores the operational outcome, not the application's business result. The worker
+workhold stores the operational outcome, not the application's business result. The worker
 returns business output through application storage, `spawn[]` tasks, or
 Delivery Outbox `events[]`. There are no `result`/`parse_result` fields.
 
-The replay result held by queue-service is protocol metadata: the terminal state,
+The replay result held by workhold is protocol metadata: the terminal state,
 the fingerprint, and the IDs and ordinals of created spawns and events.
 
 ## Addressability
@@ -17,7 +17,7 @@ the fingerprint, and the IDs and ordinals of created spawns and events.
 - an event by the public `event_id`;
 - attempts by a required `task_id`.
 
-queue-service does not support filtering by payload fields, arbitrary business-key
+workhold does not support filtering by payload fields, arbitrary business-key
 lookup, or free-text search.
 
 ## Task representation
@@ -54,7 +54,7 @@ pruning.
 ## Retention
 
 Inspection is limited by the configured retention. After expiry, lookup may return
-`task_not_found`; queue-service is not a permanent result archive. The enqueue-dedup
+`task_not_found`; workhold is not a permanent result archive. The enqueue-dedup
 and complete-replay registries have explicit independent TTLs and may outlive fact rows
 during retry windows.
 

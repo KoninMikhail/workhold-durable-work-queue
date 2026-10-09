@@ -6,8 +6,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from queue_service.domain import retry as retry_mod
-from queue_service.domain.queue_control import BackoffStrategy, DomainValidationError, PolicyVersion
+from workhold.domain import retry as retry_mod
+from workhold.domain.queue_control import BackoffStrategy, DomainValidationError, PolicyVersion
 
 
 def _policy(

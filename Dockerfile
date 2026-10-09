@@ -33,4 +33,4 @@ FROM base AS dev
 
 RUN uv sync --frozen --group dev
 
-CMD ["python", "-m", "queue_service"]
+CMD ["python", "-m", "workhold"]

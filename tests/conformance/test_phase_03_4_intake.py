@@ -23,12 +23,12 @@ import tests.concurrency.test_enqueue_state_races as race_mod
 import tests.conformance.test_enqueue_http as enqueue_http
 import tests.conformance.test_enqueue_uncertain_commit as uncertain
 import tests.conformance.test_resolve_submission_http as resolve_http
-from queue_service.api.application import create_application_app
-from queue_service.api.security import ListenerBind
-from queue_service.intake.depth import DepthCeilings
-from queue_service.intake.service import EnqueueService
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import BearerCredentialAuthenticator
+from workhold.api.application import create_application_app
+from workhold.api.security import ListenerBind
+from workhold.intake.depth import DepthCeilings
+from workhold.intake.service import EnqueueService
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import BearerCredentialAuthenticator
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 

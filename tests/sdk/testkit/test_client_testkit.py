@@ -9,19 +9,19 @@ from pathlib import Path
 
 import pytest
 
-from _queue_service_client_core.errors import RequestCancelledError, TransportError
-from _queue_service_client_core.transport import AsyncTransport, SyncTransport
-from queue_service_admin import AdminClient, BreakGlassClient, ObserverClient
-from queue_service_admin.async_client import (
+from _workhold_client_core.errors import RequestCancelledError, TransportError
+from _workhold_client_core.transport import AsyncTransport, SyncTransport
+from workhold_admin import AdminClient, BreakGlassClient, ObserverClient
+from workhold_admin.async_client import (
     AsyncAdminClient,
     AsyncBreakGlassClient,
     AsyncObserverClient,
 )
-from queue_service_consumer import ConsumerClient
-from queue_service_consumer.async_client import AsyncConsumerClient
-from queue_service_producer import ProducerClient
-from queue_service_producer.async_client import AsyncProducerClient
-from queue_service_client_testing import (
+from workhold_consumer import ConsumerClient
+from workhold_consumer.async_client import AsyncConsumerClient
+from workhold_producer import ProducerClient
+from workhold_producer.async_client import AsyncProducerClient
+from workhold_client_testing import (
     DeterministicClock,
     RedactedAssertionError,
     RequestMatcher,
@@ -61,7 +61,7 @@ def _reset_secrets() -> None:
 
 
 def test_public_import_surface() -> None:
-    mod = importlib.import_module("queue_service_client_testing")
+    mod = importlib.import_module("workhold_client_testing")
     assert hasattr(mod, "ScriptedSyncTransport")
     assert hasattr(mod, "ScriptedAsyncTransport")
     assert hasattr(mod, "DeterministicClock")
@@ -71,12 +71,12 @@ def test_testkit_has_no_server_db_or_pytest_imports() -> None:
     root = (
         Path(__file__).resolve().parents[3]
         / "packages"
-        / "queue-service-client-core"
+        / "workhold-client-core"
         / "src"
-        / "queue_service_client_testing"
+        / "workhold_client_testing"
     )
     forbidden_roots = {
-        "queue_service",
+        "workhold",
         "pytest",
         "psycopg",
         "psycopg2",

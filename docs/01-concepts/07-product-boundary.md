@@ -2,11 +2,11 @@
 
 [Documentation](../README.md) › [Concepts](README.md) › **Product boundary**
 
-**Workhold** (`queue-service`) is a reliability service for one application — product name: **Workhold - Durable work queue**. It distributes work among replicas and accepts the intent of outbound delivery. Data lives in the service's own PostgreSQL. The application may have its own business database or do without one — the queue does not depend on that.
+**Workhold** (`workhold`) is a reliability service for one application — product name: **Workhold - Durable work queue**. It distributes work among replicas and accepts the intent of outbound delivery. Data lives in the service's own PostgreSQL. The application may have its own business database or do without one — the queue does not depend on that.
 
 ## What the product promises
 
-The operator runs queue-service PostgreSQL and the service runtime itself. A business database on the application is not required. Producer and worker replicas then call a stable API:
+The operator runs workhold PostgreSQL and the service runtime itself. A business database on the application is not required. Producer and worker replicas then call a stable API:
 
 - they idempotently enqueue work into named queues — separate task streams inside one instance; see [04-named-queues.md](04-named-queues.md);
 - they safely take tasks among competing replicas;
@@ -35,41 +35,41 @@ Owns named queues, tasks, attempts, and leases. One task is intended for one log
 
 ### Delivery Outbox
 
-Owns outbound events. They are written in the same queue-service transaction as the successful completion of the task. The Delivery Relay publishes them after commit to one webhook of the deploy. Events and spawned tasks are different resources with different lifetime rules. Who sends HTTP and how to separate two recipients — [12-delivery-outbox.md](12-delivery-outbox.md).
+Owns outbound events. They are written in the same workhold transaction as the successful completion of the task. The Delivery Relay publishes them after commit to one webhook of the deploy. Events and spawned tasks are different resources with different lifetime rules. Who sends HTTP and how to separate two recipients — [12-delivery-outbox.md](12-delivery-outbox.md).
 
 ### Integration bridge
 
-An optional integration for an application with a business database. The application writes a local outbox in its business transaction; the bridge repeats an idempotent enqueue into queue-service. An application without a database does not need the bridge.
+An optional integration for an application with a business database. The application writes a local outbox in its business transaction; the bridge repeats an idempotent enqueue into workhold. An application without a database does not need the bridge.
 
 ## Who owns what
 
 | What | Who owns it |
 | --- | --- |
-| queue-service DDL and migrations | queue-service runtime |
+| workhold DDL and migrations | workhold runtime |
 | Task state and lease | Work Queue |
 | Payload schema and business meaning | the application |
 | Delivery retry and publication state | Delivery Outbox |
 | Atomicity of "business database + task enqueue" | the application's local outbox |
 | An idempotent external effect | the effect owner / consumer |
-| Operations and retention | the queue-service operator |
+| Operations and retention | the workhold operator |
 
-Applications do not need direct access to queue-service tables. If the client queries the database itself, the application is bound to the schema again — as in parser queue v1.
+Applications do not need direct access to workhold tables. If the client queries the database itself, the application is bound to the schema again — as in parser queue v1.
 
 ## Deploy boundary
 
-- One queue-service instance serves one application trust boundary.
+- One workhold instance serves one application trust boundary.
 - One versioned image exposes process roles that can be deployed independently.
 - One instance can contain several named queues.
-- API and relay processes can have several replicas on one queue-service store.
-- queue-service always has its own PostgreSQL. This is not the client's business database and not queue tables inside the application database. A dedicated physical PostgreSQL server is not required: the service database can sit on a shared cluster, but ownership, DDL, and migrations stay with queue-service.
-- queue-service is not a shared bus for the whole platform and not a multi-tenant bus for several applications.
+- API and relay processes can have several replicas on one workhold store.
+- workhold always has its own PostgreSQL. This is not the client's business database and not queue tables inside the application database. A dedicated physical PostgreSQL server is not required: the service database can sit on a shared cluster, but ownership, DDL, and migrations stay with workhold.
+- workhold is not a shared bus for the whole platform and not a multi-tenant bus for several applications.
 
 ## What is in the product
 
 - Competing consumers and correctness with several replicas.
 - Idempotent enqueue and idempotent task completion.
 - Lease, attempts, retry with backoff, and dead letter.
-- Atomic `complete + spawn + events` in the queue-service store.
+- Atomic `complete + spawn + events` in the workhold store.
 - Delivery Relay with at-least-once publication.
 - Statistics, metrics, retention, and operational control.
 - Pause and drain at runtime, admission control, task inspection, and auditable recovery.
@@ -79,7 +79,7 @@ Applications do not need direct access to queue-service tables. If the client qu
 ## What is not in the product
 
 - Exactly-once execution at the worker or of external effects.
-- Distributed transactions between queue-service PostgreSQL and the application database.
+- Distributed transactions between workhold PostgreSQL and the application database.
 - Pub/sub, fan-out, event-log replay, or consumer groups.
 - Workflow and DAG orchestration, joins, compensation, or human tasks.
 - Application payload validation or a schema registry.

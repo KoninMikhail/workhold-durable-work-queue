@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Concepts](README.md) › **Overview**
 
-**Workhold - Durable work queue** (runtime: `queue-service`). The same service is deployed beside every application that needs a reliable queue between replicas.
+**Workhold - Durable work queue** (runtime: `workhold`). The same service is deployed beside every application that needs a reliable queue between replicas.
 
 ## Who needs it
 
@@ -10,7 +10,7 @@ Application teams: so they do not assemble a queue from scratch, write a separat
 
 | | |
 | --- | --- |
-| Queue store | queue-service's own PostgreSQL — required |
+| Queue store | workhold's own PostgreSQL — required |
 | Application business DB | Not required, and it does not appear "for the sake of the queue" |
 
 The previous implementation worked only with file-parsers and carried their specifics. This repository is a rethink (conventionally v2): the queue should fit different kinds of applications.
@@ -25,8 +25,8 @@ The queue stands **beside this application**. It does not run as a shared bus fo
 flowchart LR
   subgraph appBoundary["One application boundary"]
     replicas["Application replicas"]
-    qs["queue-service"]
-    pg[("PostgreSQL queue-service")]
+    qs["workhold"]
+    pg[("PostgreSQL workhold")]
     replicas --> qs
     qs --> pg
   end
@@ -79,12 +79,12 @@ When the worker that owns the task does complete, it can:
 | `spawn[]` | Additional tasks | Named queues of the Work Queue. See [05-follow-up.md](05-follow-up.md) |
 | `events[]` | Outbound events | Delivery Outbox, in the same transaction |
 
-The Delivery Outbox follows the [transactional outbox](10-transactional-outbox.md) pattern: the queue-service state change and the intent to deliver an event are committed together, and `relay` publishes it after commit. Downstream applies an [inbox](11-inbox.md) or another form of idempotency.
+The Delivery Outbox follows the [transactional outbox](10-transactional-outbox.md) pattern: the workhold state change and the intent to deliver an event are committed together, and `relay` publishes it after commit. Downstream applies an [inbox](11-inbox.md) or another form of idempotency.
 
 | The application | How to enqueue work |
 | --- | --- |
 | Has no business DB | Producer and worker call the API directly. Local outbox is not needed |
-| Has a business DB | App-local outbox → the bridge enqueues the record into queue-service again. There is no distributed transaction between the two databases |
+| Has a business DB | App-local outbox → the bridge enqueues the record into workhold again. There is no distributed transaction between the two databases |
 
 Accepted boundaries and guarantees: [07-product-boundary.md](07-product-boundary.md), [09-guarantees.md](09-guarantees.md).
 
@@ -93,7 +93,7 @@ Accepted boundaries and guarantees: [07-product-boundary.md](07-product-boundary
 ## Where next
 
 1. End-to-end task lifecycle — [03-how-it-works.md](03-how-it-works.md).
-2. Why queue-service, not a broker — [02-why-queue.md](02-why-queue.md).
+2. Why workhold, not a broker — [02-why-queue.md](02-why-queue.md).
 3. Reading path ≈15 minutes — [reading-path.md](../00-onboarding/01-reading-path.md).
 
 ---

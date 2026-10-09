@@ -11,7 +11,7 @@ the key promises "this operation already happened", while the body says "this is
 ## Why
 
 The idempotency key applies in the scope producer + named queue + key.
-queue-service remembers not only the key, but also the fingerprint of the
+workhold remembers not only the key, but also the fingerprint of the
 normalized request (the body after canonicalizing the fields that belong
 to the contract).
 
@@ -55,4 +55,4 @@ Typical causes of a different fingerprint:
 | Copy a key across named queues, expecting one task | The scope includes the queue name; these are different keys, not a conflict |
 | Swallow the conflict and silently send a new key | You hide a client bug and get two pieces of work |
 
-A conflict is a reason to fix the client, not queue-service.
+A conflict is a reason to fix the client, not workhold.

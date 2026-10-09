@@ -11,10 +11,10 @@ from urllib.parse import unquote, urlparse
 
 import pytest
 
-from _queue_service_client_core.errors import MalformedResponseError, ProtocolError
-from _queue_service_client_core.transport import HttpJsonTransport
-import queue_service_admin as admin_pkg
-from queue_service_admin import AdminClient, BreakGlassClient, ObserverClient
+from _workhold_client_core.errors import MalformedResponseError, ProtocolError
+from _workhold_client_core.transport import HttpJsonTransport
+import workhold_admin as admin_pkg
+from workhold_admin import AdminClient, BreakGlassClient, ObserverClient
 
 
 BREAK_GLASS_METHODS = (

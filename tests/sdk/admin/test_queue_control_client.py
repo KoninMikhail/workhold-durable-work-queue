@@ -10,16 +10,16 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import pytest
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     AuthenticationError,
     MalformedResponseError,
     ProtocolError,
     QueueClientError,
 )
-from _queue_service_client_core.transport import HttpJsonTransport
-import queue_service_admin as admin_pkg
-from queue_service_admin import AdminClient, ObserverClient
-from queue_service_admin.models import (
+from _workhold_client_core.transport import HttpJsonTransport
+import workhold_admin as admin_pkg
+from workhold_admin import AdminClient, ObserverClient
+from workhold_admin.models import (
     BackoffStrategy,
     ConfigVersion,
     PolicyVersion,

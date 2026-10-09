@@ -15,26 +15,26 @@ import pytest
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.admin import create_admin_app
-from queue_service.api.security import ListenerBind
-from queue_service.domain.queue_control import (
+from workhold.api.admin import create_admin_app
+from workhold.api.security import ListenerBind
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.operations.inspection import OperationalInspectionService
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.operations.inspection import OperationalInspectionService
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.cursors import InspectionCursorCodec
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
+from workhold.security.cursors import InspectionCursorCodec
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
 
 pytest_plugins = ["tests.integration.conftest"]
 

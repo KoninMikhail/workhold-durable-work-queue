@@ -37,13 +37,13 @@ curl -sS -X POST "https://queue.example/v1/claims" \
 ## SDK
 
 ```bash
-pip install queue-service-consumer
-pip install "queue-service-consumer[async]"
+pip install workhold-consumer
+pip install "workhold-consumer[async]"
 ```
 
 Sync: `ConsumerClient.claim(..., wait_seconds=15)` / `ConsumerSupervisor` after
 capability guard. Async: `AsyncConsumerClient` /
-`AsyncConsumerSupervisor` from `queue_service_consumer.async_*` modules.
+`AsyncConsumerSupervisor` from `workhold_consumer.async_*` modules.
 Default supervisor wait = **15** after one-time preflight (`wait_seconds=0`
 disables long poll). Explicit WORKER bearer token; see
 [06-client-sdk-ergonomics.md](../02-guides/06-client-sdk-ergonomics.md).

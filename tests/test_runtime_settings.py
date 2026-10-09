@@ -7,7 +7,7 @@ import json
 import pytest
 from sqlalchemy.engine import Engine
 
-from queue_service import db, settings
+from workhold import db, settings
 
 
 def _role_pools(

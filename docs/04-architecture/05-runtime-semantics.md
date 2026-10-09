@@ -5,7 +5,7 @@
 ## Named queue lifecycle
 
 Named queues are created explicitly through the private admin plane **or** one-shot
-`queue apply` from a mounted catalog (`QUEUE_CATALOG_PATH`). The catalog is
+`workhold apply` from a mounted catalog (`QUEUE_CATALOG_PATH`). The catalog is
 deployment configuration (ensure-exists create), **not** runtime desired state:
 it does not control `active|paused|draining` and does not activate policy versions.
 Producer enqueue never creates a queue implicitly: a typo must fail and must not
@@ -74,4 +74,4 @@ Deployment only:
 - PostgreSQL connectivity and pool ceilings;
 - hard security, payload, and request limits;
 - listener/TLS configuration;
-- the mounted named-queue catalog path plus one-shot `queue apply` (not live reconcile).
+- the mounted named-queue catalog path plus one-shot `workhold apply` (not live reconcile).

@@ -26,38 +26,38 @@ from sqlalchemy import create_engine, event, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from _queue_service_client_core.config import ClientConfig
-from _queue_service_client_core.errors import (
+from _workhold_client_core.config import ClientConfig
+from _workhold_client_core.errors import (
     ProtocolError,
     RequestCancelledError,
     TimeoutError as ClientTimeoutError,
 )
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service.api.application import create_application_app
-from queue_service.api.security import ListenerBind
-from queue_service.application.claim_long_poll import ClaimLongPollService, WaiterAdmission
-from queue_service.application.claim_service import ClaimService
-from queue_service.application.completion import CompletionService
-from queue_service.application.lease_service import LeaseService
-from queue_service.domain.queue_control import QueueState
-from queue_service.infrastructure.postgres.claim_wakeup import (
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold.api.application import create_application_app
+from workhold.api.security import ListenerBind
+from workhold.application.claim_long_poll import ClaimLongPollService, WaiterAdmission
+from workhold.application.claim_service import ClaimService
+from workhold.application.completion import CompletionService
+from workhold.application.lease_service import LeaseService
+from workhold.domain.queue_control import QueueState
+from workhold.infrastructure.postgres.claim_wakeup import (
     ClaimWakeListener,
     ListenerHealth,
     QueueGenerationCoordinator,
 )
-from queue_service.intake.depth import DepthCeilings
-from queue_service.intake.service import EnqueueService
-from queue_service.lifecycle import Lifecycle
-from queue_service.roles.api import AsgiRequestHandler, InFlightGate, QuietThreadingHTTPServer
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import BearerCredentialAuthenticator
-from queue_service.settings import (
+from workhold.intake.depth import DepthCeilings
+from workhold.intake.service import EnqueueService
+from workhold.lifecycle import Lifecycle
+from workhold.roles.api import AsgiRequestHandler, InFlightGate, QuietThreadingHTTPServer
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import BearerCredentialAuthenticator
+from workhold.settings import (
     CLAIM_MAX_OUTSTANDING_WAITS_DEFAULT,
     CLAIM_MAX_WAIT_SECONDS_DEFAULT,
 )
-from queue_service.storage.models import Queue
-from queue_service_consumer import ConsumerClient, DEFAULT_WAIT_SECONDS
-from queue_service_consumer.async_client import AsyncConsumerClient
+from workhold.storage.models import Queue
+from workhold_consumer import ConsumerClient, DEFAULT_WAIT_SECONDS
+from workhold_consumer.async_client import AsyncConsumerClient
 from tests.conformance.clients import OperationResult, RawHttpClientAdapter
 from tests.conformance.conftest import (
     PRODUCER_PRINCIPAL,

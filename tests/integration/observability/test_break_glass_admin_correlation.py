@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from queue_service.observability import context as obs_context
-from queue_service.operations import break_glass as bg_ops
+from workhold.observability import context as obs_context
+from workhold.operations import break_glass as bg_ops
 
 _DENIED_KEYS = (
     "payload",
@@ -116,7 +116,7 @@ def test_break_glass_projector_uses_shared_plan01_allowlist() -> None:
 def test_emit_break_glass_correlation_logs_and_spans(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    logger = logging.getLogger("queue_service.operations.break_glass.emit_test")
+    logger = logging.getLogger("workhold.operations.break_glass.emit_test")
     projected = bg_ops.project_break_glass_correlation(
         operation="raiseReplayLimit",
         request_id="req-emit",

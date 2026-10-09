@@ -24,7 +24,7 @@ capability.
 | --- | --- |
 | One application-wide secret | Excessive blast radius and no actor attribution |
 | Worker ID as authorization | A spoofable diagnostic value, and not a rotating fence |
-| Full queue-service-owned IAM/SSO | Overengineering for a per-application service |
+| Full workhold-owned IAM/SSO | Overengineering for a per-application service |
 | Network trust without authentication | Any reachable pod could claim or complete work |
 
 ## Consequences

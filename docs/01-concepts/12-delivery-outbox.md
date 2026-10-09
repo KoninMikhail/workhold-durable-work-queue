@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Concepts](README.md) › **Delivery Outbox**
 
-The Delivery Outbox is a log of outbound notifications in queue-service PostgreSQL.
+The Delivery Outbox is a log of outbound notifications in workhold PostgreSQL.
 The `relay` role of the same image publishes them after commit. This is not execution
 of business work and not an address book of "this service this way, that service another way".
 
@@ -16,7 +16,7 @@ Three different calls. They are easy to mix up.
 
 | Who | Where | Why |
 | --- | --- | --- |
-| Producer / worker | queue-service API | enqueue, claim, heartbeat, complete |
+| Producer / worker | workhold API | enqueue, claim, heartbeat, complete |
 | The application worker | another service, MinIO, its own DB | **business work** for the task |
 | The `relay` role | one deploy webhook | a **notification** from the Delivery Outbox |
 
@@ -32,7 +32,7 @@ a bridge from the business DB **into** enqueue, not outward.
 ```mermaid
 flowchart LR
   worker[Worker]
-  api["queue-service API"]
+  api["workhold API"]
   pg[("PostgreSQL")]
   relay["relay role"]
   sink[Deploy webhook]
@@ -48,7 +48,7 @@ flowchart LR
   sink -.->|"your reading of type/source"| y
 ```
 
-The dotted line on the right is not queue-service. The relay always hits one configured
+The dotted line on the right is not workhold. The relay always hits one configured
 endpoint. Only that endpoint, or your workers, can separate X and Y.
 
 ## How the events[] path is structured
@@ -56,7 +56,7 @@ endpoint. Only that endpoint, or your workers, can separate X and Y.
 1. The worker successfully processes the claimed task.
 2. On `complete` it passes zero or more `events[]` — an **intent** to deliver,
    not a publication.
-3. In one queue-service transaction: the task → succeeded, Outbox records → pending.
+3. In one workhold transaction: the task → succeeded, Outbox records → pending.
 4. After commit, `relay` claims the pending event under its own lease.
 5. `relay` publishes a stable envelope to the external channel and writes the ack.
 6. A retryable / indeterminate outcome is repeated with backoff. An exhausted one
@@ -64,7 +64,7 @@ endpoint. Only that endpoint, or your workers, can separate X and Y.
 
 Publication is **at-least-once**: publish may have succeeded and the ack been lost — the same
 event goes out again. The consumer keeps an [inbox](11-inbox.md) keyed by the stable
-`id` that queue-service assigns.
+`id` that workhold assigns.
 
 ## Contract: what, where, how
 
@@ -79,10 +79,10 @@ Transport: [ADR 018](../04-architecture/adr/018-http-first-delivery-relay.md).
 | --- | --- | --- |
 | `source`, `type` | the application | who emitted it and what kind of event it is |
 | `subject`, `datacontenttype`, `data`, `extensions` | the application, optionally | the subject and the payload |
-| `id`, `time`, `specversion` | queue-service | a stable id for the inbox, store time, `1.0` |
+| `id`, `time`, `specversion` | workhold | a stable id for the inbox, store time, `1.0` |
 
 `type` and `source` are routing of **meaning** ("the order was paid"), not a URL.
-`data` is the application's opaque JSON. queue-service does not read an address,
+`data` is the application's opaque JSON. workhold does not read an address,
 a header, or a secret from it.
 
 ### Where and how — the relay deploy
@@ -93,7 +93,7 @@ One webhook per instance. The operator sets it, not the worker and not the event
 | --- | --- | --- |
 | Where to send | the deploy | `QUEUE_DELIVERY_WEBHOOK_URL` + a host and CIDR allowlist |
 | How to send | the deploy | `POST`, HTTPS in production, timeout, bearer, TLS, circuit breaker |
-| What is in the body | the worker + queue-service | a CloudEvents envelope |
+| What is in the body | the worker + workhold | a CloudEvents envelope |
 
 A URL cannot be chosen from `data`. Otherwise the task itself would say where to hit
 (SSRF). An event is not an envelope with the recipient's address.
@@ -106,7 +106,7 @@ How to separate recipients depends on whether these are notifications or work.
 ### These are notifications: "X and Y must learn about it"
 
 Put both events in `events[]` with a **different** `type` (and, if needed,
-`source` / `subject` / `data`). Each gets its own `id` from queue-service —
+`source` / `subject` / `data`). Each gets its own `id` from workhold —
 the inbox at X and the inbox at Y are independent.
 
 ```text
@@ -127,7 +127,7 @@ It is the piece that knows `com.app.order.billed` goes to X and
 One event and a sink fan-out to both services is worse if X and Y must
 deduplicate differently: they would share the same `id`.
 
-Two queue-service deploys "so that each has its own webhook" are not a solution
+Two workhold deploys "so that each has its own webhook" are not a solution
 for one application: an instance belongs to one trust boundary.
 
 ### This is work: "X must be called and Y must be called"

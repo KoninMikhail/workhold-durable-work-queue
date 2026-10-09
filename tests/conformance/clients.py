@@ -3,7 +3,7 @@
 Adapters translate call syntax only. Fixtures, assertions, the live Queue
 service, and PostgreSQL are shared. SDK mocks and in-memory stores are forbidden.
 
-Producer operations go through ``queue_service_producer.ProducerClient``.
+Producer operations go through ``workhold_producer.ProducerClient``.
 Admin recovery / break-glass live cases use ``AdminClient`` and
 ``BreakGlassClient``. Worker surfaces on the producer adapter still delegate to
 raw HTTP where dual-client delayed/priority cases need claim/complete.
@@ -18,22 +18,22 @@ from typing import Any, Literal, Mapping, Protocol, Sequence
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     AuthenticationError,
     ProtocolError,
 )
-from _queue_service_client_core.priority import validate_priority
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_admin import AdminClient, BreakGlassClient, ObserverClient
-from queue_service_admin.models import (
+from _workhold_client_core.priority import validate_priority
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_admin import AdminClient, BreakGlassClient, ObserverClient
+from workhold_admin.models import (
     BackoffStrategy,
     BulkPreviewResult,
     QueueState,
     RetryPolicyDraft,
 )
-from queue_service_consumer import ConsumerClient
-from queue_service_consumer.client import Claim as ConsumerClaim
-from queue_service_producer import ProducerClient
+from workhold_consumer import ConsumerClient
+from workhold_consumer.client import Claim as ConsumerClaim
+from workhold_producer import ProducerClient
 
 ClientKind = Literal[
     "raw_http",
@@ -623,7 +623,7 @@ class RawHttpClientAdapter:
 
 
 class ProducerClientAdapter:
-    """``queue_service_producer.ProducerClient`` adapter — syntax translation only.
+    """``workhold_producer.ProducerClient`` adapter — syntax translation only.
 
     Producer-owned OpenAPI operations use the role SDK. Claim/heartbeat/complete/
     fail/ack_cancel and admin dead-letter/bulk paths delegate to
@@ -914,7 +914,7 @@ class ProducerClientAdapter:
 
 
 class ConsumerClientAdapter:
-    """``queue_service_consumer.ConsumerClient`` adapter — lease ops via SDK.
+    """``workhold_consumer.ConsumerClient`` adapter — lease ops via SDK.
 
     Producer/admin paths used for fixture setup still delegate to raw HTTP.
     """
@@ -1279,7 +1279,7 @@ def default_retry_policy_draft(**overrides: Any) -> RetryPolicyDraft:
 
 
 class ObserverClientAdapter:
-    """``queue_service_admin.ObserverClient`` live adapter — read-only syntax bridge."""
+    """``workhold_admin.ObserverClient`` live adapter — read-only syntax bridge."""
 
     kind: ClientKind = "observer"
 
@@ -1395,7 +1395,7 @@ class ObserverClientAdapter:
 
 
 class AdminClientAdapter:
-    """``queue_service_admin.AdminClient`` adapter for Phase 18 routine + Phase 19 recovery."""
+    """``workhold_admin.AdminClient`` adapter for Phase 18 routine + Phase 19 recovery."""
 
     kind: ClientKind = "admin"
 
@@ -1713,7 +1713,7 @@ class AdminClientAdapter:
 
 
 class BreakGlassClientAdapter:
-    """``queue_service_admin.BreakGlassClient`` adapter for Phase 19 emergency ops."""
+    """``workhold_admin.BreakGlassClient`` adapter for Phase 19 emergency ops."""
 
     kind: ClientKind = "break_glass"
 

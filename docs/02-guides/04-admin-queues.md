@@ -8,7 +8,7 @@ the same admin plane and the public `/v1` with **its own** OBSERVER credential.
 
 **Never put admin credentials in application producer/consumer pods.**
 A producer and a consumer receive only their own role tokens and only the public base URL.
-Admin/observer clients (`queue-service-admin`) live on the control/ops planes.
+Admin/observer clients (`workhold-admin`) live on the control/ops planes.
 
 SDK:
 
@@ -45,15 +45,15 @@ curl -sS -X POST "https://queue-admin.example/admin/v1/queues" \
 
 List / card: `GET /admin/v1/queues`, `GET /admin/v1/queues/{queue_name}`.
 
-### Bootstrap from a mounted catalog (`queue apply`)
+### Bootstrap from a mounted catalog (`workhold apply`)
 
-An alternative to a manual `POST` at deploy is a one-shot `queue apply` with an absolute
+An alternative to a manual `POST` at deploy is a one-shot `workhold apply` with an absolute
 `QUEUE_CATALOG_PATH` (mounted JSON). This is the same create mutation: ensure-exists,
 skip if the queue already exists (any state / policy). The catalog is **not baked into the
 image**; this is **not** a GitOps reconcile of live state and **not** `api` startup /
 `/readyz`. Names removed from the file are **not** deleted and are **not** drained.
 An invalid file fails closed, with no writes. On a partial apply, earlier creates
-may have committed; recovery is to run `queue apply` again.
+may have committed; recovery is to run `workhold apply` again.
 
 Pause / drain / policy activation remain **admin HTTP only** (below). Deployment
 and Compose: [02-deployment.md](../05-operations/02-deployment.md); example —

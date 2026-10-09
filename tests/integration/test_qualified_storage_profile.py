@@ -11,12 +11,12 @@ import psycopg
 import pytest
 from psycopg.errors import UniqueViolation
 
-from queue_service.intake.admission import (
+from workhold.intake.admission import (
     DEFAULT_PAYLOAD_MAX_BYTES,
     DEFAULT_REQUEST_MAX_BYTES,
     HARD_PAYLOAD_CEILING_BYTES,
 )
-from queue_service import settings as deployment_settings
+from workhold import settings as deployment_settings
 from tests.integration.conftest import (
     _open_schema_connection,
     _validate_schema_name,

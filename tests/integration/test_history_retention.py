@@ -18,16 +18,16 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 
-from queue_service.health import DAILY_RANGE_PARENTS
-from queue_service.infrastructure.postgres import partition_catalog
-from queue_service.security.payload_policy import (
+from workhold.health import DAILY_RANGE_PARENTS
+from workhold.infrastructure.postgres import partition_catalog
+from workhold.security.payload_policy import (
     PAYLOAD_RETENTION_DAYS_MAX,
     PAYLOAD_RETENTION_DAYS_MIN,
     PayloadRetentionPolicy,
 )
 
 # Under test — RED until history_retention exists under infrastructure/postgres.
-from queue_service.infrastructure.postgres import history_retention
+from workhold.infrastructure.postgres import history_retention
 
 UTC = timezone.utc
 HISTORY_PARENTS_WITHOUT_PAYLOAD = (

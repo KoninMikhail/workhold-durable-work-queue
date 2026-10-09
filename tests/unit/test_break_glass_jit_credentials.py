@@ -10,18 +10,18 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from queue_service.security.authorization import (
+from workhold.security.authorization import (
     AuthorizationDenied,
     Authorizer,
     Operation,
 )
-from queue_service.security.credentials import (
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
     Unauthenticated,
 )
-from queue_service.security.principals import Principal, ServiceRole
-from queue_service.settings import Secret
+from workhold.security.principals import Principal, ServiceRole
+from workhold.settings import Secret
 
 _BG_OPS = frozenset({"forceLeaseExpiry", "reconcileCounters"})
 _TOKEN = "tok-break-glass-jit"

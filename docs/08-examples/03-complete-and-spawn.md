@@ -4,7 +4,7 @@
 
 **Who:** the `orders` named queue worker after successful order processing.
 
-**What queue-service stores:** the original task in `orders` → succeeded and a new
+**What workhold stores:** the original task in `orders` → succeeded and a new
 follow-up task in `billing` in one transaction (`spawn[]`).
 
 **What is idempotent in the app:** a repeat complete with the same claim and the same body

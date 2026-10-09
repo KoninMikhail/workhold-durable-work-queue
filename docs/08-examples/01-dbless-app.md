@@ -3,9 +3,9 @@
 [Documentation](../README.md) › [Examples](README.md) › **DB-less**
 
 **Who:** a producer and several worker replicas without their own business DB.
-The queue store is queue-service PostgreSQL; a client database is not created.
+The queue store is workhold PostgreSQL; a client database is not created.
 
-**What queue-service stores:** named-queue tasks in the Work Queue, fenced lease, attempts;
+**What workhold stores:** named-queue tasks in the Work Queue, fenced lease, attempts;
 at-least-once redelivery after lease loss.
 
 **What is idempotent in the app:** the handler of the external effect (inbox or natural key).
@@ -13,15 +13,15 @@ at-least-once redelivery after lease loss.
 Install:
 
 ```bash
-pip install queue-service-producer
-pip install queue-service-consumer
+pip install workhold-producer
+pip install workhold-consumer
 # optional async
-pip install "queue-service-producer[async]" "queue-service-consumer[async]"
+pip install "workhold-producer[async]" "workhold-consumer[async]"
 ```
 
 ```python
-from queue_service_producer import ProducerClient, HttpJsonTransport
-from queue_service_consumer import ConsumerClient
+from workhold_producer import ProducerClient, HttpJsonTransport
+from workhold_consumer import ConsumerClient
 
 producer = ProducerClient(HttpJsonTransport("https://queue.example"), bearer_token=producer_secret)
 worker = ConsumerClient(HttpJsonTransport("https://queue.example"), bearer_token=worker_secret)

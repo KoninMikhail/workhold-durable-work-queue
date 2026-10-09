@@ -1,1 +1,1 @@
-"""Tests for the private queue-service-client-core distribution."""
+"""Tests for the private workhold-client-core distribution."""

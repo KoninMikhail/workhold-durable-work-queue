@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from queue_service.observability import pressure
+from workhold.observability import pressure
 
 
 def test_pressure_snapshot_is_constant_size_and_typed() -> None:

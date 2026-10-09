@@ -26,30 +26,30 @@ from sqlalchemy import create_engine, event, func, select, text, update
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.application.claim_service import ClaimService
-from queue_service.application.lease_expiry import LeaseExpiryService
-from queue_service.domain.queue_control import (
+from workhold.application.claim_service import ClaimService
+from workhold.application.lease_expiry import LeaseExpiryService
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.domain.retry import (
+from workhold.domain.retry import (
     LEASE_EXPIRY_FAILURE_CODE,
     REASON_ATTEMPTS_EXHAUSTED,
     REASON_RETRY_DISABLED,
 )
-from queue_service.infrastructure.postgres.claim_repository import ClaimRepository
-from queue_service.infrastructure.postgres.lease_repository import (
+from workhold.infrastructure.postgres.claim_repository import ClaimRepository
+from workhold.infrastructure.postgres.lease_repository import (
     FenceDecision,
     LeaseRepository,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.contracts import normalize_enqueue_command
-from queue_service.intake.repository import EnqueueRepository
-from queue_service.storage.models import (
+from workhold.intake.contracts import normalize_enqueue_command
+from workhold.intake.repository import EnqueueRepository
+from workhold.storage.models import (
     ClaimRegistry,
     Queue,
     TaskActive,
@@ -716,7 +716,7 @@ def test_lease_expiry_positive_delay_empty_before_due_claimable_after(
     session_factory: sessionmaker[Session],
 ) -> None:
     """Expiry retry delay > 0: empty claim before due; success after Queue-store advance."""
-    from queue_service.storage.models import QueueCounter
+    from workhold.storage.models import QueueCounter
 
     name = _unique("exp.delay.scaffold")
     delay = 90

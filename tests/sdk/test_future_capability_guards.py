@@ -7,14 +7,14 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.capabilities import Capabilities
-from _queue_service_client_core.capability_guard import (
+from _workhold_client_core.capabilities import Capabilities
+from _workhold_client_core.capability_guard import (
     require_batch_claim,
     require_delivery_events,
     require_long_polling,
 )
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_consumer import ConsumerClient
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_consumer import ConsumerClient
 
 
 def _caps(**overrides: object) -> Capabilities:

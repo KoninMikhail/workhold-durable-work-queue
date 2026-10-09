@@ -9,7 +9,7 @@
 The kernel, operations, Delivery Outbox, and app-local bridge were first proven on
 PostgreSQL 16. Without an explicit engine of record, a deployment could silently stay on 16,
 drift onto floating `18` or `latest`, or gain a dual runtime. Live production
-queue-service instances did not exist: this is a repository cutover, not a product
+workhold instances did not exist: this is a repository cutover, not a product
 major upgrade.
 
 ## Decision

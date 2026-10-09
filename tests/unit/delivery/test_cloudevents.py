@@ -10,7 +10,7 @@ from uuid import UUID
 
 import pytest
 
-from queue_service.delivery.cloudevents import (
+from workhold.delivery.cloudevents import (
     CLOUDEVENTS_JSON_MEDIA_TYPE,
     CloudEventInput,
     CloudEventValidationError,
@@ -18,7 +18,7 @@ from queue_service.delivery.cloudevents import (
     serialize_structured_event,
     validate_event_input,
 )
-from queue_service.security.payload_policy import HARD_PAYLOAD_CEILING_BYTES
+from workhold.security.payload_policy import HARD_PAYLOAD_CEILING_BYTES
 
 _QUEUE_TIME = datetime(2026, 9, 19, 8, 44, 26, 123456, tzinfo=UTC)
 _SECRET_DATA = {"password": "hunter2", "token": "leak-me-not"}
@@ -256,7 +256,7 @@ def test_validation_errors_omit_payload_and_queue_owned_values_from_logs(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     caplog.set_level(logging.DEBUG)
-    logger = logging.getLogger("queue_service.delivery.cloudevents")
+    logger = logging.getLogger("workhold.delivery.cloudevents")
     with pytest.raises(CloudEventValidationError) as exc_info:
         validate_event_input(
             {

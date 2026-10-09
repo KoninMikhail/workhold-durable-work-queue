@@ -2,11 +2,11 @@
 
 [Documentation](../README.md) › [Guides](README.md) › **Integration**
 
-queue-service has its own PostgreSQL — that is the service store, not the client database. An application does not have to have its own business database.
+workhold has its own PostgreSQL — that is the service store, not the client database. An application does not have to have its own business database.
 
 Two working ways to enqueue tasks. Both use the same `POST /v1/queues/{queue_name}/tasks` from OpenAPI.
 
-> **There is no distributed transaction** between the application's business database and queue-service PostgreSQL.
+> **There is no distributed transaction** between the application's business database and workhold PostgreSQL.
 
 ```mermaid
 flowchart LR
@@ -22,7 +22,7 @@ flowchart LR
 
 ## Option A: DB-less
 
-An application without a business store does not introduce its own client database: the queue lives in queue-service PostgreSQL.
+An application without a business store does not introduce its own client database: the queue lives in workhold PostgreSQL.
 
 1. Admin created a named queue.
 2. The producer (or the SDK) enqueues with `Idempotency-Key`.
@@ -35,13 +35,13 @@ This fits the use case “enqueue work and process it on competing replicas” w
 
 If the application already has a business database and needs to “commit a business fact and enqueue a task” without a blind double write:
 
-1. In the **same** application transaction, write the business row and the app-local outbox row (the outbox schema is **owned by the application**; queue-service does not dictate it).
-2. After commit, a separate bridge process reads the outbox and performs an idempotent enqueue into queue-service (`Idempotency-Key` / bridge identity).
-3. queue-service reports success only after its own commit; the bridge marks the outbox row as delivered.
+1. In the **same** application transaction, write the business row and the app-local outbox row (the outbox schema is **owned by the application**; workhold does not dictate it).
+2. After commit, a separate bridge process reads the outbox and performs an idempotent enqueue into workhold (`Idempotency-Key` / bridge identity).
+3. workhold reports success only after its own commit; the bridge marks the outbox row as delivered.
 
-queue-service does not take part in the application transaction. The application outbox bridge does not promise exactly-once external effects — only repeatable delivery of intent → enqueue.
+workhold does not take part in the application transaction. The application outbox bridge does not promise exactly-once external effects — only repeatable delivery of intent → enqueue.
 
-Do not invent reserved payload keys or outbox DDL “on behalf of queue-service”: the bridge contract lives in the `queue-service-producer` package (`queue_service_producer.bridge`, extra `bridge-postgres`); see [05-app-outbox-bridge.md](05-app-outbox-bridge.md).
+Do not invent reserved payload keys or outbox DDL “on behalf of workhold”: the bridge contract lives in the `workhold-producer` package (`workhold_producer.bridge`, extra `bridge-postgres`); see [05-app-outbox-bridge.md](05-app-outbox-bridge.md).
 
 ## What to choose
 

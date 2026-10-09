@@ -5,7 +5,7 @@
 # QUEUE_ENVIRONMENT=production with direct_tls or trusted_private_tls_termination.
 
 x-queue-runtime: &queue-runtime
-  image: queue:local
+  image: workhold:local
   build:
     context: .
     dockerfile: Dockerfile

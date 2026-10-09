@@ -16,15 +16,15 @@ from urllib.parse import unquote
 
 import pytest
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     LeaseLostError,
     ProtocolError,
     TerminalConflictError,
 )
-from _queue_service_client_core.capabilities import Capabilities
-from _queue_service_client_core.transport import HttpJsonTransport
-import queue_service_consumer as consumer_pkg
-from queue_service_consumer import Claim, ConsumerClient, ConsumerSupervisor
+from _workhold_client_core.capabilities import Capabilities
+from _workhold_client_core.transport import HttpJsonTransport
+import workhold_consumer as consumer_pkg
+from workhold_consumer import Claim, ConsumerClient, ConsumerSupervisor
 from tests.fixtures.claim_long_poll import (
     CLAIM_TOKEN_SENTINEL,
     assert_no_forbidden_diagnostics,
@@ -600,8 +600,8 @@ def test_claim_rejects_invalid_max_tasks_before_network(
 
 
 def test_claim_sends_wait_seconds_when_capability_allows(recording_server: Any) -> None:
-    from _queue_service_client_core.config import ClientConfig
-    from _queue_service_client_core.errors import RequestCancelledError  # noqa: F401
+    from _workhold_client_core.config import ClientConfig
+    from _workhold_client_core.errors import RequestCancelledError  # noqa: F401
 
     server, base_url = recording_server
     caps = _capabilities_body(long_polling=True, max_wait_seconds=20)
@@ -642,7 +642,7 @@ def test_positive_wait_fails_closed_without_capability(recording_server: Any) ->
 
 
 def test_undersized_transport_budget_fails_before_http(recording_server: Any) -> None:
-    from _queue_service_client_core.config import ClientConfig
+    from _workhold_client_core.config import ClientConfig
 
     server, base_url = recording_server
     caps = _capabilities_body(long_polling=True, max_wait_seconds=20)
@@ -664,7 +664,7 @@ def test_undersized_transport_budget_fails_before_http(recording_server: Any) ->
 def test_empty_long_poll_expiry_is_success_not_timeout(
     long_poll_recording_server: Any,
 ) -> None:
-    from _queue_service_client_core.config import ClientConfig
+    from _workhold_client_core.config import ClientConfig
 
     release = threading.Event()
     long_poll_recording_server.set_route(
@@ -695,7 +695,7 @@ def test_empty_long_poll_expiry_is_success_not_timeout(
 def test_transport_timeout_distinct_from_empty(
     long_poll_recording_server: Any,
 ) -> None:
-    from _queue_service_client_core.errors import TimeoutError as ClientTimeoutError
+    from _workhold_client_core.errors import TimeoutError as ClientTimeoutError
 
     hold = threading.Event()
     long_poll_recording_server.set_route(
@@ -717,8 +717,8 @@ def test_transport_timeout_distinct_from_empty(
 def test_sync_cancellation_closes_outstanding_request(
     long_poll_recording_server: Any,
 ) -> None:
-    from _queue_service_client_core.config import ClientConfig
-    from _queue_service_client_core.errors import RequestCancelledError
+    from _workhold_client_core.config import ClientConfig
+    from _workhold_client_core.errors import RequestCancelledError
 
     hold = threading.Event()
     entered = threading.Event()
@@ -770,7 +770,7 @@ def test_sync_cancellation_closes_outstanding_request(
 
 
 def test_surplus_tasks_raises_malformed_response(recording_server: Any) -> None:
-    from _queue_service_client_core.errors import MalformedResponseError
+    from _workhold_client_core.errors import MalformedResponseError
 
     server, base_url = recording_server
     payload = _claim_response()
@@ -788,7 +788,7 @@ def test_surplus_tasks_raises_malformed_response(recording_server: Any) -> None:
 
 
 def test_invalid_queue_states_raises_malformed_response(recording_server: Any) -> None:
-    from _queue_service_client_core.errors import MalformedResponseError
+    from _workhold_client_core.errors import MalformedResponseError
 
     server, base_url = recording_server
     payload = _claim_response()
@@ -838,7 +838,7 @@ def _fake_claim_then_complete_transport(
 
 
 def test_complete_explicit_max_payload_bytes_rejects_oversize_without_encoder() -> None:
-    from _queue_service_client_core.codecs import measure_json_bytes
+    from _workhold_client_core.codecs import measure_json_bytes
 
     complete_bodies: list[dict[str, Any]] = []
     client = ConsumerClient(

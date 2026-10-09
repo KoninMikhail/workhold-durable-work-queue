@@ -10,22 +10,22 @@ from typing import Any
 
 import pytest
 
-from queue_service_producer.bridge.compatibility import (
+from workhold_producer.bridge.compatibility import (
     SUPPORTED_CAPABILITIES,
     BridgeCompatibility,
     CompatibilityResult,
     CompatibilityStatus,
 )
-from queue_service_producer.bridge.idempotency import bridge_idempotency_key
-from queue_service_producer.bridge.observability import BridgeTelemetry
-from queue_service_producer.bridge.runner import BridgeRunner
-from queue_service_producer.bridge.store import (
+from workhold_producer.bridge.idempotency import bridge_idempotency_key
+from workhold_producer.bridge.observability import BridgeTelemetry
+from workhold_producer.bridge.runner import BridgeRunner
+from workhold_producer.bridge.store import (
     AppStoreHealthSnapshot,
     BoundedPendingDepth,
     OldestPendingSnapshot,
     OutboxIntent,
 )
-from _queue_service_client_core.models import EnqueueResponse, ErrorCode, Task, TaskState
+from _workhold_client_core.models import EnqueueResponse, ErrorCode, Task, TaskState
 
 MATRIX_PATH = Path(__file__).with_name("compatibility_matrix.yaml")
 
@@ -548,7 +548,7 @@ def test_live_openapi_harness_and_bridge_priority_true_equality() -> None:
     """Plan 12-11 activates priority=true across every authenticated mirror."""
     import json
 
-    from queue_service.api.v1.capabilities import LIVE_CAPABILITIES
+    from workhold.api.v1.capabilities import LIVE_CAPABILITIES
     from tests.conformance.test_harness_self import CAPABILITIES_BODY
     from tests.contracts.test_openapi_contract import CAPABILITIES_CONSTS
 

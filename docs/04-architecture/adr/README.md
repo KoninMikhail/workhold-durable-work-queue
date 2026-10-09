@@ -16,7 +16,7 @@ Why repository-level decisions were accepted. Start with the [reading path](../.
 | [008-queue-retry-policy](008-queue-retry-policy.md) | Retry policy belongs to the named queue | Accepted |
 | [009-runtime-control-plane](009-runtime-control-plane.md) | Persisted runtime control plane | Accepted |
 | [010-queue-runtime-states](010-queue-runtime-states.md) | Three queue runtime states | Accepted |
-| [011-no-business-result-store](011-no-business-result-store.md) | queue-service does not store business results | Accepted |
+| [011-no-business-result-store](011-no-business-result-store.md) | workhold does not store business results | Accepted |
 | [012-protocol-first-clients](012-protocol-first-clients.md) | Protocol-first, batch-ready clients | Accepted |
 | [013-separate-security-planes](013-separate-security-planes.md) | Separate producer, worker and admin security planes | Accepted |
 | [014-layered-admission-control](014-layered-admission-control.md) | Layered admission control | Accepted |
@@ -34,10 +34,12 @@ Why repository-level decisions were accepted. Start with the [reading path](../.
 | [026-optional-glitchtip-sentry-dsn](026-optional-glitchtip-sentry-dsn.md) | Optional GlitchTip via `SENTRY_DSN` presence | Accepted |
 | [027-stdlib-http-asgi-runtime](027-stdlib-http-asgi-runtime.md) | Stdlib HTTP + pure ASGI API runtime | Accepted |
 | [028-catalog-apply-process-role](028-catalog-apply-process-role.md) | Fifth process role `apply` for catalog ensure-exists | Accepted |
-| [029-role-split-python-clients](029-role-split-python-clients.md) | Role-split producer/consumer/admin Python clients | Accepted |
+| [029-role-split-python-clients](029-role-split-python-clients.md) | Role-split producer/consumer/admin Python clients | Accepted; distribution names superseded by [030](030-workhold-distribution-names.md) |
+| [030-workhold-distribution-names](030-workhold-distribution-names.md) | Public distributions use the workhold name base | Accepted |
 
 Index, HASH, and payload selections from Phase 3.9 QUAL-03 are recorded in ADR 023.
 The engine pin, file secrets, GlitchTip, and stdlib HTTP are ADR 024–027.
 The catalog apply process role is ADR 028.
+Python client role split is ADR 029; distribution names are ADR 030.
 Post-benchmark production SLOs remain follow-up work under
 [12-physical-contract-benchmarks.md](../12-physical-contract-benchmarks.md).

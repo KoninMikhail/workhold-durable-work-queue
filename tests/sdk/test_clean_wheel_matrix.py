@@ -23,14 +23,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DIST_DIR = REPO_ROOT / "dist"
 
 CLIENT_DISTRIBUTIONS: tuple[str, ...] = (
-    "queue-service-client-core",
-    "queue-service-producer",
-    "queue-service-consumer",
-    "queue-service-admin",
+    "workhold-client-core",
+    "workhold-producer",
+    "workhold-consumer",
+    "workhold-admin",
 )
 ROLE_DISTRIBUTIONS: tuple[str, ...] = CLIENT_DISTRIBUTIONS[1:]
 FORBIDDEN_DISTS = frozenset({"queue-client", "queue_client", "queue-service-client"})
-SERVER_DEP_NAMES = frozenset({"queue", "queue-service", "queue_service"})
+SERVER_DEP_NAMES = frozenset({"queue", "workhold"})
 ASYNC_MARKERS = ("httpx", "anyio", "httpcore")
 
 
@@ -84,10 +84,10 @@ def clean_wheels() -> dict[str, Path]:
         if any(
             stale.name.startswith(prefix)
             for prefix in (
-                "queue_service_client_core-",
-                "queue_service_producer-",
-                "queue_service_consumer-",
-                "queue_service_admin-",
+                "workhold_client_core-",
+                "workhold_producer-",
+                "workhold_consumer-",
+                "workhold_admin-",
                 "queue_client-",
                 "queue-client-",
             )
@@ -135,9 +135,9 @@ def test_role_base_install_cannot_import_server_or_cross_role(
 ) -> None:
     import_name = dist_name.replace("-", "_")
     role_wheel = clean_wheels[dist_name]
-    core_wheel = clean_wheels["queue-service-client-core"]
+    core_wheel = clean_wheels["workhold-client-core"]
     other_roles = [d.replace("-", "_") for d in ROLE_DISTRIBUTIONS if d != dist_name]
-    forbidden = ["queue_service", "queue_service_client", *other_roles]
+    forbidden = ["workhold", "queue_service_client", *other_roles]
 
     with tempfile.TemporaryDirectory(prefix=f"clean-{import_name}-") as tmp:
         venv = Path(tmp) / "venv"
@@ -185,7 +185,7 @@ print("ok", mod.__name__, mod.__version__)
 
 
 def test_async_extra_installs_httpx_for_core(clean_wheels: dict[str, Path]) -> None:
-    core_wheel = clean_wheels["queue-service-client-core"]
+    core_wheel = clean_wheels["workhold-client-core"]
     with tempfile.TemporaryDirectory(prefix="clean-core-async-") as tmp:
         venv = Path(tmp) / "venv"
         _run(["uv", "venv", str(venv)])

@@ -14,7 +14,7 @@ _HORIZON_SECONDS = 86400
 
 
 def test_null_available_at_resolves_to_store_now_immediate() -> None:
-    from queue_service.scheduling import SchedulingPolicy
+    from workhold.scheduling import SchedulingPolicy
 
     policy = SchedulingPolicy(horizon_seconds=_HORIZON_SECONDS)
     decision = policy.resolve(None, store_now=_STORE_NOW)
@@ -23,7 +23,7 @@ def test_null_available_at_resolves_to_store_now_immediate() -> None:
 
 
 def test_past_available_at_persisted_unchanged_immediate() -> None:
-    from queue_service.scheduling import SchedulingPolicy
+    from workhold.scheduling import SchedulingPolicy
 
     past = _STORE_NOW - timedelta(seconds=30)
     policy = SchedulingPolicy(horizon_seconds=_HORIZON_SECONDS)
@@ -33,7 +33,7 @@ def test_past_available_at_persisted_unchanged_immediate() -> None:
 
 
 def test_current_available_at_persisted_unchanged_immediate() -> None:
-    from queue_service.scheduling import SchedulingPolicy
+    from workhold.scheduling import SchedulingPolicy
 
     policy = SchedulingPolicy(horizon_seconds=_HORIZON_SECONDS)
     decision = policy.resolve(_STORE_NOW, store_now=_STORE_NOW)
@@ -42,7 +42,7 @@ def test_current_available_at_persisted_unchanged_immediate() -> None:
 
 
 def test_in_horizon_future_available_at_persisted_unchanged_delayed() -> None:
-    from queue_service.scheduling import SchedulingPolicy
+    from workhold.scheduling import SchedulingPolicy
 
     future = _STORE_NOW + timedelta(hours=6)
     policy = SchedulingPolicy(horizon_seconds=_HORIZON_SECONDS)
@@ -52,7 +52,7 @@ def test_in_horizon_future_available_at_persisted_unchanged_delayed() -> None:
 
 
 def test_exact_86400_second_horizon_boundary_accepted_delayed() -> None:
-    from queue_service.scheduling import SchedulingPolicy
+    from workhold.scheduling import SchedulingPolicy
 
     boundary = _STORE_NOW + timedelta(seconds=_HORIZON_SECONDS)
     policy = SchedulingPolicy(horizon_seconds=_HORIZON_SECONDS)
@@ -62,7 +62,7 @@ def test_exact_86400_second_horizon_boundary_accepted_delayed() -> None:
 
 
 def test_one_microsecond_over_horizon_rejects_with_field_limit_metadata() -> None:
-    from queue_service.scheduling import SchedulingPolicy, SchedulingValidationError
+    from workhold.scheduling import SchedulingPolicy, SchedulingValidationError
 
     over = _STORE_NOW + timedelta(seconds=_HORIZON_SECONDS, microseconds=1)
     with pytest.raises(SchedulingValidationError) as exc_info:
@@ -85,7 +85,7 @@ def test_one_microsecond_over_horizon_rejects_with_field_limit_metadata() -> Non
     ],
 )
 def test_naive_available_at_rejects_with_stable_metadata(naive: datetime) -> None:
-    from queue_service.scheduling import SchedulingPolicy, SchedulingValidationError
+    from workhold.scheduling import SchedulingPolicy, SchedulingValidationError
 
     with pytest.raises(SchedulingValidationError) as exc_info:
         SchedulingPolicy(horizon_seconds=_HORIZON_SECONDS).resolve(
@@ -98,7 +98,7 @@ def test_naive_available_at_rejects_with_stable_metadata(naive: datetime) -> Non
 
 
 def test_horizon_zero_rejects_every_future_instant() -> None:
-    from queue_service.scheduling import SchedulingPolicy, SchedulingValidationError
+    from workhold.scheduling import SchedulingPolicy, SchedulingValidationError
 
     future = _STORE_NOW + timedelta(microseconds=1)
     with pytest.raises(SchedulingValidationError):

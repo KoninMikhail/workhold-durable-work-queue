@@ -4,7 +4,7 @@
 
 **Who:** worker + Delivery Relay.
 
-**What queue-service stores:** `events[]` as pending Delivery Outbox records together with
+**What workhold stores:** `events[]` as pending Delivery Outbox records together with
 complete; the relay publishes at-least-once after commit.
 
 **What is idempotent in the app:** downstream by event ID (inbox).

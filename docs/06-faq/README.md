@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › **FAQ**
 
-Answers to common misconceptions about Workhold (`queue-service`). One question — one file.
+Answers to common misconceptions about Workhold. One question — one file.
 The page stands on its own: the mechanism, the example, and "what not to do" live here,
 not behind a link. Links at the bottom of the page are only when you need deeper
 architecture or an ADR.

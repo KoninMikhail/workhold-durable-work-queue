@@ -8,14 +8,14 @@ import pytest
 import sentry_sdk
 from sentry_sdk.transport import Transport
 
-from queue_service import __version__
-from queue_service.observability import error_reporting
-from queue_service.observability.error_reporting import (
+from workhold import __version__
+from workhold.observability import error_reporting
+from workhold.observability.error_reporting import (
     _before_send,
     maybe_init_error_reporting,
     reset_error_reporting_for_tests,
 )
-from queue_service.settings import Secret
+from workhold.settings import Secret
 
 SENTRY_DSN_SENTINEL = "https://SENTRY_DSN_SENTINEL_9z8y@127.0.0.1/0"
 
@@ -51,7 +51,7 @@ def test_unset_dsn_does_not_init(monkeypatch: pytest.MonkeyPatch) -> None:
     assert maybe_init_error_reporting(
         dsn=None,
         environment="development",
-        release=f"queue@{__version__}",
+        release=f"workhold@{__version__}",
         process_role="api",
     ) is False
     assert init_calls == []
@@ -69,7 +69,7 @@ def test_empty_dsn_does_not_init(monkeypatch: pytest.MonkeyPatch) -> None:
     assert maybe_init_error_reporting(
         dsn=Secret("   "),
         environment="development",
-        release=f"queue@{__version__}",
+        release=f"workhold@{__version__}",
         process_role="api",
     ) is False
     assert init_calls == []
@@ -89,7 +89,7 @@ def test_init_once_with_recording_transport(monkeypatch: pytest.MonkeyPatch) -> 
     kwargs = {
         "dsn": Secret(SENTRY_DSN_SENTINEL),
         "environment": "development",
-        "release": f"queue@{__version__}",
+        "release": f"workhold@{__version__}",
         "process_role": "api",
         "transport": transport,
     }
@@ -107,7 +107,7 @@ def test_capture_exception_uses_injected_transport() -> None:
     assert maybe_init_error_reporting(
         dsn=Secret(SENTRY_DSN_SENTINEL),
         environment="development",
-        release=f"queue@{__version__}",
+        release=f"workhold@{__version__}",
         process_role="api",
         transport=transport,
     ) is True
@@ -128,7 +128,7 @@ def test_dsn_not_leaked(capsys: pytest.CaptureFixture[str]) -> None:
     assert maybe_init_error_reporting(
         dsn=secret,
         environment="development",
-        release=f"queue@{__version__}",
+        release=f"workhold@{__version__}",
         process_role="api",
         transport=transport,
     ) is True
@@ -184,7 +184,7 @@ def test_init_failure_is_fail_open_name_only(
     assert maybe_init_error_reporting(
         dsn=Secret(SENTRY_DSN_SENTINEL),
         environment="development",
-        release=f"queue@{__version__}",
+        release=f"workhold@{__version__}",
         process_role="api",
         transport=RecordingTransport(),
     ) is False
@@ -198,7 +198,7 @@ def test_init_failure_is_fail_open_name_only(
     assert maybe_init_error_reporting(
         dsn=Secret(SENTRY_DSN_SENTINEL),
         environment="development",
-        release=f"queue@{__version__}",
+        release=f"workhold@{__version__}",
         process_role="api",
         transport=RecordingTransport(),
     ) is False

@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from queue_service.observability import context as obs_context
-from queue_service.operations import bulk as bulk_ops
+from workhold.observability import context as obs_context
+from workhold.operations import bulk as bulk_ops
 
 _DENIED_KEYS = (
     "payload",
@@ -129,7 +129,7 @@ def test_bulk_projector_uses_shared_plan01_allowlist() -> None:
 def test_emit_bulk_correlation_logs_and_spans(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    logger = logging.getLogger("queue_service.tests.bulk_admin_correlation")
+    logger = logging.getLogger("workhold.tests.bulk_admin_correlation")
     logger.handlers.clear()
     logger.propagate = True
     logger.setLevel(logging.INFO)

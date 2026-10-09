@@ -12,7 +12,7 @@ immediately as ordinary work. It is not "a subtask inside the parent".
 1. The worker holds a lease on the source task.
 2. On a successful complete it passes `spawn[]` — zero or more new tasks
    into the target named queues.
-3. In one transaction, queue-service sets the source to succeeded and the follow-ups
+3. In one transaction, workhold sets the source to succeeded and the follow-ups
    appear in the work queue. There is no window of "the parent is closed and the next
    piece of work is lost".
 4. A retry of the same complete with the same claim and the same body returns the same

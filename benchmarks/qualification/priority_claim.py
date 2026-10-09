@@ -46,13 +46,13 @@ from benchmarks.qualification.storage_candidates import (
     PHASE12_SCHEMA_REVISION,
     qualified_physical_signature_digest,
 )
-from queue_service.domain.queue_control import (
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
 

@@ -26,14 +26,14 @@ from urllib.request import Request, urlopen
 
 import pytest
 
-from queue_service import settings
-from queue_service.roles import migrate as migrate_role
+from workhold import settings
+from workhold.roles import migrate as migrate_role
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE_FILE = ROOT / "docker-compose.dev.yml"
 DOCKERFILE = ROOT / "Dockerfile"
 ENV_EXAMPLE = ROOT / ".env.example"
-IMAGE_TAG = "queue:local"
+IMAGE_TAG = "workhold:local"
 
 PAYLOAD_SENTINEL = "PAYLOAD_SENTINEL_do_not_log_9f3a"
 CLAIM_TOKEN_SENTINEL = "CLAIM_TOKEN_SENTINEL_do_not_log_7c2b"
@@ -403,7 +403,7 @@ def test_compose_config_and_env_contract(runtime_image: str) -> None:
     text = COMPOSE_FILE.read_text(encoding="utf-8")
     env_text = ENV_EXAMPLE.read_text(encoding="utf-8")
 
-    assert "image: queue:local" in text
+    assert "image: workhold:local" in text
     assert "target: runtime" in text
     assert 'command: ["migrate"]' in text
     assert 'command: ["api"]' in text

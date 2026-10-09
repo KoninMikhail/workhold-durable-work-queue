@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from queue_service.observability import context as obs_context
-from queue_service.observability import metrics
+from workhold.observability import context as obs_context
+from workhold.observability import metrics
 
 
 def test_depth_gauges_are_keyed_by_queue_only() -> None:

@@ -18,10 +18,10 @@ GATE_PATH = REPO_ROOT / "tools" / "client_release_gate.py"
 INVENTORY_PATH = REPO_ROOT / "dist" / "client-wheel-inventory.json"
 
 CLIENT_DISTRIBUTIONS = (
-    "queue-service-client-core",
-    "queue-service-producer",
-    "queue-service-consumer",
-    "queue-service-admin",
+    "workhold-client-core",
+    "workhold-producer",
+    "workhold-consumer",
+    "workhold-admin",
 )
 
 
@@ -42,10 +42,10 @@ def _write_synthetic_release_tree(
 ) -> None:
     overrides = overrides or {}
     package_versions = {
-        "queue-service-client-core": version,
-        "queue-service-producer": version,
-        "queue-service-consumer": version,
-        "queue-service-admin": version,
+        "workhold-client-core": version,
+        "workhold-producer": version,
+        "workhold-consumer": version,
+        "workhold-admin": version,
     }
     (root / "pyproject.toml").write_text(
         f'[project]\nname = "queue"\nversion = "{version}"\n',
@@ -54,15 +54,15 @@ def _write_synthetic_release_tree(
     for dist, package_version in package_versions.items():
         package_dir = root / "packages" / dist
         package_dir.mkdir(parents=True)
-        if dist == "queue-service-client-core":
+        if dist == "workhold-client-core":
             dependencies: list[str] = []
             async_dependencies = ["httpx>=0.28"]
         else:
             dependencies = [
-                "queue-service-client-core>=1.2.0,<1.3.0"
+                "workhold-client-core>=1.2.0,<1.3.0"
             ]
             async_dependencies = [
-                "queue-service-client-core[async]>=1.2.0,<1.3.0"
+                "workhold-client-core[async]>=1.2.0,<1.3.0"
             ]
         dependencies = overrides.get((dist, "dependencies"), dependencies)
         async_dependencies = overrides.get(
@@ -103,22 +103,22 @@ def test_synthetic_nonzero_patch_derives_and_accepts_coordinated_minor(
     [
         (
             "dependencies",
-            ["queue-service-client-core>=0.1.0,<0.2.0"],
+            ["workhold-client-core>=0.1.0,<0.2.0"],
             "dependencies",
         ),
         (
             "optional-dependencies.async",
-            ["queue-service-client-core[async]>=0.1.0,<0.2.0"],
+            ["workhold-client-core[async]>=0.1.0,<0.2.0"],
             "optional-dependencies.async",
         ),
         (
             "dependencies",
-            ["queue-service-client-core>=1.2.1,<1.3.0"],
+            ["workhold-client-core>=1.2.1,<1.3.0"],
             "dependencies",
         ),
         (
             "dependencies",
-            ["queue-service-client-core>=1.2.0,<1.4.0"],
+            ["workhold-client-core>=1.2.0,<1.4.0"],
             "dependencies",
         ),
         (
@@ -129,8 +129,8 @@ def test_synthetic_nonzero_patch_derives_and_accepts_coordinated_minor(
         (
             "dependencies",
             [
-                "queue-service-client-core>=1.2.0,<1.3.0",
-                "queue-service-client-core>=1.2.0,<1.3.0",
+                "workhold-client-core>=1.2.0,<1.3.0",
+                "workhold-client-core>=1.2.0,<1.3.0",
             ],
             "dependencies",
         ),
@@ -144,7 +144,7 @@ def test_synthetic_release_rejects_core_dependency_drift(
     diagnostic: str,
 ) -> None:
     gate = _load_gate()
-    role = "queue-service-consumer"
+    role = "workhold-consumer"
     _write_synthetic_release_tree(
         tmp_path,
         overrides={(role, section): requirements},
@@ -159,9 +159,9 @@ def test_synthetic_release_rejects_core_dependency_drift(
 
 def _role_wheel_metadata(
     *,
-    base: str = "queue-service-client-core<1.3.0,>=1.2.0",
+    base: str = "workhold-client-core<1.3.0,>=1.2.0",
     async_requirement: str = (
-        "queue-service-client-core[async]<1.3.0,>=1.2.0; extra == 'async'"
+        "workhold-client-core[async]<1.3.0,>=1.2.0; extra == 'async'"
     ),
 ) -> Message:
     metadata = Message()
@@ -173,7 +173,7 @@ def _role_wheel_metadata(
 def test_role_wheel_metadata_accepts_matching_base_and_async_bounds() -> None:
     gate = _load_gate()
     gate._assert_role_wheel_core_dependencies(
-        "queue-service-producer",
+        "workhold-producer",
         _role_wheel_metadata(),
         expected_lower="1.2.0",
         expected_upper="1.3.0",
@@ -183,14 +183,14 @@ def test_role_wheel_metadata_accepts_matching_base_and_async_bounds() -> None:
 @pytest.mark.parametrize(
     ("field", "value"),
     [
-        ("base", "queue-service-client-core<0.2.0,>=0.1.0"),
+        ("base", "workhold-client-core<0.2.0,>=0.1.0"),
         (
             "async",
-            "queue-service-client-core[async]<0.2.0,>=0.1.0; extra == 'async'",
+            "workhold-client-core[async]<0.2.0,>=0.1.0; extra == 'async'",
         ),
         (
             "async",
-            "queue-service-client-core[async]<1.3.0,>=1.2.0; extra == 'other'",
+            "workhold-client-core[async]<1.3.0,>=1.2.0; extra == 'other'",
         ),
     ],
 )
@@ -204,9 +204,9 @@ def test_role_wheel_metadata_rejects_stale_or_mismarked_core_requirement(
         if field == "base"
         else _role_wheel_metadata(async_requirement=value)
     )
-    with pytest.raises(gate.GateError, match=rf"queue-service-admin.*{field}"):
+    with pytest.raises(gate.GateError, match=rf"workhold-admin.*{field}"):
         gate._assert_role_wheel_core_dependencies(
-            "queue-service-admin",
+            "workhold-admin",
             metadata,
             expected_lower="1.2.0",
             expected_upper="1.3.0",
@@ -244,9 +244,9 @@ def test_client_release_gate_builds_inventory_and_dry_run() -> None:
         assert entry["metadata"]["name"] == entry["distribution"]
         assert entry["metadata"]["version"] == inventory["coordinated_version"]
     # Dependency graph: roles depend on core only.
-    assert inventory["dependency_graph"]["queue-service-client-core"] == []
+    assert inventory["dependency_graph"]["workhold-client-core"] == []
     for role in CLIENT_DISTRIBUTIONS[1:]:
-        assert inventory["dependency_graph"][role] == ["queue-service-client-core"]
+        assert inventory["dependency_graph"][role] == ["workhold-client-core"]
 
 
 def re_sha256(value: str) -> bool:

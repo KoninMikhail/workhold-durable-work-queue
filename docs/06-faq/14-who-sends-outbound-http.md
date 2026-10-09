@@ -15,7 +15,7 @@ They are easy to mix into one "someone calls somewhere".
 | --- | --- | --- |
 | Process the task: a parser, someone else's API, disk | the application's worker | the service that this worker knows |
 | Tell the outside that the task finished | the `relay` role | one webhook of the deploy, CloudEvents |
-| Enqueue / claim / close a task | producer / worker | the queue-service API |
+| Enqueue / claim / close a task | producer / worker | the workhold API |
 
 While the worker holds the lease, the external effect is its own. `relay` is not
 needed for that. Complete without `events[]` is normal: "the work is done, and there is

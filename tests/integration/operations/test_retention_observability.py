@@ -12,9 +12,9 @@ from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
-from queue_service.infrastructure.postgres.maintenance import StorageMaintenanceReport
-from queue_service.observability import retention as retention_obs
-from queue_service.observability.metrics import KernelMetrics
+from workhold.infrastructure.postgres.maintenance import StorageMaintenanceReport
+from workhold.observability import retention as retention_obs
+from workhold.observability.metrics import KernelMetrics
 
 
 def _aware(dt: datetime) -> datetime:

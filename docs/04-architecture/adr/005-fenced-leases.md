@@ -14,9 +14,9 @@ writes.
 ## Decision
 
 Each task claim uses a new opaque token, a monotonic attempt generation, and a
-queue-service-store expiry. Heartbeat and terminal commands validate the
+workhold store expiry. Heartbeat and terminal commands validate the
 current token, generation, and unexpired lease. Each claim also records
-`claimed_at` from the queue-service store and a diagnostic `worker_id`; neither
+`claimed_at` from the workhold store and a diagnostic `worker_id`; neither
 replaces the fence. Delivery-relay claims use a separate equivalent fencing
 domain.
 
@@ -30,7 +30,7 @@ domain.
 
 ## Consequences
 
-**Positive:** Stale replicas do not mutate queue-service state; API replicas
+**Positive:** Stale replicas do not mutate workhold state; API replicas
 stay stateless and non-sticky.
 
 **Negative / trade-offs:** External side effects are not fenced automatically

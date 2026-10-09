@@ -21,7 +21,7 @@ name: queue-qualification
 x-queue-runtime: &queue-runtime
   # Digest-pinned RC image only — no `build:` so qualification cannot silently
   # substitute a locally built image for the profile digest.
-  image: queue@sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  image: workhold@sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
   init: true
   environment: &queue-env
     PYTHONUNBUFFERED: "1"

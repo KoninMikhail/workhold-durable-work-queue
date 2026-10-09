@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from _queue_service_client_core.capabilities import Capabilities
-from _queue_service_client_core.models import (
+from _workhold_client_core.capabilities import Capabilities
+from _workhold_client_core.models import (
     ErrorCode,
     ProtocolErrorBody,
     Task,

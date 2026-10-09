@@ -7,7 +7,7 @@ a pod restart, a 502 on the proxy. It is unclear whether the task was created.
 A retry "just in case" is risky: there might be a second one.
 
 **This is not a bug.** A successful enqueue responds only after the commit in
-queue-service PostgreSQL. The commit may have landed, and the HTTP response
+workhold PostgreSQL. The commit may have landed, and the HTTP response
 may not. The task is already there.
 
 ## Why
@@ -19,7 +19,7 @@ timeout can fire before the body is read.
 ```mermaid
 sequenceDiagram
   participant P as producer
-  participant API as queue-service API
+  participant API as workhold API
   participant DB as PostgreSQL
   P->>API: enqueue
   API->>DB: COMMIT
@@ -37,7 +37,7 @@ The price is "response lost, the task is alive".
 1. Retry the enqueue with the **same** idempotency key and the **same**
    normalized body (the same named queue, payload, priority,
    available_at — everything that is part of the fingerprint).
-2. queue-service finds the existing record and returns the original task.
+2. workhold finds the existing record and returns the original task.
    A second piece of work does not appear.
 3. Then work with this id as if the first response had arrived.
 

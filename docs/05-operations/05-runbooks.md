@@ -9,9 +9,9 @@ are described in [02-deployment.md](02-deployment.md), [03-observability.md](03-
 
 - Prefer the private admin API and process roles (`api`, `migrate`, `maintain`,
   `relay`) to ad-hoc database mutations.
-- **Never** invent or run operator SQL against queue-service tables;
+- **Never** invent or run operator SQL against workhold tables;
   DDL, DSN changes, and hard limits remain deployment configuration.
-- queue-service guarantees at-least-once execution. Do **not** treat restore, replay, or
+- workhold guarantees at-least-once execution. Do **not** treat restore, replay, or
   break-glass repair as exactly-once recovery. Consumer idempotency
   remains required.
 - Retention is **not** a backup. Fact retention and registry TTL purge do **not**
@@ -143,7 +143,7 @@ when readiness drops or the error budget is burning.
 
 - Do **not** raise hard RPS ceilings or pool sizes above deployment limits without
   capacity review.
-- Do **not** open direct SQL sessions to "kill queries" as a queue-service recovery step.
+- Do **not** open direct SQL sessions to "kill queries" as a workhold recovery step.
 
 ### Rollback / containment
 
@@ -381,7 +381,7 @@ Warning in adaptive WARNING; critical on enqueue throttle or readiness failure.
 
 - Keep claims draining under throttle; block new enqueue through adaptive mode
   or an explicit pause.
-- Expand disk / clear WAL at the infrastructure level; queue-service **cannot**
+- Expand disk / clear WAL at the infrastructure level; workhold **cannot**
   invent vacuum SQL for operators.
 
 ### Post-recovery verification
@@ -401,7 +401,7 @@ Warning in adaptive WARNING; critical on enqueue throttle or readiness failure.
 
 ### Severity
 
-Critical. Treat it as a full trust-boundary restore of one queue-service database.
+Critical. Treat it as a full trust-boundary restore of one workhold database.
 
 ### Prerequisites
 
@@ -414,7 +414,7 @@ Critical. Treat it as a full trust-boundary restore of one queue-service databas
 
 ### Safe diagnostics
 
-1. Confirm the restore target is the single queue-service database for this application trust
+1. Confirm the restore target is the single workhold database for this application trust
    boundary ([01-security.md](01-security.md)).
 2. Choose the restore point; do **not** attempt a table-level or registry-only restore.
 3. Inventory the process roles that must stay down: API intake,
@@ -438,7 +438,7 @@ After the database is restored by deployment tooling (not admin SQL):
 
 1. **Stop workers and relay**; fail readiness / block intake so there are no
    split-brain writes during the restore.
-2. **Restore one consistent queue-service database**, including:
+2. **Restore one consistent workhold database**, including:
    - active scheduling state (`tasks_active`, payloads, claim registry);
    - correctness registries (`enqueue_dedup`, `complete_replay`, admin replay
      registry as deployed);

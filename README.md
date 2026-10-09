@@ -2,13 +2,13 @@
 
 **A durable Work Queue for applications that run across multiple replicas.**
 
-Workhold (`queue-service`) gives application teams reliable background execution without
+Workhold gives application teams reliable background execution without
 building queue correctness from scratch or adopting a shared platform-wide
 message bus. It combines idempotent intake, fenced leases, retries, follow-up
 tasks, and production operations behind a stable API.
 
 - **Keep work through crashes:** a successful enqueue is committed to
-  queue-service's PostgreSQL before it is acknowledged.
+  workhold's PostgreSQL before it is acknowledged.
 - **Scale workers safely:** replicas compete for tasks under fenced,
   renewable leases; stale workers cannot mutate queue state.
 - **Finish work atomically:** completion and `spawn[]` follow-up tasks commit
@@ -33,7 +33,7 @@ Python 3.13 and [uv](https://docs.astral.sh/uv/) are required:
 
 ```bash
 uv sync --group dev
-uv run queue --help
+uv run workhold --help
 uv run pytest
 ```
 
@@ -110,13 +110,13 @@ application continues to own payload meaning and business results.
 
 ## Common use cases
 
-| Use case | How queue-service helps |
+| Use case | How workhold helps |
 | --- | --- |
 | **CPU- or I/O-heavy background jobs** | Distribute work across replicas, renew long leases, and safely retry after crashes |
 | **Multi-stage processing** | Complete one task and atomically spawn the next stage into another named queue |
 | **Scheduled work** | Make a task claimable at a bounded future `available_at` time without a promotion job |
-| **Reliable handoff from a business transaction** | Use an app-local transactional outbox and deterministic idempotency key to bridge into queue-service |
-| **Applications without a database** | Enqueue directly; queue-service already owns the durable store |
+| **Reliable handoff from a business transaction** | Use an app-local transactional outbox and deterministic idempotency key to bridge into workhold |
+| **Applications without a database** | Enqueue directly; workhold already owns the durable store |
 | **Controlled operational recovery** | Inspect attempts, diagnose failure codes, replay dead letters, and pause or drain queues |
 | **Outbound notifications** | Record delivery intent in the Delivery Outbox and publish through the relay when the capability is enabled |
 
@@ -149,19 +149,19 @@ an application's database. Read the
 Install only the role used by each process:
 
 ```bash
-pip install queue-service-producer
-pip install queue-service-consumer
-pip install queue-service-admin
+pip install workhold-producer
+pip install workhold-consumer
+pip install workhold-admin
 ```
 
 | Package | Purpose | Optional extras |
 | --- | --- | --- |
-| `queue-service-producer` | Enqueue, inspect, cancel, and bridge | `async`, `bridge-postgres` |
-| `queue-service-consumer` | Claim, heartbeat, complete, fail, and supervise | `async` |
-| `queue-service-admin` | Observe, administer, and run break-glass operations | `async` |
+| `workhold-producer` | Enqueue, inspect, cancel, and bridge | `async`, `bridge-postgres` |
+| `workhold-consumer` | Claim, heartbeat, complete, fail, and supervise | `async` |
+| `workhold-admin` | Observe, administer, and run break-glass operations | `async` |
 
 The packages share a coordinated version and depend on
-`queue-service-client-core` for transport, errors, retries, and the public test
+`workhold-client-core` for transport, errors, retries, and the public test
 kit. OpenAPI 3.1 remains the authoritative wire contract.
 
 ## Roadmap
@@ -172,7 +172,7 @@ kit. OpenAPI 3.1 remains the authoritative wire contract.
 
 Kafka will be an outbound transport after commit, not a second task queue or
 source of truth for claims. The Work Queue lifecycle and fenced leases will
-remain in queue-service and PostgreSQL. See
+remain in workhold and PostgreSQL. See
 [ADR 018](docs/04-architecture/adr/018-http-first-delivery-relay.md).
 
 ## When to choose something else
@@ -186,7 +186,7 @@ Workhold is a Work Queue, not a universal messaging system.
 | Exactly-once external effects | Application-level idempotency, inboxes, or natural uniqueness |
 | A shared multi-tenant platform bus | A platform messaging service |
 
-RabbitMQ or Kafka can complement queue-service as a downstream delivery
+RabbitMQ or Kafka can complement workhold as a downstream delivery
 channel; they do not need to become a second claim/ack core. See
 [Why Workhold](docs/01-concepts/02-why-queue.md) for the detailed
 comparison.
@@ -195,7 +195,7 @@ comparison.
 
 ```text
 .
-├── src/queue_service/      # service runtime
+├── src/workhold/      # service runtime
 ├── packages/               # role-split Python clients
 ├── alembic/                # PostgreSQL migrations
 ├── openapi/                # OpenAPI 3.1 contract

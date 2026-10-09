@@ -19,18 +19,18 @@ import pytest
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.admin import create_admin_app
-from queue_service.api.security import ListenerBind
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.api.admin import create_admin_app
+from workhold.api.security import ListenerBind
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
 from tests.conformance.harness import ConformanceHarness, ObservedResponse
 
 pytest_plugins = ["tests.integration.conftest", "tests.conformance.admin_client_helpers"]
@@ -479,7 +479,7 @@ def test_authorized_create_and_activate_via_admin_client(
     queue_name: str,
 ) -> None:
     """Policy create/activate success path through typed AdminClient."""
-    from queue_service_admin.models import BackoffStrategy, RetryPolicyDraft
+    from workhold_admin.models import BackoffStrategy, RetryPolicyDraft
     from tests.conformance.admin_client_helpers import make_admin_client, retry_policy_draft
 
     client = make_admin_client(admin_http_url, bearer_token=ADMIN_TOKEN)

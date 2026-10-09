@@ -2,9 +2,9 @@
 
 [Documentation](../README.md) › [Concepts](README.md) › **Named queues**
 
-A **named queue** is a named task stream inside one queue-service instance. It is not the whole service and not a separate deploy: one application has one instance, and inside that instance there are several queues with different names.
+A **named queue** is a named task stream inside one workhold instance. It is not the whole service and not a separate deploy: one application has one instance, and inside that instance there are several queues with different names.
 
-The producer enqueues a task under a specific name. The worker requests a claim only from the queues it can process. The name is explicit routing; queue-service does not parse the payload.
+The producer enqueues a task under a specific name. The worker requests a claim only from the queues it can process. The name is explicit routing; workhold does not parse the payload.
 
 ```mermaid
 flowchart LR
@@ -45,7 +45,7 @@ An admin creates the queue explicitly. Enqueue of an unknown name is an error, n
 
 ## What a named queue is not
 
-- not the whole queue-service and not "the platform queue";
+- not the whole workhold and not "the platform queue";
 - not a Kafka topic and not pub/sub: one task is processed by one logical worker, with possible at-least-once redelivery;
 - not a separate instance and not its own database per name;
 - not something that appears by itself on the first enqueue.

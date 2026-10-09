@@ -14,16 +14,16 @@ from pathlib import Path
 
 import pytest
 
-from _queue_service_client_core.capabilities import Capabilities
-from _queue_service_client_core.capability_guard import (
+from _workhold_client_core.capabilities import Capabilities
+from _workhold_client_core.capability_guard import (
     require_batch_claim,
     require_delivery_events,
     require_long_polling,
 )
-from _queue_service_client_core.codecs import PayloadDecodeError, decode_payload
-from _queue_service_client_core.errors import RequestCancelledError
-from _queue_service_client_core.instrumentation import OperationEvent
-from _queue_service_client_core.retry import (
+from _workhold_client_core.codecs import PayloadDecodeError, decode_payload
+from _workhold_client_core.errors import RequestCancelledError
+from _workhold_client_core.instrumentation import OperationEvent
+from _workhold_client_core.retry import (
     RETRY_CLASS_NEVER,
     RETRY_CLASS_SAME_IDEMPOTENCY_KEY,
     RetryBudget,
@@ -33,8 +33,8 @@ from _queue_service_client_core.retry import (
     execute_with_retry,
     retry_class_for,
 )
-from queue_service_admin.pagination import bounded_item_iterator
-from queue_service_client_testing import (
+from workhold_admin.pagination import bounded_item_iterator
+from workhold_client_testing import (
     DeterministicClock,
     ScriptStep,
     ScriptedSyncTransport,
@@ -75,7 +75,7 @@ def _caps(**overrides: object) -> Capabilities:
 
 
 def test_public_testkit_clean_import_without_server() -> None:
-    mod = importlib.import_module("queue_service_client_testing")
+    mod = importlib.import_module("workhold_client_testing")
     assert hasattr(mod, "ScriptedSyncTransport")
     assert hasattr(mod, "ScriptedAsyncTransport")
     assert hasattr(mod, "DeterministicClock")
@@ -83,11 +83,11 @@ def test_public_testkit_clean_import_without_server() -> None:
     root = (
         ROOT
         / "packages"
-        / "queue-service-client-core"
+        / "workhold-client-core"
         / "src"
-        / "queue_service_client_testing"
+        / "workhold_client_testing"
     )
-    forbidden = {"queue_service", "pytest", "psycopg", "sqlalchemy"}
+    forbidden = {"workhold", "pytest", "psycopg", "sqlalchemy"}
     for path in root.rglob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):

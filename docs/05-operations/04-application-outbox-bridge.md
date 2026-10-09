@@ -1,10 +1,10 @@
 ﻿# Application Outbox Bridge — operations contract
 
 Operators of an app-local outbox bridge need to distinguish a live process from a process that
-cannot read the application outbox or enqueue into queue-service, **without** treating
+cannot read the application outbox or enqueue into workhold, **without** treating
 temporary lag as data loss. This document is the BRDG-02 observability slice for
-the supported SDK (`queue_service_producer.bridge`; distribution
-`queue-service-producer`, optional extra `bridge-postgres`).
+the supported SDK (`workhold_producer.bridge`; distribution
+`workhold-producer`, optional extra `bridge-postgres`).
 
 Normative product semantics are described in
 [04-application-outbox-bridge.md](../04-architecture/10-application-outbox-bridge.md).
@@ -20,7 +20,7 @@ and `freshness_seconds` (how long building the snapshot took on the process cloc
 | --- | --- |
 | `process_alive` | Process liveness — always true while the telemetry object exists |
 | `app_store_reachable` / `app_store_query_ok` | Connectivity to the application outbox and success of the bounded query |
-| `queue_reachable` | Recent successful queue-service enqueue (cleared on timeout/transport failure) |
+| `queue_reachable` | Recent successful workhold enqueue (cleared on timeout/transport failure) |
 | `queue_compatible` | Cleared on unsupported schema / malformed immutable intent |
 | `last_successful_poll_at` | Last successful app-store claim/poll |
 | `last_successful_delivery_at` | Last fenced `mark_delivered` |
@@ -29,11 +29,11 @@ and `freshness_seconds` (how long building the snapshot took on the process cloc
 | `poll_stale` | Last poll is older than the configured threshold (120s by default) |
 | `empty_backlog` | No pending rows under the depth/oldest snapshots |
 | `correctness_ok` | Observational only — lag **never** flips this to false |
-| `ready` | Store reachable + query ok + queue-service reachable/compatible + poll not stale |
+| `ready` | Store reachable + query ok + workhold reachable/compatible + poll not stale |
 
 Interpretation:
 
-- **Liveness** ≠ **readiness**. A live process with an unreachable app store or queue-service is
+- **Liveness** ≠ **readiness**. A live process with an unreachable app store or workhold is
   **not** ready.
 - **An empty backlog is a normal state.** Non-zero lag by itself is an SLO signal,
   **not** data loss and **not** a correctness failure. The bridge **does not promise** zero lag.
@@ -77,7 +77,7 @@ does **not** add a second metrics library.
 idempotency key, payload fields, request ID, credentials / tokens, DSN, SQL,
 partition names, free-text messages.
 
-Logs **may** include the **public queue-service task ID** and a hashed/bounded correlation
+Logs **may** include the **public workhold task ID** and a hashed/bounded correlation
 under the repository security policy. Payload fields, credentials, and raw source identities
 do **not** appear in logs by default. W3C `traceparent` / `tracestate` **may** be
 propagated **without** copying payload fields
@@ -94,7 +94,7 @@ stalled progress or error outcomes (retries/conflicts). Do **not** alert on:
 
 Default lag warning threshold: 300 seconds (`lag_warn_seconds`). Severity
 for the combined predicate is `warning` / kind `bridge_lag_sustained`.
-Map alerts to application runbooks (check app-store connectivity, queue-service enqueue
+Map alerts to application runbooks (check app-store connectivity, workhold enqueue
 auth/reachability, lease reclaim thrash, retention delivered rows).
 Statistics/health staleness is lower severity than a correctness-path failure.
 
@@ -102,7 +102,7 @@ Statistics/health staleness is lower severity than a correctness-path failure.
 
 1. Read `BridgeHealth`: process alive, but `ready=false`?
 2. If `app_store_reachable=false` — fix application DB / outbox connectivity.
-3. If `queue_reachable=false` — fix queue-service network, TLS, or auth; see
+3. If `queue_reachable=false` — fix workhold network, TLS, or auth; see
    `bridge.retryable_error` with `result=timeout|transport_error`.
 4. If `queue_compatible=false` — update the bridge or stop writing unsupported
    `schema_version` / malformed intents (`bridge.malformed_intent`).
@@ -117,5 +117,5 @@ Statistics/health staleness is lower severity than a correctness-path failure.
 Wire `BridgeTelemetry` into `BridgeRunner(telemetry=...)`. Provide a
 `BridgeMetricSink` / `BridgeLogSink` that forwards allowlisted labels to
 the deployment's adopted telemetry backend (Phase 4 / 3.9 KernelMetrics adapters on
-the queue-service side; application processes use their own exporter under the same
+the workhold side; application processes use their own exporter under the same
 label policy).

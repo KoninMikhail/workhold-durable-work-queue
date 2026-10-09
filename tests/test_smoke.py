@@ -1,8 +1,8 @@
 import tomllib
 from pathlib import Path
 
-from queue_service import __version__
-from queue_service.cli import CLI_ROLES, main
+from workhold import __version__
+from workhold.cli import CLI_ROLES, main
 
 _ROOT = Path(__file__).resolve().parents[1]
 

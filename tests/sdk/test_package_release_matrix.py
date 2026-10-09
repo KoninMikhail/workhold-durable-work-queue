@@ -26,16 +26,16 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DIST_DIR = REPO_ROOT / "dist"
 
 CLIENT_DISTRIBUTIONS: tuple[str, ...] = (
-    "queue-service-client-core",
-    "queue-service-producer",
-    "queue-service-consumer",
-    "queue-service-admin",
+    "workhold-client-core",
+    "workhold-producer",
+    "workhold-consumer",
+    "workhold-admin",
 )
 ROLE_DISTRIBUTIONS: tuple[str, ...] = CLIENT_DISTRIBUTIONS[1:]
 FORBIDDEN_DISTRIBUTIONS: frozenset[str] = frozenset({"queue-client", "queue_client"})
 
 _CORE_REQUIREMENT_RE = re.compile(
-    r"^queue-service-client-core"
+    r"^workhold-client-core"
     r"(?P<extras>\[async\])?"
     r"\s*(?P<spec>[^;]+?)"
     r"(?:\s*;\s*(?P<marker>.+))?$",
@@ -121,7 +121,7 @@ def _core_requirements(path: Path, *, section: str) -> list[str]:
     for dep in deps:
         assert isinstance(dep, str)
         name = re.split(r"[<>=!~\[]", dep, maxsplit=1)[0].strip().lower().replace("_", "-")
-        if name == "queue-service-client-core":
+        if name == "workhold-client-core":
             found.append(dep)
     return found
 
@@ -160,10 +160,10 @@ def built_client_wheels() -> dict[str, Path]:
         if any(
             stale.name.startswith(prefix)
             for prefix in (
-                "queue_service_client_core-",
-                "queue_service_producer-",
-                "queue_service_consumer-",
-                "queue_service_admin-",
+                "workhold_client_core-",
+                "workhold_producer-",
+                "workhold_consumer-",
+                "workhold_admin-",
                 "queue_client-",
             )
         ):
@@ -251,7 +251,7 @@ def test_ci_publication_lists_core_before_roles_only() -> None:
     assert packages == list(CLIENT_DISTRIBUTIONS), (
         "CI pypi_packages must enumerate core then producer/consumer/admin only"
     )
-    assert packages[0] == "queue-service-client-core"
+    assert packages[0] == "workhold-client-core"
     assert FORBIDDEN_DISTRIBUTIONS.isdisjoint(packages)
 
     version_files = _tokenize_ci_list(_parse_ci_input("extra_version_files"))
@@ -264,7 +264,7 @@ def test_ci_rejects_partial_role_publication_shape() -> None:
     packages = _tokenize_ci_list(_parse_ci_input("pypi_packages"))
     # Partial = missing any role, or roles without core first.
     assert set(packages) == set(CLIENT_DISTRIBUTIONS)
-    assert packages.index("queue-service-client-core") == 0
+    assert packages.index("workhold-client-core") == 0
     for role in ROLE_DISTRIBUTIONS:
         assert packages.index(role) > 0
 
@@ -279,7 +279,7 @@ def test_built_wheels_share_version_and_metadata(
         version = meta.get("Version")
         assert version
         versions.add(version)
-        if dist == "queue-service-client-core":
+        if dist == "workhold-client-core":
             requires = meta.get_all("Requires-Dist") or []
             pure = [r for r in requires if ";" not in r or "extra" not in r.split(";", 1)[1]]
             assert pure == []
@@ -288,7 +288,7 @@ def test_built_wheels_share_version_and_metadata(
             core_reqs = [
                 requirement
                 for requirement in requires
-                if requirement.lower().startswith("queue-service-client-core")
+                if requirement.lower().startswith("workhold-client-core")
             ]
             parsed = [_parsed_core_requirement(req) for req in core_reqs]
             base = [item for item in parsed if not item[0]]

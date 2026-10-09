@@ -20,8 +20,8 @@ from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service import db, health, settings
-from queue_service.domain.queue_control import (
+from workhold import db, health, settings
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     ConfigVersion,
@@ -30,10 +30,10 @@ from queue_service.domain.queue_control import (
     RetryPolicyDraft,
     SetQueueStateMutation,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.storage.models import AdminAuditLog, Queue, QueuePolicyVersion
+from workhold.storage.models import AdminAuditLog, Queue, QueuePolicyVersion
 
 ROOT = Path(__file__).resolve().parents[2]
 APPLY_ADVISORY_LOCK_KEY = 0x5155455541504C59
@@ -50,7 +50,7 @@ assert APPLY_ADVISORY_LOCK_KEY != 0
 
 def _require_apply():
     return pytest.importorskip(
-        "queue_service.roles.apply",
+        "workhold.roles.apply",
         reason="implemented by 13-04",
     )
 
@@ -541,8 +541,8 @@ def test_api_readiness_ignores_catalog(
 ) -> None:
     """CTRL-10 / D-12: readiness never reads QUEUE_CATALOG_PATH (13-05)."""
     forbidden = ("QUEUE_CATALOG", "catalog_apply", "roles.apply")
-    health_src = (ROOT / "src/queue_service/health.py").read_text(encoding="utf-8")
-    api_src = (ROOT / "src/queue_service/roles/api.py").read_text(encoding="utf-8")
+    health_src = (ROOT / "src/workhold/health.py").read_text(encoding="utf-8")
+    api_src = (ROOT / "src/workhold/roles/api.py").read_text(encoding="utf-8")
     for needle in forbidden:
         assert needle not in health_src, f"health.py must not reference {needle}"
         assert needle not in api_src, f"roles/api.py must not reference {needle}"

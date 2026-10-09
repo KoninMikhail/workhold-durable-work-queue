@@ -7,10 +7,10 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.async_transport import HttpxAsyncTransport
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_producer import ProducerClient
-from queue_service_producer.async_client import AsyncProducerClient
+from _workhold_client_core.async_transport import HttpxAsyncTransport
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_producer import ProducerClient
+from workhold_producer.async_client import AsyncProducerClient
 
 from .conftest import normalize_recorded
 

@@ -21,7 +21,7 @@ flowchart LR
 
 1. The worker holds a lease on the original (**source**) task.
 2. On a successful complete it passes `spawn[]` — zero or more new tasks into the target named queues.
-3. In one queue-service transaction: the original task → succeeded, and the follow-ups appear in the Work Queue.
+3. In one workhold transaction: the original task → succeeded, and the follow-ups appear in the Work Queue.
 4. There is no window in which "the original is closed and the next work is lost".
 5. A repeat of the same complete with the same claim and the same body returns the same spawned tasks, without duplicates.
 
@@ -62,7 +62,7 @@ You can also spawn several tasks, into different names. The target queue must al
 | subtask | follow-up task / spawn |
 | create when closing the parent | atomically spawn on complete |
 
-A "subtask" in a tracker lives inside the parent and often does not release it. A follow-up in queue-service is the **next independent unit of work**, enqueued atomically together with complete.
+A "subtask" in a tracker lives inside the parent and often does not release it. A follow-up in workhold is the **next independent unit of work**, enqueued atomically together with complete.
 
 ## What a follow-up is not
 

@@ -38,4 +38,4 @@ def test_entrypoint_allowlist_includes_sentry_dsn_when_present() -> None:
     assert "SENTRY_DSN" in text
     assert "set -x" not in text
     assert b"\r" not in raw
-    assert 'exec queue "$@"' in text
+    assert 'exec workhold "$@"' in text

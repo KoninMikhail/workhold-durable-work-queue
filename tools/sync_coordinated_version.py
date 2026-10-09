@@ -21,7 +21,7 @@ _VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 _VERSION_LINE = re.compile(r'^(version\s*=\s*")([^"]+)(")', re.MULTILINE)
 _PY_VERSION = re.compile(r'^(__version__\s*=\s*")([^"]+)(")', re.MULTILINE)
 _CORE_REQ = re.compile(
-    r"queue-service-client-core(?P<extras>\[async\])?>=\d+\.\d+\.\d+,<\d+\.\d+\.\d+"
+    r"workhold-client-core(?P<extras>\[async\])?>=\d+\.\d+\.\d+,<\d+\.\d+\.\d+"
 )
 
 
@@ -51,7 +51,7 @@ def rewrite_pyproject(text: str, version: str, *, update_bounds: bool) -> str:
 
     def _bound(match: re.Match[str]) -> str:
         extras = match.group("extras") or ""
-        return f"queue-service-client-core{extras}>={lower},<{upper}"
+        return f"workhold-client-core{extras}>={lower},<{upper}"
 
     rewritten, count = _CORE_REQ.subn(_bound, rewritten)
     if count != 2:

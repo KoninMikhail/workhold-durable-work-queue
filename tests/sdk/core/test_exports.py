@@ -20,12 +20,12 @@ FORBIDDEN_CLIENT_NAMES = (
 
 
 def test_core_package_importable() -> None:
-    core = importlib.import_module("_queue_service_client_core")
-    assert core.__name__ == "_queue_service_client_core"
+    core = importlib.import_module("_workhold_client_core")
+    assert core.__name__ == "_workhold_client_core"
 
 
 def test_core_exports_no_role_operation_clients() -> None:
-    core = importlib.import_module("_queue_service_client_core")
+    core = importlib.import_module("_workhold_client_core")
     public_names = set(dir(core)) | set(getattr(core, "__all__", ()))
     for name in FORBIDDEN_CLIENT_NAMES:
         assert name not in public_names, f"core leaked {name}"
@@ -33,7 +33,7 @@ def test_core_exports_no_role_operation_clients() -> None:
 
 
 def test_core_submodules_export_no_role_operation_clients() -> None:
-    core = importlib.import_module("_queue_service_client_core")
+    core = importlib.import_module("_workhold_client_core")
     for mod_info in pkgutil.walk_packages(core.__path__, core.__name__ + "."):
         module = importlib.import_module(mod_info.name)
         for name in FORBIDDEN_CLIENT_NAMES:
@@ -41,12 +41,12 @@ def test_core_submodules_export_no_role_operation_clients() -> None:
 
 
 def test_core_has_shared_primitives() -> None:
-    transport = importlib.import_module("_queue_service_client_core.transport")
-    errors = importlib.import_module("_queue_service_client_core.errors")
-    models = importlib.import_module("_queue_service_client_core.models")
-    priority = importlib.import_module("_queue_service_client_core.priority")
-    capabilities = importlib.import_module("_queue_service_client_core.capabilities")
-    redaction = importlib.import_module("_queue_service_client_core.redaction")
+    transport = importlib.import_module("_workhold_client_core.transport")
+    errors = importlib.import_module("_workhold_client_core.errors")
+    models = importlib.import_module("_workhold_client_core.models")
+    priority = importlib.import_module("_workhold_client_core.priority")
+    capabilities = importlib.import_module("_workhold_client_core.capabilities")
+    redaction = importlib.import_module("_workhold_client_core.redaction")
 
     assert hasattr(transport, "HttpJsonTransport")
     assert hasattr(transport, "encode_path_segment")

@@ -20,36 +20,36 @@ import importlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service import settings
-from queue_service.api.application import SKELETON_CODE, create_application_app
-from queue_service.api.security import ListenerBind
-from queue_service.application.completion import CompletionService
-from queue_service.cli import CLI_ROLES, main
-from queue_service.intake.service import EnqueueService
-from queue_service.roles import api as api_role
-from queue_service.security.authorization import (
+from workhold import settings
+from workhold.api.application import SKELETON_CODE, create_application_app
+from workhold.api.security import ListenerBind
+from workhold.application.completion import CompletionService
+from workhold.cli import CLI_ROLES, main
+from workhold.intake.service import EnqueueService
+from workhold.roles import api as api_role
+from workhold.security.authorization import (
     AuthorizationContext,
     AuthorizationDenied,
     Authorizer,
     Operation,
 )
-from queue_service.security.credentials import (
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import Principal, ServiceRole
-from queue_service.settings import Secret
+from workhold.security.principals import Principal, ServiceRole
+from workhold.settings import Secret
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SENTRY_DSN_SENTINEL = "SENTRY_DSN_SENTINEL_9z8y"
 EXIT_USAGE = 2
 
 _ROLE_MODULES: dict[str, str] = {
-    "api": "queue_service.roles.api",
-    "migrate": "queue_service.roles.migrate",
-    "maintain": "queue_service.roles.maintain",
-    "relay": "queue_service.roles.relay",
-    "apply": "queue_service.roles.apply",
+    "api": "workhold.roles.api",
+    "migrate": "workhold.roles.migrate",
+    "maintain": "workhold.roles.maintain",
+    "relay": "workhold.roles.relay",
+    "apply": "workhold.roles.apply",
 }
 
 
@@ -61,9 +61,9 @@ def _run_queue(
     timeout: float = 5.0,
 ) -> subprocess.CompletedProcess[str]:
     if module:
-        cmd = [sys.executable, "-m", "queue_service", *args]
+        cmd = [sys.executable, "-m", "workhold", *args]
     else:
-        cmd = ["uv", "run", "--no-sync", "queue", *args]
+        cmd = ["uv", "run", "--no-sync", "workhold", *args]
     merged = os.environ.copy()
     if env:
         merged.update(env)
@@ -108,7 +108,7 @@ def test_help_lists_only_five_roles_and_exits_zero() -> None:
 def test_apply_is_fifth_cli_role_and_admin_absent() -> None:
     """CTRL-10: apply joins CLI_ROLES; admin stays out."""
     assert "apply" in CLI_ROLES
-    assert _ROLE_MODULES.get("apply") == "queue_service.roles.apply"
+    assert _ROLE_MODULES.get("apply") == "workhold.roles.apply"
     assert "admin" not in CLI_ROLES
 
 
@@ -351,7 +351,7 @@ def test_api_role_build_plane_apps_binds_session_factory_to_api_engine() -> None
         captured.update(kwargs)
         return original(**kwargs)
 
-    import queue_service.roles.api as api_module
+    import workhold.roles.api as api_module
 
     api_module.create_application_app = _capture  # type: ignore[method-assign]
     try:
@@ -673,7 +673,7 @@ def test_create_application_app_preserves_injected_service_scheduling_policy() -
             ),
         )
     )
-    from queue_service.scheduling import SchedulingPolicy
+    from workhold.scheduling import SchedulingPolicy
 
     injected_enqueue = EnqueueService(
         session_factory=factory,

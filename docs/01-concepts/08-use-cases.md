@@ -14,30 +14,30 @@ These scenarios define what the product must support. They intentionally avoid H
 
 1. Producer chooses a named queue and a stable idempotency key.
 2. It sends an opaque payload with `priority` (default `0`, optional `-32768`…`32767`) and an optional **one-shot** `available_at` (aware RFC 3339 / SDK `datetime`).
-3. Omitted/null/past/current `available_at` → immediate (`ready`) by queue-service-store time; aware future within `QUEUE_SCHEDULE_HORIZON_SECONDS` (default/max **86400**, range **0..86400**) → `delayed` until the time is reached.
+3. Omitted/null/past/current `available_at` → immediate (`ready`) by workhold store time; aware future within `QUEUE_SCHEDULE_HORIZON_SECONDS` (default/max **86400**, range **0..86400**) → `delayed` until the time is reached.
 4. Naive timestamp, a future beyond the horizon, or `priority` outside the range / not integer → `validation_failed`, not silent ignore.
-5. queue-service commits the task before acknowledgement success.
+5. workhold commits the task before acknowledgement success.
 6. Retry with the same key and the same request returns the original task.
 7. Reuse key with a different request is rejected.
 
-The application does not create its own business DB only for queue-service: the queue store already belongs to the service. This is a **one-shot delay**, not cron, calendar recurrence, or per-task retry override.
+The application does not create its own business DB only for workhold: the queue store already belongs to the service. This is a **one-shot delay**, not cron, calendar recurrence, or per-task retry override.
 
 ## UC-2 Many replicas compete for tasks
 
 1. Worker replicas subscribe to one or more named queues they can process.
-2. queue-service issues one active lease for each claimed task.
-3. queue-service records `claimed_at` as queue-service-store time and the claiming `worker_id`.
+2. workhold issues one active lease for each claimed task.
+3. workhold records `claimed_at` as workhold store time and the claiming `worker_id`.
 4. The claim response returns this metadata for logs and task diagnostics.
 5. Long work heartbeats until the lease expires.
 6. A crashed or partitioned worker loses the lease; another replica may claim the task.
-7. A stale worker cannot heartbeat or finish queue-service state with the old token.
+7. A stale worker cannot heartbeat or finish workhold state with the old token.
 
 The business handler stays idempotent: external work may already have happened before the lease was lost.
 
 ## UC-3 A successful worker spawns more work
 
 1. The worker finishes the claimed task.
-2. In one queue-service transaction the source task becomes succeeded and zero or more follow-up tasks are created in named queues.
+2. In one workhold transaction the source task becomes succeeded and zero or more follow-up tasks are created in named queues.
 3. A repeat complete with the same claim returns the same tasks.
 4. There is no partial state in which the source succeeded and the spawns were lost.
 
@@ -54,18 +54,18 @@ Spawn is a Work Queue operation, not a Delivery Outbox publication. What a follo
 ## UC-5 Retryable processing failure
 
 1. The worker reports a stable machine-readable `failure_code` and an optional diagnostic detail, or its lease expires.
-2. queue-service records the attempt outcome and moves the task to `delayed` with `available_at = queue-service-store now + retry_delay_seconds` according to the named queue retry policy.
+2. workhold records the attempt outcome and moves the task to `delayed` with `available_at = workhold store now + retry_delay_seconds` according to the named queue retry policy.
 3. The task is not claimable until `available_at <= transaction_timestamp()`; after it is due, claim moves `delayed` **directly** to `leased` without a promotion job.
 4. Attempts are limited; exhausted work becomes a dead letter.
 
 The retry policy belongs to the named queue configuration, not the task payload. It is versioned and configures `enabled`, `max_attempts`, and backoff. The initial policy supports fixed delay. The task snapshots the active policy version at enqueue.
 
-If retry is disabled, the first worker failure or lease expiry dead-letters the task. queue-service still records the failed attempt; the work does not disappear silently.
+If retry is disabled, the first worker failure or lease expiry dead-letters the task. workhold still records the failed attempt; the work does not disappear silently.
 
 ## UC-6 Non-retryable failure and dead letter
 
 1. The worker reports a non-retryable failure, or the retry policy is exhausted.
-2. queue-service records a terminal dead-letter outcome and the failure code.
+2. workhold records a terminal dead-letter outcome and the failure code.
 3. Operators can view counters and the saved diagnostic details.
 4. Replay, if supported, creates a new auditable attempt/task and does not quietly rewrite history.
 
@@ -82,9 +82,9 @@ If retry is disabled, the first worker failure or lease expiry dead-letters the 
 
 1. The application transaction changes business state and inserts an app-local outbox row.
 2. The bridge reads that row after commit and enqueues into the named queue.
-3. The app-outbox row ID produces the queue-service idempotency key.
-4. The bridge marks the row delivered only after acknowledgement of the durable enqueue from queue-service.
-5. Crashes and retries produce at most one queue-service task for that outbox row.
+3. The app-outbox row ID produces the workhold idempotency key.
+4. The bridge marks the row delivered only after acknowledgement of the durable enqueue from workhold.
+5. Crashes and retries produce at most one workhold task for that outbox row.
 
 Delivery is eventual; a distributed transaction is not implied.
 
@@ -103,7 +103,7 @@ Statistics have an `as_of` time and documented freshness. They are not arbitrary
 
 ## UC-10 Safe deploy and upgrade
 
-1. One-shot migration role updates the queue-service-owned schema.
+1. One-shot migration role updates the workhold-owned schema.
 2. API replicas become ready only against a compatible schema.
 3. Rolling upgrade API does not require sticky sessions.
 4. Shutdown stops new claims, drains limited in-flight, and lets abandoned leases expire.
@@ -117,7 +117,7 @@ Statistics have an `as_of` time and documented freshness. They are not arbitrary
 4. Policy/state changes use expected config version and write audit atomically.
 5. Delivery Outbox publication proceeds independently of Work Queue state.
 
-## UC-12 queue-service protects PostgreSQL
+## UC-12 workhold protects PostgreSQL
 
 1. Oversized payload/fan-out is rejected before the write transaction.
 2. Active-depth admission uses transactional counters, not hot-table scans.
@@ -130,7 +130,7 @@ Statistics have an `as_of` time and documented freshness. They are not arbitrary
 1. Producer finds its task by task ID or scoped idempotency key.
 2. The operator views state, the current claim summary, attempts, and the dead-letter reason.
 3. Full claim tokens are visible only to the worker that holds them.
-4. queue-service returns spawn/event lineage, but does not store the application's business result.
+4. workhold returns spawn/event lineage, but does not store the application's business result.
 5. Replay dead-letter creates a new auditable task, **keeps source `priority`**, and lineage source.
 
 ---

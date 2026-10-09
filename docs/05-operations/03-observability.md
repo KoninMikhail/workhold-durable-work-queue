@@ -1,6 +1,6 @@
 ﻿# Observability contract
 
-queue-service exposes low-cardinality operational telemetry. Numeric SLO targets
+workhold exposes low-cardinality operational telemetry. Numeric SLO targets
 are set only after Phase 3 capacity benchmarks and may differ by application
 class.
 
@@ -66,7 +66,7 @@ Example redacted log line (no secrets or payload):
 ## Traces
 
 Trace enqueue, claim, heartbeat, complete/fail, relay, and partition maintenance.
-Application handler work — outside queue-service spans. Propagate W3C trace context
+Application handler work — outside workhold spans. Propagate W3C trace context
 **without** adding payload content. Always sample errors/lease loss; sample
 successful high-volume claims.
 
@@ -104,7 +104,7 @@ and disk/WAL/autovacuum runbooks. Delivery Outbox lag alerts belong to Phase 5.
 ## Retention alert predicates (machine-testable, verifiable)
 
 Retention health is projected from the Phase 3.8 maintenance report into aggregate telemetry
-(see `queue_service.observability.retention`). Fact retention is **not** a backup or
+(see `workhold.observability.retention`). Fact retention is **not** a backup or
 permanent archive: baseline task/attempt windows 90 days; admin audit retention
 independently configurable; correctness registry defaults 90d / 7d / 30d (enqueue
 dedup / complete replay / admin replay).
@@ -126,7 +126,7 @@ Severity order: `warning` (including stats staleness) `<` `critical`
 
 Maintenance logs and traces use the shared correlation projector
 (`project_correlation` / `project_maintenance_correlation`) with request/trace ID,
-operation, process role, queue-service-store `store_now`, and a bounded result/code only.
+operation, process role, workhold store `store_now`, and a bounded result/code only.
 Payloads, claim tokens, DSNs, SQL, partition names, and free-text failure detail
 excluded by construction.
 

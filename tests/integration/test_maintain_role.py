@@ -21,8 +21,8 @@ import psycopg
 import pytest
 from sqlalchemy import event
 
-from queue_service import db, health, settings
-from queue_service.roles import maintain
+from workhold import db, health, settings
+from workhold.roles import maintain
 
 DAILY_RANGE_PARENTS = (
     "admin_audit_log",

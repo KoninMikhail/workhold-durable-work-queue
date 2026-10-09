@@ -2,7 +2,7 @@
 
 **Status:** Accepted  
 **Date:** 2026-09-19  
-**Scope:** API process HTTP stack (`queue api`); not the client protocol (ADR 016)
+**Scope:** API process HTTP stack (`workhold api`); not the client protocol (ADR 016)
 
 ## Context
 
@@ -41,4 +41,4 @@ manual. There is no ready-made middleware ecosystem.
 
 - [ADR 016](016-http-openapi-claim-security.md), [ADR 026](026-optional-glitchtip-sentry-dsn.md)
 - [09-client-protocol.md](../09-client-protocol.md)
-- `src/queue_service/roles/api.py`
+- `src/workhold/roles/api.py`

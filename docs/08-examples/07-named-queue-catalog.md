@@ -1,11 +1,11 @@
-# Named-queue catalog: mount + queue apply
+# Named-queue catalog: mount + workhold apply
 
 [Documentation](../README.md) › [Examples](README.md) › **Catalog apply**
 
 **Who:** the application deploy operator. The catalog is JSON with a list of named queues,
 not a namespace/tenant resource.
 
-**What it does:** one-shot `queue apply` (image command `["apply"]` under
+**What it does:** one-shot `workhold apply` (image command `["apply"]` under
 `ENTRYPOINT ["/app/entrypoint.sh"]`) creates missing named queues with
 `initial_policy` through the same audited create path as admin HTTP. This is
 **ensure-exists**, not a GitOps reconcile of live state: named queues that already exist
@@ -37,7 +37,7 @@ In Kubernetes — a docs-only Job with a volume from a ConfigMap, after the migr
 ## 3. Partial apply
 
 If a create in the middle of the catalog fails after validation, earlier creates
-may already have committed. Repeat `queue apply` — ensure-exists is safe
+may already have committed. Repeat `workhold apply` — ensure-exists is safe
 (D-19).
 
 Admin steps after bootstrap: [04-admin-queues.md](../02-guides/04-admin-queues.md).

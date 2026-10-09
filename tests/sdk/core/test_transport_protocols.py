@@ -12,14 +12,14 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.config import ClientConfig
-from _queue_service_client_core.errors import (
+from _workhold_client_core.config import ClientConfig
+from _workhold_client_core.errors import (
     MalformedResponseError,
     ProtocolError,
     TimeoutError as ClientTimeoutError,
 )
-from _queue_service_client_core.requests import prepare_json_request
-from _queue_service_client_core.transport import (
+from _workhold_client_core.requests import prepare_json_request
+from _workhold_client_core.transport import (
     AsyncTransport,
     HttpJsonTransport,
     SyncTransport,
@@ -258,7 +258,7 @@ def test_async_cancellation_propagates_without_retry() -> None:
 def test_httpx_async_transport_forwards_tls_and_timeouts() -> None:
     pytest.importorskip("httpx")
 
-    from _queue_service_client_core.transport_async import (
+    from _workhold_client_core.transport_async import (
         HttpxAsyncTransport,
         _client_cert_setting,
         _httpx_timeout,
@@ -293,7 +293,7 @@ def test_httpx_async_transport_forwards_tls_and_timeouts() -> None:
 def test_ssl_context_default_verifies_tls() -> None:
     import ssl
 
-    from _queue_service_client_core.transport import ssl_context_from_config
+    from _workhold_client_core.transport import ssl_context_from_config
 
     ctx = ssl_context_from_config(
         ClientConfig(public_base_url="https://queue.example.com")
@@ -305,7 +305,7 @@ def test_ssl_context_default_verifies_tls() -> None:
 def test_ssl_context_verify_tls_false_disables_verification() -> None:
     import ssl
 
-    from _queue_service_client_core.transport import ssl_context_from_config
+    from _workhold_client_core.transport import ssl_context_from_config
 
     ctx = ssl_context_from_config(
         ClientConfig(public_base_url="https://queue.example.com", verify_tls=False)
@@ -319,7 +319,7 @@ def test_ssl_context_ca_path_takes_precedence_over_verify_false(
 ) -> None:
     import ssl
 
-    from _queue_service_client_core.transport import ssl_context_from_config
+    from _workhold_client_core.transport import ssl_context_from_config
 
     captured: dict[str, object] = {}
 
@@ -348,7 +348,7 @@ def test_ssl_context_ca_path_takes_precedence_over_verify_false(
 def test_ssl_context_loads_client_cert_chain(monkeypatch: pytest.MonkeyPatch) -> None:
     import ssl
 
-    from _queue_service_client_core.transport import ssl_context_from_config
+    from _workhold_client_core.transport import ssl_context_from_config
 
     loaded: dict[str, object] = {}
 
@@ -379,7 +379,7 @@ def test_http_json_transport_passes_ssl_context_to_urlopen(
     import ssl
     from urllib.request import Request
 
-    from _queue_service_client_core.transport import HttpJsonTransport
+    from _workhold_client_core.transport import HttpJsonTransport
 
     config = ClientConfig(
         public_base_url="https://queue.example.com",
@@ -387,7 +387,7 @@ def test_http_json_transport_passes_ssl_context_to_urlopen(
     )
     expected_ctx = ssl._create_unverified_context()
     monkeypatch.setattr(
-        "_queue_service_client_core.transport.ssl_context_from_config",
+        "_workhold_client_core.transport.ssl_context_from_config",
         lambda _cfg: expected_ctx,
     )
 
@@ -422,7 +422,7 @@ def test_http_json_transport_passes_ssl_context_to_urlopen(
         return _FakeResponse()
 
     monkeypatch.setattr(
-        "_queue_service_client_core.transport.urlopen",
+        "_workhold_client_core.transport.urlopen",
         _fake_urlopen,
     )
 
@@ -470,7 +470,7 @@ def test_sync_transport_applies_per_call_total_timeout(monkeypatch: pytest.Monke
         return _FakeResponse()
 
     monkeypatch.setattr(
-        "_queue_service_client_core.transport.urlopen",
+        "_workhold_client_core.transport.urlopen",
         _fake_urlopen,
     )
     HttpJsonTransport.from_config(config).request(
@@ -482,7 +482,7 @@ def test_sync_transport_applies_per_call_total_timeout(monkeypatch: pytest.Monke
 
 
 def test_sync_cancellation_before_start_raises() -> None:
-    from _queue_service_client_core.errors import RequestCancelledError
+    from _workhold_client_core.errors import RequestCancelledError
 
     cancel = threading.Event()
     cancel.set()
@@ -505,8 +505,8 @@ def test_prepare_json_request_rejects_nan() -> None:
 async def test_httpx_async_transport_cancels_inflight_event() -> None:
     pytest.importorskip("httpx")
 
-    from _queue_service_client_core.config import ClientConfig
-    from _queue_service_client_core.transport_async import HttpxAsyncTransport
+    from _workhold_client_core.config import ClientConfig
+    from _workhold_client_core.transport_async import HttpxAsyncTransport
 
     class _FakeResponse:
         status_code = 200
@@ -539,8 +539,8 @@ async def test_httpx_async_transport_cancels_inflight_event() -> None:
 async def test_httpx_async_transport_cancels_inflight_on_outer_task_cancel() -> None:
     pytest.importorskip("httpx")
 
-    from _queue_service_client_core.config import ClientConfig
-    from _queue_service_client_core.transport_async import HttpxAsyncTransport
+    from _workhold_client_core.config import ClientConfig
+    from _workhold_client_core.transport_async import HttpxAsyncTransport
 
     request_cancelled = asyncio.Event()
 
@@ -577,8 +577,8 @@ async def test_httpx_async_transport_cancels_inflight_on_outer_task_cancel() -> 
 async def test_httpx_async_transport_honours_is_cancelled_duck_type() -> None:
     pytest.importorskip("httpx")
 
-    from _queue_service_client_core.config import ClientConfig
-    from _queue_service_client_core.transport_async import HttpxAsyncTransport
+    from _workhold_client_core.config import ClientConfig
+    from _workhold_client_core.transport_async import HttpxAsyncTransport
 
     class _CancelHandle:
         def __init__(self) -> None:
@@ -614,8 +614,8 @@ async def test_httpx_async_transport_honours_is_cancelled_duck_type() -> None:
 async def test_async_transport_shim_forwards_query() -> None:
     pytest.importorskip("httpx")
 
-    from _queue_service_client_core.async_transport import HttpxAsyncTransport as Shim
-    from _queue_service_client_core.transport import TransportResponse
+    from _workhold_client_core.async_transport import HttpxAsyncTransport as Shim
+    from _workhold_client_core.transport import TransportResponse
 
     captured: dict[str, object] = {}
 

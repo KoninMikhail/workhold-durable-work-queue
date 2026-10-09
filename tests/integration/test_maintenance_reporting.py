@@ -24,14 +24,14 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
-from queue_service import db, health, settings
-from queue_service.infrastructure.postgres import (
+from workhold import db, health, settings
+from workhold.infrastructure.postgres import (
     history_retention,
     partition_premake,
     registry_retention,
 )
-from queue_service.roles import maintain
-from queue_service.security.redaction import REDACTED, sanitize_for_diagnostics
+from workhold.roles import maintain
+from workhold.security.redaction import REDACTED, sanitize_for_diagnostics
 
 DAILY_RANGE_PARENTS = health.DAILY_RANGE_PARENTS
 PREMAKE_DAYS = health.DEFAULT_PARTITION_PREMAKE_DAYS
@@ -136,7 +136,7 @@ def _hold_lock_until(
 
 
 def test_maintenance_module_exists_under_infrastructure_postgres() -> None:
-    from queue_service.infrastructure.postgres import maintenance as maint_mod
+    from workhold.infrastructure.postgres import maintenance as maint_mod
 
     assert hasattr(maint_mod, "run_storage_maintenance")
     src = Path(inspect.getsourcefile(maint_mod) or "")
@@ -146,7 +146,7 @@ def test_maintenance_module_exists_under_infrastructure_postgres() -> None:
 
 
 def test_only_maintain_role_acquires_advisory_lock() -> None:
-    from queue_service.infrastructure.postgres import maintenance as maint_mod
+    from workhold.infrastructure.postgres import maintenance as maint_mod
 
     maintain_src = Path(inspect.getsourcefile(maintain) or "").read_text(
         encoding="utf-8"
@@ -288,7 +288,7 @@ def test_partial_failure_preserves_last_succeeded_and_exits_nonzero(
         raise RuntimeError("injected retention failure with payload=secret-body")
 
     monkeypatch.setattr(
-        "queue_service.infrastructure.postgres.maintenance.retain_expired_history",
+        "workhold.infrastructure.postgres.maintenance.retain_expired_history",
         _boom,
     )
 
@@ -355,7 +355,7 @@ def test_report_and_logs_are_bounded_and_secret_free(
 
 
 def test_singleton_contract_unchanged_no_duplicate_status_relation() -> None:
-    from queue_service.storage import models
+    from workhold.storage import models
 
     names = {t.name for t in models.Base.metadata.tables.values()}
     assert "partition_maintenance_status" in names
@@ -378,7 +378,7 @@ def test_singleton_contract_unchanged_no_duplicate_status_relation() -> None:
 
 
 def test_primitives_receive_held_session_ast_contract() -> None:
-    from queue_service.infrastructure.postgres import maintenance as maint_mod
+    from workhold.infrastructure.postgres import maintenance as maint_mod
 
     tree = ast.parse(Path(inspect.getsourcefile(maint_mod) or "").read_text(encoding="utf-8"))
     calls: list[str] = []

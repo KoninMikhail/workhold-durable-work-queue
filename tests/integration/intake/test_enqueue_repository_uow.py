@@ -15,7 +15,7 @@ import pytest
 from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.domain.queue_control import (
+from workhold.domain.queue_control import (
     ActivatePolicyMutation,
     AdminRequestMetadata,
     BackoffStrategy,
@@ -25,16 +25,16 @@ from queue_service.domain.queue_control import (
     PolicyVersion,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.contracts import IntakeValidationError, normalize_enqueue_command
-from queue_service.intake.repository import (
+from workhold.intake.contracts import IntakeValidationError, normalize_enqueue_command
+from workhold.intake.repository import (
     EnqueuePersistenceResult,
     EnqueueRepository,
     _probe_dedup,
 )
-from queue_service.storage.models import (
+from workhold.storage.models import (
     EnqueueDedup,
     Queue,
     QueuePolicyVersion,
@@ -216,7 +216,7 @@ def test_flush_only_stages_task_payload_dedup_and_policy_snapshot(
         created_engines.append(engine)
         return engine
 
-    import queue_service.intake.repository as repository_mod
+    import workhold.intake.repository as repository_mod
 
     original_create = getattr(repository_mod, "create_engine", None)
     # Repository must not import/create engines; patch create_engine globally if used.
@@ -491,7 +491,7 @@ def test_two_sessions_converge_via_post_probe_pre_lock_barrier(
         return result
 
     monkeypatch.setattr(
-        "queue_service.intake.repository._probe_dedup",
+        "workhold.intake.repository._probe_dedup",
         wrapped_probe,
     )
 

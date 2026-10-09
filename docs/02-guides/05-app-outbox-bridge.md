@@ -3,7 +3,7 @@
 [Documentation](../README.md) › [Guides](README.md) › **Outbox bridge**
 
 How an application with a business database delivers intents from the **app-local outbox** into
-queue-service through the bridge in the `queue-service-producer` package.
+workhold through the bridge in the `workhold-producer` package.
 
 Normative semantics: [10-application-outbox-bridge.md](../04-architecture/10-application-outbox-bridge.md).
 Operator view: [04-application-outbox-bridge.md](../05-operations/04-application-outbox-bridge.md).
@@ -12,10 +12,10 @@ Operator view: [04-application-outbox-bridge.md](../05-operations/04-application
 
 ```bash
 # HTTP producer only
-pip install queue-service-producer
+pip install workhold-producer
 
 # Bridge + tested Postgres driver for injected PEP 249 factories
-pip install "queue-service-producer[bridge-postgres]"
+pip install "workhold-producer[bridge-postgres]"
 ```
 
 | Extra | What it adds |
@@ -23,7 +23,7 @@ pip install "queue-service-producer[bridge-postgres]"
 | *(none)* | `ProducerClient` + bridge modules; `PostgresOutboxStore` stays driver-injected |
 | `bridge-postgres` | `psycopg[binary]` for apps that want the documented factory helper |
 
-Import root: `queue_service_producer.bridge` (not `queue_service_client.bridge`).
+Import root: `workhold_producer.bridge` (not `queue_service_client.bridge`).
 
 ## Credentials
 
@@ -40,9 +40,9 @@ control-plane and claim/complete belong to other role clients.
 ## Minimal wiring
 
 ```python
-from queue_service_producer import HttpJsonTransport, ProducerClient
-from queue_service_producer.bridge import BridgeRunner
-from queue_service_producer.bridge.postgres_store import PostgresOutboxStore
+from workhold_producer import HttpJsonTransport, ProducerClient
+from workhold_producer.bridge import BridgeRunner
+from workhold_producer.bridge.postgres_store import PostgresOutboxStore
 
 producer = ProducerClient(
     HttpJsonTransport("https://queue.example"),
@@ -58,10 +58,10 @@ replay must still yield one Queue task for the same outbox row.
 
 ## Migration from `queue-client`
 
-1. Depend on `queue-service-producer` (add `[bridge-postgres]` if you used the
+1. Depend on `workhold-producer` (add `[bridge-postgres]` if you used the
    Postgres store convenience).
-2. Replace imports `queue_service_client.bridge` → `queue_service_producer.bridge`.
-3. Replace `queue_service_client.ProducerClient` → `queue_service_producer.ProducerClient`.
+2. Replace imports `queue_service_client.bridge` → `workhold_producer.bridge`.
+3. Replace `queue_service_client.ProducerClient` → `workhold_producer.ProducerClient`.
 4. Keep OpenAPI paths and intent schema major 1; no admin token in bridge config.
 
 ## Next

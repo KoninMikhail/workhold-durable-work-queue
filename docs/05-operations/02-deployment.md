@@ -2,7 +2,7 @@
 
 ## Process roles
 
-queue-service defines roles independently of image count:
+workhold defines roles independently of image count:
 
 - **API:** producer/worker protocol;
 - **Admin:** private control plane;
@@ -32,9 +32,9 @@ The runtime image uses exec-form `ENTRYPOINT ["/app/entrypoint.sh"]` and
 `CMD ["--help"]` ([ADR 025](../04-architecture/adr/025-container-file-secrets.md)).
 The entrypoint materializes allowlisted secrets from `NAME_FILE`
 paths (see [01-security.md — File secrets](01-security.md#file-secrets-_file)),
-then `exec queue` with the remaining arguments. In Compose/Kubernetes keep
+then `exec workhold` with the remaining arguments. In Compose/Kubernetes keep
 `command: ["api"]` (or `migrate` / `maintain` / `relay` / `apply`) as the role name —
-do **not** use `docker run … queue api` as the image command; the entrypoint already
+do **not** use `docker run … workhold api` as the image command; the entrypoint already
 invokes `queue`.
 
 `NAME_FILE` values must be absolute paths. The process runs as uid
@@ -49,7 +49,7 @@ local development stack; that stack keeps inline env):
 ```yaml
 services:
   api:
-    image: queue:<version>
+    image: workhold:<version>
     command: ["api"]
     environment:
       DATABASE_URL_FILE: /run/secrets/database_url
@@ -103,7 +103,7 @@ overlapping generations of one stable principal, then removing the old generatio
 
 ## Named queue catalog: apply (ensure-exists)
 
-Optional one-shot `queue apply` creates missing named queues from a
+Optional one-shot `workhold apply` creates missing named queues from a
 JSON file at the absolute `QUEUE_CATALOG_PATH` (apply role env, not
 `DeploymentSettings`, not `QUEUE_CATALOG_PATH_FILE`). The operator mounts the file
 (Compose volume / ConfigMap). The `Dockerfile` does **not** `COPY` catalogs into the image —
@@ -132,7 +132,7 @@ schema:
 [named-queue-catalog.schema.json](../04-architecture/schemas/named-queue-catalog.schema.json).
 
 Partial apply: after validation, a mid-catalog create failure can leave earlier
-creates committed; recovery is to run `queue apply` again.
+creates committed; recovery is to run `workhold apply` again.
 
 ## Migrations and rolling upgrades
 
@@ -180,7 +180,7 @@ Restore procedure (detail and verification steps:
 [05-runbooks.md — PITR](05-runbooks.md#pitr-restore-and-duplicate-aware-recovery)):
 
 1. stop workers/relay and block intake;
-2. restore **one consistent** queue-service database including active state,
+2. restore **one consistent** workhold database including active state,
    correctness registries (`enqueue_dedup`, `complete_replay`, admin replay),
    terminal/attempt history, and `admin_audit_log`;
 3. verify the schema and the partition horizon;

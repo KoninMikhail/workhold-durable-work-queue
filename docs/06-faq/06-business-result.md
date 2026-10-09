@@ -2,13 +2,13 @@
 
 [Documentation](../README.md) › [FAQ](README.md) › **Business result**
 
-**In short.** No. queue-service stores the operational state of the task
+**In short.** No. workhold stores the operational state of the task
 (attempts, the attempt outcome, lineage) and is not a store or an API
 of the application's business result. The processing result lives with the application.
 
 ## What the queue stores, and what it does not
 
-| queue-service stores | Does not store |
+| workhold stores | Does not store |
 | --- | --- |
 | That the task succeeded / dead-lettered / cancelled | The invoice amount, the report text, the file URL |
 | Which `failure_code` the worker wrote | A decoding of "why the business considers this an error" |
@@ -27,7 +27,7 @@ application. In complete you can put `spawn[]` (the next piece of work) or
 
 ## Why
 
-Otherwise queue-service turns into the application's database: a result schema,
+Otherwise workhold turns into the application's database: a result schema,
 search, permissions, retention "like the domain". That breaks the product boundary and
 pulls parser fields such as `minio_path` / `job_kind` back into the core.
 

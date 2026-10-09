@@ -8,7 +8,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from queue_service.settings import (
+from workhold.settings import (
     CLAIM_MAX_OUTSTANDING_WAITS_DEFAULT,
     CLAIM_MAX_WAIT_SECONDS_DEFAULT,
 )
@@ -357,10 +357,10 @@ def test_max_wait_and_batch_remain_locked(long_poll_single) -> None:
 def test_transport_timeout_distinct_from_empty(long_poll_single) -> None:
     """Undersized client timeout is distinct from successful empty expiry."""
 
-    from _queue_service_client_core.config import ClientConfig
-    from _queue_service_client_core.errors import TimeoutError as ClientTimeoutError
-    from _queue_service_client_core.transport import HttpJsonTransport
-    from queue_service_consumer import ConsumerClient
+    from _workhold_client_core.config import ClientConfig
+    from _workhold_client_core.errors import TimeoutError as ClientTimeoutError
+    from _workhold_client_core.transport import HttpJsonTransport
+    from workhold_consumer import ConsumerClient
     from tests.conformance.conftest import WORKER_TOKEN
 
     world = long_poll_single
@@ -422,7 +422,7 @@ def test_expired_lease_reclaim_after_wait(long_poll_single) -> None:
 def test_budgets_and_supervisor_default_documented(adapter_kind: str) -> None:
     assert SUPERVISOR_DEFAULT_WAIT_SECONDS == 15
     assert PROXY_UPSTREAM_TIMEOUT_FLOOR_SECONDS == 30
-    from _queue_service_client_core.config import (
+    from _workhold_client_core.config import (
         long_poll_read_timeout_s,
         long_poll_total_timeout_s,
     )

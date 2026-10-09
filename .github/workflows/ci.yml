@@ -39,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           uv run python tools/sync_coordinated_version.py
-          git add -u -- pyproject.toml src/queue_service/__init__.py packages
+          git add -u -- pyproject.toml src/workhold/__init__.py packages
           if git diff --cached --quiet; then
             echo "versions already coordinated"
             exit 0
@@ -93,4 +93,4 @@ jobs:
           file: Dockerfile
           target: runtime
           push: false
-          tags: queue-service:ci
+          tags: workhold:ci

@@ -20,25 +20,25 @@ from urllib.parse import urlencode
 
 import pytest
 
-from _queue_service_client_core.async_transport import HttpxAsyncTransport
-from _queue_service_client_core.errors import AuthenticationError, ProtocolError
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import CredentialBinding
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
-from queue_service_admin.async_client import (
+from _workhold_client_core.async_transport import HttpxAsyncTransport
+from _workhold_client_core.errors import AuthenticationError, ProtocolError
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import CredentialBinding
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
+from workhold_admin.async_client import (
     AsyncAdminClient,
     AsyncBreakGlassClient,
     AsyncObserverClient,
 )
-from queue_service_admin.models import (
+from workhold_admin.models import (
     BackoffStrategy,
     BulkPreviewResult,
     QueueState,
     RetryPolicyDraft,
 )
-from queue_service_consumer.async_client import AsyncConsumerClient
-from queue_service_producer.async_client import AsyncProducerClient
+from workhold_consumer.async_client import AsyncConsumerClient
+from workhold_producer.async_client import AsyncProducerClient
 from tests.conformance.clients import (
     COVERAGE_MODES,
     PHASE_19_BREAK_GLASS_OPS,

@@ -2,7 +2,7 @@
 
 Proves global enqueue dedup, claim fencing, and terminal replay survive UTC
 daily history partitions and history detach/drop, while registry TTL expiry is
-enforced only via the wired ``queue maintain`` role (not retention primitives).
+enforced only via the wired ``workhold maintain`` role (not retention primitives).
 """
 
 from __future__ import annotations
@@ -24,33 +24,33 @@ from sqlalchemy import create_engine, event, func, select, text, update
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.application import create_application_app
-from queue_service.api.security import ListenerBind
-from queue_service.application.claim_service import ClaimService
-from queue_service.application.completion import CompletionService
-from queue_service.application.lease_service import LeaseService
-from queue_service.application.worker_terminal import WorkerTerminalService
-from queue_service.domain.queue_control import (
+from workhold.api.application import create_application_app
+from workhold.api.security import ListenerBind
+from workhold.application.claim_service import ClaimService
+from workhold.application.completion import CompletionService
+from workhold.application.lease_service import LeaseService
+from workhold.application.worker_terminal import WorkerTerminalService
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.health import DAILY_RANGE_PARENTS, DEFAULT_PARTITION_PREMAKE_DAYS
-from queue_service.infrastructure.postgres import partition_catalog
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.health import DAILY_RANGE_PARENTS, DEFAULT_PARTITION_PREMAKE_DAYS
+from workhold.infrastructure.postgres import partition_catalog
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.depth import DepthCeilings
-from queue_service.intake.service import EnqueueService
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.intake.depth import DepthCeilings
+from workhold.intake.service import EnqueueService
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
-from queue_service.storage.models import (
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
+from workhold.storage.models import (
     AdminReplay,
     ClaimRegistry,
     CompleteReplay,
@@ -507,7 +507,7 @@ def _run_maintain(
     payload_retention_days: int = 30,
     extra_env: Mapping[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    """Invoke wired ``queue maintain`` as a subprocess (black-box only)."""
+    """Invoke wired ``workhold maintain`` as a subprocess (black-box only)."""
     env = _maintain_env(
         database_url,
         schema,
@@ -518,7 +518,7 @@ def _run_maintain(
         [
             sys.executable,
             "-m",
-            "queue_service",
+            "workhold",
             "maintain",
             "--schema",
             schema,
@@ -1368,7 +1368,7 @@ def test_history_drop_preserves_live_registries_then_ttl_purge_via_maintain(
 
 
 def test_tests_never_call_maintenance_primitives_directly() -> None:
-    """STOR-05 black-box gate: retention must go through ``queue maintain`` CLI."""
+    """STOR-05 black-box gate: retention must go through ``workhold maintain`` CLI."""
     tree = Path(__file__).read_text(encoding="utf-8")
     # Strip this function's own documentation/asserts so the gate is real.
     marker = "def test_tests_never_call_maintenance_primitives_directly"
@@ -1376,8 +1376,8 @@ def test_tests_never_call_maintenance_primitives_directly() -> None:
     assert "history_retention" not in body
     assert "registry_retention" not in body
     assert "run_storage_maintenance" not in body
-    assert "from queue_service.roles import maintain" not in body
+    assert "from workhold.roles import maintain" not in body
     assert "maintain.run_cycle" not in body
     assert '"maintain"' in body
-    assert "queue_service" in body
+    assert "workhold" in body
 

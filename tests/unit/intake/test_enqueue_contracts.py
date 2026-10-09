@@ -10,13 +10,13 @@ from typing import Any
 
 import pytest
 
-from queue_service.intake.contracts import (
+from workhold.intake.contracts import (
     FINGERPRINT_SIZE_BYTES,
     EnqueueCommand,
     IntakeValidationError,
     normalize_enqueue_command,
 )
-from queue_service.priority import PRIORITY_MAX, PRIORITY_MIN
+from workhold.priority import PRIORITY_MAX, PRIORITY_MIN
 
 _SECRET_PAYLOAD = {"password": "hunter2", "nested": {"token": "leak-me"}}
 _NOW = datetime(2026, 9, 18, 12, 0, 0, tzinfo=UTC)

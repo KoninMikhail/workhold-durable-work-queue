@@ -17,22 +17,22 @@ from typing import Any
 
 import pytest
 
-from queue_service.api.admin import create_admin_app
-from queue_service.api.application import SKELETON_CODE, create_application_app
-from queue_service.api.security import (
+from workhold.api.admin import create_admin_app
+from workhold.api.application import SKELETON_CODE, create_application_app
+from workhold.api.security import (
     APPLICATION_OPERATIONS,
     ADMIN_OPERATIONS,
     ListenerBind,
     load_openapi_operation_catalog,
     plane_for_operation,
 )
-from queue_service.security.authorization import Authorizer, Operation
-from queue_service.security.credentials import (
+from workhold.security.authorization import Authorizer, Operation
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OPENAPI_PATH = REPO_ROOT / "openapi" / "queue.openapi.json"
@@ -422,7 +422,7 @@ def test_authenticated_capabilities_advertise_deployment_max_wait(
 ) -> None:
     """Live capabilities fail-closed at 0 and mirror positive deployment ceilings."""
 
-    from queue_service.api.v1.capabilities import live_capabilities_for
+    from workhold.api.v1.capabilities import live_capabilities_for
 
     expected = live_capabilities_for(max_wait_seconds=max_wait_seconds)
     assert expected["long_polling"] is expect_long_polling
@@ -515,7 +515,7 @@ def test_security_diagnostics_redact_secrets_and_keep_request_id(
 ) -> None:
     probe = LookupProbe()
     application, _admin = _apps(probe=probe)
-    with caplog.at_level(logging.INFO, logger="queue_service.api.security"):
+    with caplog.at_level(logging.INFO, logger="workhold.api.security"):
         status, _headers, body = _asgi_http_call(
             application,
             method="POST",

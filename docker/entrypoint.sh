@@ -1,5 +1,5 @@
 #!/bin/sh
-# Runtime PID 1 wrapper: materialize allowlisted *_FILE secrets, then exec queue.
+# Runtime PID 1 wrapper: materialize allowlisted *_FILE secrets, then exec workhold.
 # POSIX / dash only. Never enable xtrace. Errors print names only, never secret values.
 set -eu
 
@@ -47,11 +47,11 @@ materialize_secrets() {
 	file_env SENTRY_DSN
 }
 
-# Executed as image entrypoint: materialize then replace PID 1 with queue.
+# Executed as image entrypoint: materialize then replace PID 1 with workhold.
 # Sourced: define helpers only (no exec) for optional in-image checks later.
 case $0 in
 *entrypoint.sh)
 	materialize_secrets
-	exec queue "$@"
+	exec workhold "$@"
 	;;
 esac

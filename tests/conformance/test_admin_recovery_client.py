@@ -20,28 +20,28 @@ import pytest
 from sqlalchemy import create_engine, event, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.admin import create_admin_app
-from queue_service.api.security import ListenerBind
-from queue_service.domain.queue_control import (
+from workhold.api.admin import create_admin_app
+from workhold.api.security import ListenerBind
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.lifecycle import Lifecycle
-from queue_service.roles.api import AsgiRequestHandler, InFlightGate, QuietThreadingHTTPServer
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.lifecycle import Lifecycle
+from workhold.roles.api import AsgiRequestHandler, InFlightGate, QuietThreadingHTTPServer
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
-from queue_service.storage.models import TaskActive, TaskAttempt, TaskTerminal
-from queue_service_admin.models import BulkPreviewResult
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
+from workhold.storage.models import TaskActive, TaskAttempt, TaskTerminal
+from workhold_admin.models import BulkPreviewResult
 from tests.conformance.clients import (
     PHASE_19_ADMIN_RECOVERY_OPS,
     AdminClientAdapter,
@@ -450,7 +450,7 @@ def test_bulk_execute_requires_valid_preview_confirmation(
         bearer_token=ADMIN_TOKEN,
         preview=BulkPreviewResult(
             operation=__import__(
-                "queue_service_admin.models", fromlist=["BulkOperation"]
+                "workhold_admin.models", fromlist=["BulkOperation"]
             ).BulkOperation.parse("bulk_replay"),
             queue=queue_name,
             candidate_count=1,
@@ -544,7 +544,7 @@ def test_non_admin_denied_for_every_recovery_op(
     filters = {**_time_window(), "failure_code": "exhausted"}
     fake_preview = BulkPreviewResult(
         operation=__import__(
-            "queue_service_admin.models", fromlist=["BulkOperation"]
+            "workhold_admin.models", fromlist=["BulkOperation"]
         ).BulkOperation.parse(
             "bulk_replay" if "Replay" in op_id else "bulk_cancel"
         ),

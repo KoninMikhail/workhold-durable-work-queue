@@ -28,16 +28,16 @@ DIST_DIR = REPO_ROOT / "dist"
 INVENTORY_PATH = DIST_DIR / "client-wheel-inventory.json"
 
 CLIENT_DISTRIBUTIONS: tuple[str, ...] = (
-    "queue-service-client-core",
-    "queue-service-producer",
-    "queue-service-consumer",
-    "queue-service-admin",
+    "workhold-client-core",
+    "workhold-producer",
+    "workhold-consumer",
+    "workhold-admin",
 )
 FORBIDDEN_DISTRIBUTIONS = frozenset(
-    {"queue-client", "queue_client", "queue-service-client"}
+    {"queue-client", "queue_client", "queue-service-client", "queue_service_client"}
 )
 _CORE_REQUIREMENT_RE = re.compile(
-    r"^queue-service-client-core"
+    r"^workhold-client-core"
     r"(?P<extras>\[[A-Za-z0-9_,.-]+\])?"
     r"\s*(?P<spec>[^;]+?)"
     r"(?:\s*;\s*(?P<marker>.+))?$",
@@ -115,7 +115,7 @@ def _is_core_requirement(requirement: object) -> bool:
     if not isinstance(requirement, str):
         return False
     name = re.split(r"[\s\[<>=!~;]", requirement, maxsplit=1)[0]
-    return name.lower().replace("_", "-") == "queue-service-client-core"
+    return name.lower().replace("_", "-") == "workhold-client-core"
 
 
 def _parse_core_requirement(
@@ -127,7 +127,7 @@ def _parse_core_requirement(
     match = _CORE_REQUIREMENT_RE.fullmatch(requirement.strip())
     if match is None:
         raise GateError(
-            f"{dist} {section} has malformed queue-service-client-core requirement"
+            f"{dist} {section} has malformed workhold-client-core requirement"
         )
     extras_raw = match.group("extras")
     extras = frozenset(
@@ -166,7 +166,7 @@ def _assert_requirement_section(
     if len(core) != 1:
         raise GateError(
             f"{dist} {section} must contain exactly one "
-            f"queue-service-client-core requirement; got {len(core)}"
+            f"workhold-client-core requirement; got {len(core)}"
         )
     requirement = core[0]
     assert isinstance(requirement, str)
@@ -179,7 +179,7 @@ def _assert_requirement_section(
         raise GateError(f"{dist} {section} source requirement must not use a marker")
     if extras != expected_extras or lower != expected_lower or upper != expected_upper:
         expected = (
-            "queue-service-client-core"
+            "workhold-client-core"
             + ("[async]" if expected_extras else "")
             + f">={expected_lower},<{expected_upper}"
         )
@@ -433,7 +433,7 @@ def _assert_role_wheel_core_dependencies(
     ):
         raise GateError(
             f"{dist} wheel async core dependency drift; expected "
-            f"queue-service-client-core[async]>={expected_lower},<{expected_upper} "
+            f"workhold-client-core[async]>={expected_lower},<{expected_upper} "
             "with extra == 'async'"
         )
 
@@ -467,7 +467,7 @@ def _write_inventory(
             raise GateError(
                 f"wheel version drift for {dist}: {meta['version']!r} != {version!r}"
             )
-        if dist != "queue-service-client-core":
+        if dist != "workhold-client-core":
             requires_dist = meta["requires_dist"]
             assert isinstance(requires_dist, list)
             _assert_role_wheel_core_dependencies(
@@ -486,10 +486,10 @@ def _write_inventory(
             }
         )
     dependency_graph = {
-        "queue-service-client-core": [],
-        "queue-service-producer": ["queue-service-client-core"],
-        "queue-service-consumer": ["queue-service-client-core"],
-        "queue-service-admin": ["queue-service-client-core"],
+        "workhold-client-core": [],
+        "workhold-producer": ["workhold-client-core"],
+        "workhold-consumer": ["workhold-client-core"],
+        "workhold-admin": ["workhold-client-core"],
     }
     payload = {
         "git_sha": git_sha,
@@ -538,7 +538,7 @@ def _dry_run_publish(wheels: dict[str, Path]) -> str:
                 f"uv publish --dry-run did not enumerate {Path(wheel).name}:\n{combined}"
             )
     # Reject legacy distribution names as path tokens (not substrings of
-    # queue-service-client-core / queue_service_client_testing).
+    # workhold-client-core / workhold_client_testing).
     legacy = re.compile(
         r"(?<![a-z0-9_-])(?:queue-client|queue_client|queue_service_client)(?![a-z0-9_-])",
         re.IGNORECASE,

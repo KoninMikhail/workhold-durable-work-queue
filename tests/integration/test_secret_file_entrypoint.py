@@ -20,7 +20,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCKERFILE = ROOT / "Dockerfile"
-IMAGE_TAG = "queue:local"
+IMAGE_TAG = "workhold:local"
 
 CREDENTIAL_SENTINEL_CURRENT = "CRED_SENTINEL_current_a1b2c3d4"
 CREDENTIAL_SENTINEL_PREVIOUS = "CRED_SENTINEL_previous_e5f6g7h8"

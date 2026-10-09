@@ -16,8 +16,8 @@ from pathlib import Path
 
 import pytest
 
-from queue_service_producer.bridge.idempotency import bridge_idempotency_key
-from _queue_service_client_core.errors import ProtocolError
+from workhold_producer.bridge.idempotency import bridge_idempotency_key
+from _workhold_client_core.errors import ProtocolError
 from tests.conformance.bridge.fixtures import (
     PROCESS_KILL_REPEATS,
     REPLICA_RECLAIM_CYCLES,

@@ -25,7 +25,7 @@ down_revision: Union[str, Sequence[str], None] = "044_break_glass_elevations"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-# Must match queue_service.infrastructure.postgres.claim_wakeup.CLAIM_WAKE_CHANNEL
+# Must match workhold.infrastructure.postgres.claim_wakeup.CLAIM_WAKE_CHANNEL
 _CHANNEL = "queue_claim_wakeup"
 
 

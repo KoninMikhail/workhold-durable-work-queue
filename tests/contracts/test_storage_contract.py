@@ -108,8 +108,8 @@ FORBIDDEN_COLUMN_TOKENS = (
 
 
 def _load_models():
-    from queue_service.db import Base
-    import queue_service.storage.models  # noqa: F401
+    from workhold.db import Base
+    import workhold.storage.models  # noqa: F401
 
     return Base.metadata
 

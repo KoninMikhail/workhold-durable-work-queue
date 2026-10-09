@@ -10,8 +10,8 @@ flowchart TB
     appdb["app DB + local outbox"]
   end
   bridge[bridge]
-  api["queue-service API replicas"]
-  pg["queue-service PostgreSQL"]
+  api["workhold API replicas"]
+  pg["workhold PostgreSQL"]
   relay["Delivery Relay replicas"]
   channel["external channel"]
   producer --> api
@@ -21,34 +21,34 @@ flowchart TB
   pg --> relay --> channel
 ```
 
-One queue-service instance and its store belong to one application trust boundary.
+One workhold instance and its store belong to one application trust boundary.
 Named queues route work inside that boundary. `app DB + local outbox`
-on the diagram is an optional path: queue-service always has its own PostgreSQL,
+on the diagram is an optional path: workhold always has its own PostgreSQL,
 and the application may have no database of its own (then only producer/worker → API remains).
 
 ## Direct enqueue
 
 1. The producer selects a named queue and an idempotency key.
-2. queue-service checks limits and the normalized request fingerprint.
-3. queue-service inserts a task or returns the existing matching task.
+2. workhold checks limits and the normalized request fingerprint.
+3. workhold inserts a task or returns the existing matching task.
 4. Success is returned only after commit.
 
 ## Claim and processing
 
 1. The worker requests work from the queues it supports.
-2. queue-service atomically selects a claimable task and creates a fenced lease.
-3. The worker performs application work outside queue-service transactions.
+2. workhold atomically selects a claimable task and creates a fenced lease.
+3. The worker performs application work outside workhold transactions.
 4. The worker heartbeats long-running work.
 5. The worker completes, reports a retryable failure, or reports a final failure.
 
-queue-service may redeliver after lease loss. Worker effects are therefore
+workhold may redeliver after lease loss. Worker effects are therefore
 idempotent.
 
 ## Atomic complete
 
 ```mermaid
 flowchart TB
-  beginTx["BEGIN queue-service transaction"]
+  beginTx["BEGIN workhold transaction"]
   validate["validate current claim and request fingerprint"]
   src["source task → succeeded"]
   att["current attempt → succeeded"]
@@ -77,7 +77,7 @@ The relay is pluggable by transport. The first adapter is an HTTP webhook with a
 destination, a timeout, transient/permanent classification, exponential delivery
 backoff, and a circuit breaker. Broker adapters do not change work queue storage.
 Events use CloudEvents 1.0 JSON structured mode with a stable ID/time
-assigned by queue-service.
+assigned by workhold.
 
 ## Application business DB bridge
 
@@ -86,7 +86,7 @@ sequenceDiagram
     participant App as application
     participant AppDB as app DB
     participant Bridge as bridge
-    participant Q as queue-service
+    participant Q as workhold
     App->>AppDB: BEGIN app transaction
     App->>AppDB: change business state
     App->>AppDB: insert app-local outbox row
@@ -98,7 +98,7 @@ sequenceDiagram
 ```
 
 This closes the loss window between the business commit and the enqueue intent without
-a distributed transaction. queue-service does not own the application outbox schema.
+a distributed transaction. workhold does not own the application outbox schema.
 
 ## Statistics flow
 
@@ -112,7 +112,7 @@ Phase 3 decisions.
 ## Deploy and upgrade
 
 1. PostgreSQL becomes reachable.
-2. The one-shot migration role updates the queue-service-owned schema.
+2. The one-shot migration role updates the workhold-owned schema.
 3. API replicas pass readiness only on a compatible schema.
 4. The relay starts after a valid destination configuration.
 5. On shutdown the API stops accepting work and drains requests; workers

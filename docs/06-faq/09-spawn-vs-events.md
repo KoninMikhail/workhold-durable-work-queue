@@ -3,7 +3,7 @@
 [Documentation](../README.md) › [FAQ](README.md) › **spawn vs events**
 
 **In short.** Both appear on a successful complete, in one
-queue-service transaction, but they are different resources. `spawn[]` is the next piece of work for a
+workhold transaction, but they are different resources. `spawn[]` is the next piece of work for a
 worker. `events[]` is an intent to notify outward through the Delivery Outbox.
 The relay does not perform business work and does not split recipients by address.
 

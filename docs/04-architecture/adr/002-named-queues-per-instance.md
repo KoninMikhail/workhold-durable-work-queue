@@ -8,12 +8,12 @@
 
 One application can have different task types and worker pools. Routing inside
 an opaque payload would let an incapable worker claim another worker's task. A
-separate full queue-service instance for each task type would multiply
+separate full workhold instance for each task type would multiply
 databases and operations.
 
 ## Decision
 
-One per-application queue-service instance supports several named queues.
+One per-application workhold instance supports several named queues.
 Producers target a name; workers claim only the queues they can process. Queue
 identity and routing metadata are explicit and indexed; the business payload
 stays opaque. Producer idempotency is scoped by authenticated producer
@@ -25,7 +25,7 @@ identity, named queue, and key.
 | --- | --- |
 | One logical queue per instance | Cannot route heterogeneous work without inspecting the payload |
 | One instance per task type | Excessive multiplication of operations and PostgreSQL |
-| Route by a payload key | Couples queue-service to the application schema and makes safe indexing unstable |
+| Route by a payload key | Couples workhold to the application schema and makes safe indexing unstable |
 
 ## Consequences
 

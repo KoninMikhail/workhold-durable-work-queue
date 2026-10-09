@@ -10,7 +10,7 @@ from typing import Any
 
 import pytest
 
-from queue_service_admin import ObserverClient
+from workhold_admin import ObserverClient
 from tests.conformance.clients import build_client
 from tests.conformance.conftest import (
     ADMIN_TOKEN,

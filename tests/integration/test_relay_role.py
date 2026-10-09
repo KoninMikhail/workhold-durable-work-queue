@@ -1,4 +1,4 @@
-"""Process-level `queue relay` composition and lifecycle (DLVR-03)."""
+"""Process-level `workhold relay` composition and lifecycle (DLVR-03)."""
 
 from __future__ import annotations
 
@@ -23,9 +23,9 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-from queue_service import db, settings
-from queue_service.delivery.models import STATE_PENDING, STATE_PUBLISHED
-from queue_service.roles import relay as relay_role
+from workhold import db, settings
+from workhold.delivery.models import STATE_PENDING, STATE_PUBLISHED
+from workhold.roles import relay as relay_role
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -318,7 +318,7 @@ def test_cli_queue_relay_subprocess(
     webhook = f"http://{host}:{port}/delivery"
     env = _relay_env(url, schema, webhook)
     proc = subprocess.run(
-        ["uv", "run", "queue", "relay"],
+        ["uv", "run", "workhold", "relay"],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,

@@ -32,22 +32,22 @@ def test_role_pyproject_rewrite_moves_bounds_on_minor_bump() -> None:
     source = '\n'.join(
         [
             '[project]',
-            'name = "queue-service-producer"',
+            'name = "workhold-producer"',
             'version = "0.1.0"',
             'dependencies = [',
-            '    "queue-service-client-core>=0.1.0,<0.2.0",',
+            '    "workhold-client-core>=0.1.0,<0.2.0",',
             ']',
             '[project.optional-dependencies]',
             'async = [',
-            '    "queue-service-client-core[async]>=0.1.0,<0.2.0",',
+            '    "workhold-client-core[async]>=0.1.0,<0.2.0",',
             ']',
             '',
         ]
     )
     rewritten = sync.rewrite_pyproject(source, "0.2.0", update_bounds=True)
     assert 'version = "0.2.0"' in rewritten
-    assert "queue-service-client-core>=0.2.0,<0.3.0" in rewritten
-    assert "queue-service-client-core[async]>=0.2.0,<0.3.0" in rewritten
+    assert "workhold-client-core>=0.2.0,<0.3.0" in rewritten
+    assert "workhold-client-core[async]>=0.2.0,<0.3.0" in rewritten
     assert sync.rewrite_pyproject(rewritten, "0.2.0", update_bounds=True) == rewritten
 
 

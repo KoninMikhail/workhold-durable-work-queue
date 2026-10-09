@@ -697,8 +697,8 @@ def test_core_domain_shapes() -> None:
 def test_live_capabilities_equal_openapi_and_runtime_bound() -> None:
     """Default LIVE_CAPABILITIES matches default deployment ceiling; OpenAPI bounds 0..20."""
 
-    from queue_service.api.v1.capabilities import LIVE_CAPABILITIES
-    from queue_service.settings import (
+    from workhold.api.v1.capabilities import LIVE_CAPABILITIES
+    from workhold.settings import (
         CLAIM_MAX_WAIT_SECONDS_DEFAULT,
         CLAIM_MAX_WAIT_SECONDS_MAX,
         CLAIM_MAX_WAIT_SECONDS_MIN,

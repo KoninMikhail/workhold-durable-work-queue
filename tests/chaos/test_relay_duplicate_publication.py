@@ -23,7 +23,7 @@ import psycopg
 import pytest
 from sqlalchemy import create_engine, text
 
-from queue_service.delivery.models import STATE_PENDING, STATE_PUBLISHED, STATE_PUBLISHING
+from workhold.delivery.models import STATE_PENDING, STATE_PUBLISHED, STATE_PUBLISHING
 from tests.fixtures.http_delivery_sink import HttpDeliverySink
 from tests.integration.conftest import require_test_database_url, run_alembic, to_psycopg_conninfo
 
@@ -210,7 +210,7 @@ def _relay_env(
 
 def _start_relay(env: dict[str, str]) -> subprocess.Popen[str]:
     return subprocess.Popen(
-        ["uv", "run", "queue", "relay"],
+        ["uv", "run", "workhold", "relay"],
         cwd=REPO_ROOT,
         env=env,
         stdout=subprocess.PIPE,

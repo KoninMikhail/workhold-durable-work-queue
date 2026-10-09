@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from _queue_service_client_core.priority import (
+from _workhold_client_core.priority import (
     PRIORITY_DEFAULT,
     PRIORITY_MAX,
     PRIORITY_MIN,
     validate_priority,
 )
-from _queue_service_client_core.transport import encode_path_segment
+from _workhold_client_core.transport import encode_path_segment
 
 
 @pytest.mark.parametrize("value", [PRIORITY_MIN, PRIORITY_MAX, PRIORITY_DEFAULT, 42, -100])

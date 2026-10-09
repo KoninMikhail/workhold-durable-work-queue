@@ -1,0 +1,32 @@
+[project]
+name = "workhold-producer"
+version = "1.0.0"
+description = "Workhold producer client (public shell)"
+authors = [
+    { name = "Mikhail Konin", email = "dev.konin@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "workhold-client-core>=1.0.0,<1.1.0",
+]
+
+[project.optional-dependencies]
+# Concrete PostgreSQL driver for apps that inject a PEP 249 factory into
+# ``workhold_producer.bridge.postgres_store.PostgresOutboxStore``.
+# Base install stays free of psycopg; the store itself never imports a driver.
+bridge-postgres = [
+    "psycopg[binary]>=3.3.5",
+]
+async = [
+    "workhold-client-core[async]>=1.0.0,<1.1.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.11.30,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "workhold_producer"
+
+[tool.uv.sources]
+workhold-client-core = { workspace = true }

@@ -64,13 +64,13 @@ def _worker_main(config: dict[str, Any]) -> int:
     """Child entry: claim/relay with optional failpoints; exit 0 when idle."""
     import psycopg
 
-    from queue_service_producer.bridge.postgres_store import (
+    from workhold_producer.bridge.postgres_store import (
         PostgresOutboxMapping,
         PostgresOutboxStore,
     )
-    from queue_service_producer.bridge.runner import BridgeRunner
-    from queue_service_producer.client import ProducerClient
-    from _queue_service_client_core.transport import HttpJsonTransport
+    from workhold_producer.bridge.runner import BridgeRunner
+    from workhold_producer.client import ProducerClient
+    from _workhold_client_core.transport import HttpJsonTransport
 
     failpoint = config.get("failpoint")
     ready_path = config.get("ready_path")
@@ -157,8 +157,8 @@ def _spawn_worker(config: dict[str, Any]) -> subprocess.Popen[str]:
     # Ensure repo packages resolve (producer bridge + private core + service).
     env.setdefault("PYTHONPATH", str(REPO_ROOT / "src"))
     existing = env.get("PYTHONPATH", "")
-    producer_src = str(REPO_ROOT / "packages" / "queue-service-producer" / "src")
-    core_src = str(REPO_ROOT / "packages" / "queue-service-client-core" / "src")
+    producer_src = str(REPO_ROOT / "packages" / "workhold-producer" / "src")
+    core_src = str(REPO_ROOT / "packages" / "workhold-client-core" / "src")
     parts = [str(REPO_ROOT), str(REPO_ROOT / "src"), producer_src, core_src]
     if existing:
         parts.append(existing)

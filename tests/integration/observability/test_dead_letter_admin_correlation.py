@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from queue_service.observability import context as obs_context
-from queue_service.operations import dead_letter as dlq_ops
+from workhold.observability import context as obs_context
+from workhold.operations import dead_letter as dlq_ops
 
 _DENIED_KEYS = ("payload", "claim_token", "dsn", "sql", "idempotency_key", "reason")
 
@@ -91,7 +91,7 @@ def test_dead_letter_projector_uses_shared_plan01_allowlist() -> None:
 def test_emit_dead_letter_correlation_logs_and_spans(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    logger = logging.getLogger("queue_service.tests.dead_letter_admin_correlation")
+    logger = logging.getLogger("workhold.tests.dead_letter_admin_correlation")
     logger.handlers.clear()
     logger.propagate = True
     logger.setLevel(logging.INFO)

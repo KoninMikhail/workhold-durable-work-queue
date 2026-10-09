@@ -11,7 +11,7 @@ the superseded `http-api.md`.
 1. The named queue is already created by admin (see [04-admin-queues.md](04-admin-queues.md)).
    Enqueue does not create a queue “by typo”.
 2. Take a stable **idempotency key** for one business enqueue attempt.
-3. The payload is opaque application JSON. queue-service does not interpret it.
+3. The payload is opaque application JSON. workhold does not interpret it.
 
 ## 2. Enqueue
 
@@ -38,12 +38,12 @@ Application-outbox intent schema **major 1** passes `priority` in `enqueue_reque
 
 ### `available_at` — semantics
 
-Authoritative time is **queue-service-store** (`transaction_timestamp()` in PostgreSQL),
+Authoritative time is **workhold store** (`transaction_timestamp()` in PostgreSQL),
 not the client or worker clock.
 
 | Value | Behavior |
 | --- | --- |
-| omitted / JSON `null` | queue-service-store “now” at commit; the task is immediately claimable (`ready`) |
+| omitted / JSON `null` | workhold store “now” at commit; the task is immediately claimable (`ready`) |
 | aware past or current | Immediate availability (equivalent to “now”) |
 | aware future within the horizon | Task stays `delayed` until `available_at`; claim without a promotion job |
 | naive datetime | `validation_failed`, non-retryable |
@@ -57,16 +57,16 @@ A deployment may only **tighten** the ceiling, not expand it.
 
 ```bash
 # Sync producer (HTTP only — no PostgreSQL driver, no httpx)
-pip install queue-service-producer
+pip install workhold-producer
 
 # Async producer (optional httpx via core[async])
-pip install "queue-service-producer[async]"
+pip install "workhold-producer[async]"
 
 # App-local outbox bridge that needs a concrete Postgres driver
-pip install "queue-service-producer[bridge-postgres]"
+pip install "workhold-producer[bridge-postgres]"
 ```
 
-Import package: `queue_service_producer` (not the removed `queue-client` /
+Import package: `workhold_producer` (not the removed `queue-client` /
 `queue_service_client` prototype). Pass an explicit **producer** bearer token —
 no auth-provider discovery; admin/worker tokens belong to other role clients.
 
@@ -79,19 +79,19 @@ instrumentation redaction, codecs, capability guards, test kit):
 
 | Was | Now |
 | --- | --- |
-| `pip install queue-client` | `pip install queue-service-producer` |
-| `from queue_service_client import ProducerClient` | `from queue_service_producer import ProducerClient` |
-| `queue_service_client.bridge` | `queue_service_producer.bridge` (+ optional `[bridge-postgres]`) |
+| `pip install queue-client` | `pip install workhold-producer` |
+| `from queue_service_client import ProducerClient` | `from workhold_producer import ProducerClient` |
+| `queue_service_client.bridge` | `workhold_producer.bridge` (+ optional `[bridge-postgres]`) |
 
 Paths stay OpenAPI-authoritative: `POST /v1/queues/{queue_name}/tasks`,
 `POST /v1/queues/{queue_name}/submissions:resolve`, `GET /v1/tasks/{task_id}`,
 `POST /v1/tasks/{task_id}:cancel`, `GET /v1/capabilities`.
 
-### `queue-service-producer` (aware `datetime`)
+### `workhold-producer` (aware `datetime`)
 
 ```python
 from datetime import datetime, timezone, timedelta
-from queue_service_producer import HttpJsonTransport, ProducerClient
+from workhold_producer import HttpJsonTransport, ProducerClient
 
 client = ProducerClient(
     HttpJsonTransport("https://queue.example"),
@@ -150,7 +150,7 @@ curl -sS -X POST "https://queue.example/v1/queues/orders/tasks" \
 
 Bridge intent schema (major **1**) passes `available_at` as a JSON **string**
 or **null** from the immutable app-outbox row — not as a Python `datetime`.
-The producer SDK and the bridge are different serialization boundaries; queue-service validates aware
+The producer SDK and the bridge are different serialization boundaries; workhold validates aware
 RFC 3339 at the HTTP boundary.
 
 The response after commit contains `task` and the `replayed` flag:

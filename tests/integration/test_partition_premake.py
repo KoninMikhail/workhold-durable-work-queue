@@ -18,8 +18,8 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 
-from queue_service.health import DAILY_RANGE_PARENTS, DEFAULT_PARTITION_PREMAKE_DAYS
-from queue_service.infrastructure.postgres import partition_catalog, partition_premake
+from workhold.health import DAILY_RANGE_PARENTS, DEFAULT_PARTITION_PREMAKE_DAYS
+from workhold.infrastructure.postgres import partition_catalog, partition_premake
 
 PARENT_KEYS = {
     "admin_audit_log": "audit_at",

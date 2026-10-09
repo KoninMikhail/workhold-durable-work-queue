@@ -10,8 +10,8 @@ import pytest
 from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.application.queue_state_gate import evaluate_queue_state_gate
-from queue_service.domain.queue_control import (
+from workhold.application.queue_state_gate import evaluate_queue_state_gate
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     ConfigVersion,
@@ -23,10 +23,10 @@ from queue_service.domain.queue_control import (
     RetryPolicyDraft,
     SetQueueStateMutation,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.storage.models import AdminAuditLog, Queue, QueuePolicyVersion
+from workhold.storage.models import AdminAuditLog, Queue, QueuePolicyVersion
 
 _AUDIT_SET_STATE = 4
 

@@ -3,15 +3,15 @@
 [Documentation](../README.md) › [Troubleshooting](README.md) › **lease_lost**
 
 **What you see.** The worker sends heartbeat, complete, or fail and receives
-`lease_lost`. It looks as if "the task vanished" or "queue-service does not
+`lease_lost`. It looks as if "the task vanished" or "workhold does not
 recognize my worker".
 
 **This is expected** when the lease has expired or the generation has already
-changed. The current `claim_token` no longer fences state in queue-service.
+changed. The current `claim_token` no longer fences state in workhold.
 
 ## Why
 
-On claim, queue-service issues a time-limited right: token + generation.
+On claim, workhold issues a time-limited right: token + generation.
 The deadline is the service PostgreSQL clock, not the worker clock. The right
 is gone when:
 
@@ -50,12 +50,12 @@ bypassing the API.
 
 | Do not | Why |
 | --- | --- |
-| Retry complete with the old token | queue-service is right to reject it |
+| Retry complete with the old token | workhold is right to reject it |
 | Find "your" task by `worker_id` and close it | Identity does not authorize |
 | Treat `lease_lost` as a deploy error | Often it is simply expiry |
 | Quietly start the external effect again without idempotency | The next worker will do the same |
 
 If `lease_lost` keeps showing up on short work with a live heartbeat,
 treat clocks/NTP only as a hypothesis: the source of truth is still the
-queue-service store. Next, find why the heartbeat does not arrive (network,
+workhold store. Next, find why the heartbeat does not arrive (network,
 API overload, the wrong token in the header).

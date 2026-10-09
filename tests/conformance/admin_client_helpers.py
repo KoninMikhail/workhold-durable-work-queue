@@ -7,9 +7,9 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_admin import AdminClient
-from queue_service_admin.models import BackoffStrategy, RetryPolicyDraft
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_admin import AdminClient
+from workhold_admin.models import BackoffStrategy, RetryPolicyDraft
 from tests.conformance.conftest import _start_http_server, _stop_http_server
 
 

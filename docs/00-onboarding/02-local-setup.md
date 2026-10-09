@@ -28,22 +28,22 @@ Alembic does not read `.env` by itself. On the host, either set `DATABASE_URL` o
 ## First CLI run
 
 ```bash
-uv run queue --help
+uv run workhold --help
 ```
 
-Shows the roles `api`, `migrate`, `maintain`, `relay`, `apply`. Entrypoint: `[project.scripts] queue = queue_service.cli:run`.
+Shows the roles `api`, `migrate`, `maintain`, `relay`, `apply`. Entrypoint: `[project.scripts] queue = workhold.cli:run`.
 
 Run one role on the host (`DATABASE_URL` and bearer tokens are required):
 
 ```bash
-uv run queue api
+uv run workhold api
 ```
 
 Equivalent via the module:
 
 ```bash
-uv run python -m queue_service --help
-uv run python -m queue_service api
+uv run python -m workhold --help
+uv run python -m workhold api
 ```
 
 ## Tests
@@ -56,8 +56,8 @@ Test directory: `tests/` (`tool.pytest.ini_options.testpaths`) — unit, integra
 
 ### Client SDK (role packages)
 
-Workspace members: `packages/queue-service-client-core`,
-`queue-service-producer`, `queue-service-consumer`, `queue-service-admin`.
+Workspace members: `packages/workhold-client-core`,
+`workhold-producer`, `workhold-consumer`, `workhold-admin`.
 The `queue-client` prototype has been removed.
 
 ```bash
@@ -65,16 +65,16 @@ The `queue-client` prototype has been removed.
 uv sync --all-packages --group dev
 
 # Async HTTP extra on a role package (pulls core[async] → httpx)
-uv sync --all-packages --group dev --package queue-service-producer --extra async
+uv sync --all-packages --group dev --package workhold-producer --extra async
 ```
 
 Install examples for application code (outside this monorepo):
 
 ```bash
-pip install queue-service-producer
-pip install "queue-service-producer[async]"
-pip install queue-service-consumer
-pip install queue-service-admin
+pip install workhold-producer
+pip install "workhold-producer[async]"
+pip install workhold-consumer
+pip install workhold-admin
 ```
 
 Pass explicit bearer tokens; TLS/timeouts via `ClientConfig`. Full surface:

@@ -7,19 +7,19 @@ import traceback
 
 import pytest
 
-from queue_service.security.authorization import (
+from workhold.security.authorization import (
     AuthorizationContext,
     AuthorizationDenied,
     Authorizer,
     Operation,
 )
-from queue_service.security.credentials import BearerCredentialAuthenticator
-from queue_service.security.principal_manifest import (
+from workhold.security.credentials import BearerCredentialAuthenticator
+from workhold.security.principal_manifest import (
     PRINCIPAL_MANIFEST_MAX_BYTES,
     parse_principal_manifest,
 )
-from queue_service.security.principals import Principal, ServiceRole
-from queue_service.settings import SettingsValidationError
+from workhold.security.principals import Principal, ServiceRole
+from workhold.settings import SettingsValidationError
 
 
 SENTINEL = "MANIFEST_SECRET_SENTINEL_9z8y"

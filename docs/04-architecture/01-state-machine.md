@@ -9,7 +9,7 @@ belong to later API and storage contracts.
 stateDiagram-v2
   [*] --> delayed: enqueue future available_at
   [*] --> ready: enqueue immediate available_at
-  delayed --> leased: claim when available_at <= queue-service-store now
+  delayed --> leased: claim when available_at <= workhold store now
   ready --> leased: claim
   leased --> leased: heartbeat
   leased --> succeeded: complete
@@ -29,7 +29,7 @@ stateDiagram-v2
 
 | State | Meaning |
 | --- | --- |
-| Delayed | Not claimable until `available_at` (queue-service-store time) |
+| Delayed | Not claimable until `available_at` (workhold store time) |
 | Ready | Claimable: `available_at <= transaction_timestamp()` |
 | Leased | Held by one current claim until expiry |
 | Succeeded | Terminal successful complete |
@@ -42,7 +42,7 @@ omitted/null/past/current → immediate (`ready`); an aware future within
 → `delayed` until the time is reached.
 
 **There is no promotion job or intermediate "delayed→ready" transition.** When
-queue-service-store time reaches `available_at`, claim moves `delayed` **directly**
+workhold store time reaches `available_at`, claim moves `delayed` **directly**
 to `leased` (or `ready` → `leased` for immediate work). The same applies to
 retry-scheduled work: a retryable fail/expiry records `delayed` with a future
 `available_at`; after the time is reached, claim selects the row without a separate
@@ -51,7 +51,7 @@ daemon.
 ### Transition rules
 
 - Claim creates a new attempt and rotates the claim token.
-- Claim records queue-service-store `claimed_at` and a diagnostic `worker_id` on
+- Claim records workhold store `claimed_at` and a diagnostic `worker_id` on
   the current lease and the append-only attempt.
 - Due claim: `state_code IN (delayed, ready) AND available_at <= transaction_timestamp()`.
   Counter: `delayed→leased` decrements `delayed_count`, increments `leased_count`;
@@ -72,7 +72,7 @@ daemon.
 - Cancel of a delayed or ready task is immediately terminal.
 - Cancel of a leased task persists `cancel requested`; heartbeat surfaces it, and
   the worker acknowledges it with the dedicated terminal `ack_cancel`.
-- If a lease with cancel requested expires, queue-service cancels the task instead of issuing
+- If a lease with cancel requested expires, workhold cancels the task instead of issuing
   another processing lease.
 - Cancellation never creates spawns or delivery events.
 - A terminal transition cannot be reversed in place. Replay creates an auditable new

@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from queue_service.roles.api import _run_asgi
+from workhold.roles.api import _run_asgi
 
 
 def _scope(*, cancelled: bool | None = None) -> dict[str, Any]:

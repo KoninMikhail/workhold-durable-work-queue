@@ -17,12 +17,12 @@ import pytest
 from sqlalchemy import create_engine, event, func, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.delivery.models import (
+from workhold.delivery.models import (
     STATE_DEAD_LETTERED,
     STATE_PENDING,
     STATE_PUBLISHED,
 )
-from queue_service.delivery.relay import (
+from workhold.delivery.relay import (
     DeliveryDisposition,
     DeliveryResult,
     DeliveryTransport,
@@ -31,9 +31,9 @@ from queue_service.delivery.relay import (
     TransportReadiness,
     cap_retry_after_seconds,
 )
-from queue_service.delivery.repository import DeliveryEventRepository
-from queue_service.domain.queue_control import DomainValidationError
-from queue_service.storage.models import DeliveryEventActive, DeliveryEventTerminal
+from workhold.delivery.repository import DeliveryEventRepository
+from workhold.domain.queue_control import DomainValidationError
+from workhold.storage.models import DeliveryEventActive, DeliveryEventTerminal
 
 RELAY_A = "relay-replica-a"
 RELAY_B = "relay-replica-b"

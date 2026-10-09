@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 
-from queue_service_admin.async_pagination import (
+from workhold_admin.async_pagination import (
     async_bounded_item_iterator,
     async_bounded_page_iterator,
     iter_task_attempt_pages,

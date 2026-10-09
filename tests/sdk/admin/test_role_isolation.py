@@ -12,8 +12,8 @@ from pathlib import Path
 
 import pytest
 
-from queue_service_admin import AdminClient, ObserverClient
-from queue_service_admin.async_client import AsyncAdminClient, AsyncObserverClient
+from workhold_admin import AdminClient, ObserverClient
+from workhold_admin.async_client import AsyncAdminClient, AsyncObserverClient
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -33,10 +33,10 @@ def _build_wheels(dist_dir: Path) -> dict[str, Path]:
     for stale in dist_dir.glob("*.whl"):
         stale.unlink()
     packages = (
-        "queue-service-client-core",
-        "queue-service-producer",
-        "queue-service-consumer",
-        "queue-service-admin",
+        "workhold-client-core",
+        "workhold-producer",
+        "workhold-consumer",
+        "workhold-admin",
     )
     for package in packages:
         _run(["uv", "build", "--package", package, "--out-dir", str(dist_dir)])
@@ -67,7 +67,7 @@ def test_observer_client_has_no_mutation_surface() -> None:
         assert not hasattr(ObserverClient, name), name
 
     source = ast.parse(
-        (REPO_ROOT / "packages/queue-service-admin/src/queue_service_admin/observer.py")
+        (REPO_ROOT / "packages/workhold-admin/src/workhold_admin/observer.py")
         .read_text(encoding="utf-8")
     )
     method_names = {
@@ -94,7 +94,7 @@ def test_admin_client_lacks_observer_only_task_reads() -> None:
         ), name
 
     admin_source = ast.parse(
-        (REPO_ROOT / "packages/queue-service-admin/src/queue_service_admin/admin.py")
+        (REPO_ROOT / "packages/workhold-admin/src/workhold_admin/admin.py")
         .read_text(encoding="utf-8")
     )
     admin_methods = {
@@ -123,9 +123,9 @@ def test_producer_and_consumer_wheels_do_not_import_admin(tmp_path: Path) -> Non
         [
             str(pip),
             "install",
-            str(wheels["queue-service-client-core"]),
-            str(wheels["queue-service-producer"]),
-            str(wheels["queue-service-consumer"]),
+            str(wheels["workhold-client-core"]),
+            str(wheels["workhold-producer"]),
+            str(wheels["workhold-consumer"]),
         ]
     )
 
@@ -133,10 +133,10 @@ def test_producer_and_consumer_wheels_do_not_import_admin(tmp_path: Path) -> Non
 import importlib
 import sys
 
-for mod in ("queue_service_producer", "queue_service_consumer"):
+for mod in ("workhold_producer", "workhold_consumer"):
     importlib.import_module(mod)
 
-for forbidden in ("queue_service_admin", "queue_service_admin.admin", "queue_service_admin.observer"):
+for forbidden in ("workhold_admin", "workhold_admin.admin", "workhold_admin.observer"):
     try:
         importlib.import_module(forbidden)
     except ModuleNotFoundError:
@@ -145,13 +145,13 @@ for forbidden in ("queue_service_admin", "queue_service_admin.admin", "queue_ser
         raise SystemExit(f"unexpectedly imported {forbidden}")
 
 # Producer/consumer modules must not reference admin package names in their trees.
-import queue_service_producer, queue_service_consumer, pathlib
-for pkg in (queue_service_producer, queue_service_consumer):
+import workhold_producer, workhold_consumer, pathlib
+for pkg in (workhold_producer, workhold_consumer):
     root = pathlib.Path(pkg.__file__).resolve().parent
     for path in root.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
-        if "queue_service_admin" in text:
-            raise SystemExit(f"{path} mentions queue_service_admin")
+        if "workhold_admin" in text:
+            raise SystemExit(f"{path} mentions workhold_admin")
 print("ok")
 """
     completed = subprocess.run(
@@ -165,14 +165,14 @@ print("ok")
 
 
 def test_admin_package_imports_without_producer_consumer_runtime_dependency() -> None:
-    admin = importlib.import_module("queue_service_admin")
+    admin = importlib.import_module("workhold_admin")
     assert hasattr(admin, "ObserverClient")
     assert hasattr(admin, "AdminClient")
     # Importing admin must not require pulling producer/consumer symbols.
-    assert "queue_service_producer" not in sys.modules or True
+    assert "workhold_producer" not in sys.modules or True
     # Hard check: admin module source does not import sibling role packages.
     admin_root = Path(admin.__file__).resolve().parent
     for path in admin_root.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
-        assert "queue_service_producer" not in text
-        assert "queue_service_consumer" not in text
+        assert "workhold_producer" not in text
+        assert "workhold_consumer" not in text

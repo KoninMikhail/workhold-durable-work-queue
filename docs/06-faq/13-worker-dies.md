@@ -13,7 +13,7 @@ repeat — the handler must be idempotent.
 1. The worker claims and receives `claim_id`, `claim_token`, `generation`,
    and the lease deadline.
 2. While it is working, it sends heartbeats and extends the lease. The deadline is read by
-   queue-service PostgreSQL, not by the worker's clock.
+   workhold PostgreSQL, not by the worker's clock.
 3. The worker dies (OOM, kill, network, pod restart). Heartbeats stop.
 4. The lease deadline passes. The task is claimable again. Another replica (or the same one
    after a restart) makes a new claim: a new token, a new generation,

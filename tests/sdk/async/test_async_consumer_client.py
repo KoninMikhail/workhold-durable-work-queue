@@ -14,14 +14,14 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.async_transport import HttpxAsyncTransport
-from _queue_service_client_core.capabilities import Capabilities
-from _queue_service_client_core.config import ClientConfig
-from _queue_service_client_core.errors import (
+from _workhold_client_core.async_transport import HttpxAsyncTransport
+from _workhold_client_core.capabilities import Capabilities
+from _workhold_client_core.config import ClientConfig
+from _workhold_client_core.errors import (
     MalformedResponseError,
     TimeoutError as ClientTimeoutError,
 )
-from queue_service_consumer.async_client import AsyncConsumerClient
+from workhold_consumer.async_client import AsyncConsumerClient
 from tests.fixtures.claim_long_poll import (
     CLAIM_TOKEN_SENTINEL,
     assert_no_forbidden_diagnostics,
@@ -482,7 +482,7 @@ def _fake_async_claim_then_complete_transport(
 
 
 async def test_complete_explicit_max_payload_bytes_rejects_oversize_without_encoder() -> None:
-    from _queue_service_client_core.codecs import measure_json_bytes
+    from _workhold_client_core.codecs import measure_json_bytes
 
     complete_bodies: list[dict[str, Any]] = []
     client = AsyncConsumerClient(

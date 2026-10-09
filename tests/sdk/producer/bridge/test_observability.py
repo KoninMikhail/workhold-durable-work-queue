@@ -10,18 +10,18 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from queue_service_producer.bridge.store import (
+from workhold_producer.bridge.store import (
     AppStoreHealthSnapshot,
     BoundedPendingDepth,
     OldestPendingSnapshot,
     OutboxIntent,
 )
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     ProtocolError,
     TimeoutError as ClientTimeoutError,
     TransportError,
 )
-from _queue_service_client_core.models import (
+from _workhold_client_core.models import (
     EnqueueResponse,
     ErrorCode,
     ProtocolErrorBody,
@@ -408,9 +408,9 @@ def _all_emitted_labels(metrics: FakeMetricSink) -> list[dict[str, str]]:
 
 
 def test_bridge_health_and_telemetry_exports_exist() -> None:
-    from queue_service_producer.bridge.observability import BridgeHealth, BridgeTelemetry
-    from queue_service_producer.bridge import BridgeHealth as ExportedHealth
-    from queue_service_producer.bridge import BridgeTelemetry as ExportedTelemetry
+    from workhold_producer.bridge.observability import BridgeHealth, BridgeTelemetry
+    from workhold_producer.bridge import BridgeHealth as ExportedHealth
+    from workhold_producer.bridge import BridgeTelemetry as ExportedTelemetry
 
     assert BridgeHealth is ExportedHealth
     assert BridgeTelemetry is ExportedTelemetry
@@ -422,7 +422,7 @@ def test_bridge_health_and_telemetry_exports_exist() -> None:
 
 
 def test_empty_backlog_is_healthy_with_zero_lag() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     store = ObservabilityStore()
     metrics = FakeMetricSink()
@@ -452,7 +452,7 @@ def test_empty_backlog_is_healthy_with_zero_lag() -> None:
 
 
 def test_growing_oldest_lag_uses_app_db_as_of() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     store = ObservabilityStore(as_of=_utc("2026-09-19T12:10:00Z"))
     store.seed(_intent(created_at=_utc("2026-09-19T12:00:00Z")))
@@ -479,7 +479,7 @@ def test_growing_oldest_lag_uses_app_db_as_of() -> None:
 
 
 def test_pending_depth_is_capped_and_declared_approximate() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     store = ObservabilityStore()
     for i in range(15):
@@ -505,7 +505,7 @@ def test_pending_depth_is_capped_and_declared_approximate() -> None:
 
 
 def test_refresh_consumes_all_three_plan03_snapshot_methods() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     store = ObservabilityStore()
     store.seed(_intent())
@@ -528,7 +528,7 @@ def test_refresh_consumes_all_three_plan03_snapshot_methods() -> None:
 
 
 def test_app_store_unavailable_separates_liveness_from_readiness() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     store = ObservabilityStore(connected=False)
     tel = BridgeTelemetry(
@@ -547,7 +547,7 @@ def test_app_store_unavailable_separates_liveness_from_readiness() -> None:
 
 
 def test_stale_poll_marks_degraded_not_data_loss() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     tel = BridgeTelemetry(
         process_role="bridge",
@@ -570,7 +570,7 @@ def test_stale_poll_marks_degraded_not_data_loss() -> None:
 
 
 def test_queue_unavailable_and_capability_mismatch_are_distinct() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     tel = BridgeTelemetry(
         process_role="bridge",
@@ -600,8 +600,8 @@ def test_queue_unavailable_and_capability_mismatch_are_distinct() -> None:
 
 
 def test_runner_emits_claim_delivery_retry_conflict_lease_and_shutdown() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
-    from queue_service_producer.bridge.runner import BridgeRunner
+    from workhold_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.runner import BridgeRunner
 
     class LeaseLossStore(ObservabilityStore):
         def claim(self, *, limit: int, lease_seconds: int) -> Sequence[OutboxIntent]:
@@ -676,8 +676,8 @@ def test_runner_emits_claim_delivery_retry_conflict_lease_and_shutdown() -> None
 
 
 def test_lease_reclaim_counter_on_reclaimed_generation() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
-    from queue_service_producer.bridge.runner import BridgeRunner
+    from workhold_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.runner import BridgeRunner
 
     store = ObservabilityStore()
     # Already leased with stale token → reclaim bumps generation.
@@ -707,8 +707,8 @@ def test_lease_reclaim_counter_on_reclaimed_generation() -> None:
 
 
 def test_transport_error_marks_queue_unreachable() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
-    from queue_service_producer.bridge.runner import BridgeRunner
+    from workhold_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.runner import BridgeRunner
 
     store = ObservabilityStore()
     store.seed(_intent())
@@ -740,7 +740,7 @@ def test_transport_error_marks_queue_unreachable() -> None:
 
 
 def test_alerts_combine_sustained_lag_with_depth_and_outcomes() -> None:
-    from queue_service_producer.bridge.observability import (
+    from workhold_producer.bridge.observability import (
         BridgeAlertKind,
         BridgeTelemetry,
         evaluate_bridge_alerts,
@@ -805,7 +805,7 @@ def test_alerts_combine_sustained_lag_with_depth_and_outcomes() -> None:
 
 
 def test_forbidden_keys_never_appear_as_metric_labels() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     metrics = FakeMetricSink()
     tel = BridgeTelemetry(
@@ -855,8 +855,8 @@ def test_forbidden_keys_never_appear_as_metric_labels() -> None:
 
 
 def test_logs_may_include_public_task_id_but_not_payload_or_source_ids() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
-    from queue_service_producer.bridge.runner import BridgeRunner
+    from workhold_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.runner import BridgeRunner
 
     store = ObservabilityStore()
     store.seed(
@@ -903,7 +903,7 @@ def test_logs_may_include_public_task_id_but_not_payload_or_source_ids() -> None
 
 
 def test_w3c_trace_context_preserved_without_payload_fields() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     tel = BridgeTelemetry(
         process_role="bridge",
@@ -928,7 +928,7 @@ def test_w3c_trace_context_preserved_without_payload_fields() -> None:
 
 
 def test_health_snapshot_is_immutable() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.observability import BridgeTelemetry
 
     tel = BridgeTelemetry(
         process_role="bridge",
@@ -943,8 +943,8 @@ def test_health_snapshot_is_immutable() -> None:
 
 
 def test_telemetry_does_not_alter_correctness_path() -> None:
-    from queue_service_producer.bridge.observability import BridgeTelemetry
-    from queue_service_producer.bridge.runner import BridgeRunner
+    from workhold_producer.bridge.observability import BridgeTelemetry
+    from workhold_producer.bridge.runner import BridgeRunner
 
     store = ObservabilityStore()
     store.seed(_intent(row_id="ok"))

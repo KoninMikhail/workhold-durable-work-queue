@@ -11,12 +11,12 @@ import json
 from typing import Any
 from unittest.mock import Mock
 
-from queue_service.api.admin_break_glass import build_admin_break_glass_handler
-from queue_service.api.security import RequestContext
-from queue_service.observability.metrics import KernelMetrics
-from queue_service.operations.break_glass import BreakGlassResult
-from queue_service.security.authorization import AuthorizationContext, Operation
-from queue_service.security.principals import Principal, ServiceRole
+from workhold.api.admin_break_glass import build_admin_break_glass_handler
+from workhold.api.security import RequestContext
+from workhold.observability.metrics import KernelMetrics
+from workhold.operations.break_glass import BreakGlassResult
+from workhold.security.authorization import AuthorizationContext, Operation
+from workhold.security.principals import Principal, ServiceRole
 
 
 def test_repair_registry_entry_increments_break_glass_total_with_registry_body(
@@ -48,7 +48,7 @@ def test_repair_registry_entry_increments_break_glass_total_with_registry_body(
         )
 
     monkeypatch.setattr(
-        "queue_service.api.admin_break_glass.repair_registry_entry",
+        "workhold.api.admin_break_glass.repair_registry_entry",
         fake_repair,
     )
 

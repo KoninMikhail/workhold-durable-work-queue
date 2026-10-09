@@ -17,18 +17,18 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DIST_DIR = REPO_ROOT / "dist"
 
 CLIENT_DISTRIBUTIONS: tuple[str, ...] = (
-    "queue-service-client-core",
-    "queue-service-producer",
-    "queue-service-consumer",
-    "queue-service-admin",
+    "workhold-client-core",
+    "workhold-producer",
+    "workhold-consumer",
+    "workhold-admin",
 )
 CLIENT_IMPORTS: dict[str, frozenset[str]] = {
-    "queue-service-client-core": frozenset(
-        {"_queue_service_client_core", "queue_service_client_testing"}
+    "workhold-client-core": frozenset(
+        {"_workhold_client_core", "workhold_client_testing"}
     ),
-    "queue-service-producer": frozenset({"queue_service_producer"}),
-    "queue-service-consumer": frozenset({"queue_service_consumer"}),
-    "queue-service-admin": frozenset({"queue_service_admin"}),
+    "workhold-producer": frozenset({"workhold_producer"}),
+    "workhold-consumer": frozenset({"workhold_consumer"}),
+    "workhold-admin": frozenset({"workhold_admin"}),
 }
 
 
@@ -80,10 +80,10 @@ def built_wheels() -> dict[str, Path]:
     DIST_DIR.mkdir(exist_ok=True)
     for stale in DIST_DIR.glob("*.whl"):
         stale.unlink()
-    _run(["uv", "build", "--package", "queue_service", "--out-dir", str(DIST_DIR)])
+    _run(["uv", "build", "--package", "workhold", "--out-dir", str(DIST_DIR)])
     for dist in CLIENT_DISTRIBUTIONS:
         _run(["uv", "build", "--package", dist, "--out-dir", str(DIST_DIR)])
-    wheels = {"queue_service": _latest_wheel("queue_service")}
+    wheels = {"workhold": _latest_wheel("workhold")}
     for dist in CLIENT_DISTRIBUTIONS:
         wheels[dist] = _latest_wheel(dist.replace("-", "_"))
     return wheels
@@ -101,7 +101,7 @@ def test_client_wheels_have_no_dependency_on_queue(built_wheels: dict[str, Path]
         requires = meta.get_all("Requires-Dist") or []
         for req in requires:
             name = req.split(";", 1)[0].strip().split(" ", 1)[0].lower().replace("_", "-")
-            assert name not in {"queue", "queue-service", "queue_service"}, (
+            assert name not in {"queue", "workhold"}, (
                 f"{dist} must not depend on server distribution: {req}"
             )
 
@@ -110,13 +110,13 @@ def test_client_wheels_contain_only_own_import_package(built_wheels: dict[str, P
     for dist in CLIENT_DISTRIBUTIONS:
         tops = _top_level_packages(built_wheels[dist])
         assert tops == CLIENT_IMPORTS[dist], f"{dist} tops={tops}"
-        assert "queue_service" not in tops
+        assert "workhold" not in tops
         assert "queue_service_client" not in tops
 
 
 def test_server_wheel_does_not_ship_client_packages(built_wheels: dict[str, Path]) -> None:
-    tops = _top_level_packages(built_wheels["queue_service"])
-    assert "queue_service" in tops
+    tops = _top_level_packages(built_wheels["workhold"])
+    assert "workhold" in tops
     for import_names in CLIENT_IMPORTS.values():
         assert tops.isdisjoint(import_names)
     assert "queue_service_client" not in tops
@@ -125,8 +125,8 @@ def test_server_wheel_does_not_ship_client_packages(built_wheels: dict[str, Path
 def test_clean_venv_imports_producer_without_server_or_admin(
     built_wheels: dict[str, Path],
 ) -> None:
-    producer = built_wheels["queue-service-producer"]
-    core = built_wheels["queue-service-client-core"]
+    producer = built_wheels["workhold-producer"]
+    core = built_wheels["workhold-client-core"]
     with tempfile.TemporaryDirectory(prefix="queue-role-boundary-") as tmp:
         venv = Path(tmp) / "venv"
         _run(["uv", "venv", str(venv)])
@@ -135,23 +135,23 @@ def test_clean_venv_imports_producer_without_server_or_admin(
 import importlib
 import sys
 
-client = importlib.import_module("queue_service_producer")
+client = importlib.import_module("workhold_producer")
 assert getattr(client, "__version__", None), "missing __version__"
 assert hasattr(client, "ProducerClient")
 
 try:
-    importlib.import_module("queue_service")
+    importlib.import_module("workhold")
 except ModuleNotFoundError:
     pass
 else:
-    raise SystemExit("queue_service must not be importable from producer-only install")
+    raise SystemExit("workhold must not be importable from producer-only install")
 
 try:
-    importlib.import_module("queue_service_admin")
+    importlib.import_module("workhold_admin")
 except ModuleNotFoundError:
     pass
 else:
-    raise SystemExit("queue_service_admin must not be importable")
+    raise SystemExit("workhold_admin must not be importable")
 
 try:
     importlib.import_module("queue_service_client")

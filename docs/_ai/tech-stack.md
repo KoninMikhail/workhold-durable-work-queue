@@ -6,7 +6,7 @@ Product: **Workhold - Durable work queue**.
 | --- | --- |
 | Language | Python ≥3.13 (pin: `.python-version` = 3.13) |
 | Package manager | `uv` |
-| Package | distribution `queue`, import `queue_service` |
+| Package | distribution `workhold`, import `workhold` |
 | HTTP / API | stdlib `ThreadingHTTPServer` + ASGI composition ([ADR 027](../04-architecture/adr/027-stdlib-http-asgi-runtime.md)); OpenAPI 3.1 in `openapi/` |
 | ORM / migrations | SQLAlchemy 2.x, Alembic, driver `psycopg` (v3) |
 | Database | PostgreSQL 18.6 (`postgres:18.6-alpine` in `docker-compose.dev.yml`; [ADR 024](../04-architecture/adr/024-postgresql-18-6-runtime-engine.md)) |
@@ -20,8 +20,8 @@ Product: **Workhold - Durable work queue**.
 uv sync --group dev
 uv sync --all-packages --group dev
 uv run pytest
-uv run queue --help
-uv run queue api
+uv run workhold --help
+uv run workhold api
 uv run alembic upgrade head
 docker compose -f docker-compose.dev.yml up --build
 uv run python tools/check_client_operation_ownership.py
@@ -50,10 +50,10 @@ Claim long polling env (enabled capability): `QUEUE_CLAIM_MAX_WAIT_SECONDS=20`,
 
 | Distribution | Import | Notes |
 | --- | --- | --- |
-| `queue-service-client-core` | `_queue_service_client_core`, `queue_service_client_testing` | No operation clients; test kit included |
-| `queue-service-producer` | `queue_service_producer` | Extras: `async`, `bridge-postgres` |
-| `queue-service-consumer` | `queue_service_consumer` | Extra: `async` |
-| `queue-service-admin` | `queue_service_admin` | Extra: `async` |
+| `workhold-client-core` | `_workhold_client_core`, `workhold_client_testing` | No operation clients; test kit included |
+| `workhold-producer` | `workhold_producer` | Extras: `async`, `bridge-postgres` |
+| `workhold-consumer` | `workhold_consumer` | Extra: `async` |
+| `workhold-admin` | `workhold_admin` | Extra: `async` |
 
 Coordinated version across core + three roles. CI publishes core first; gate
 rejects `queue-client` and partial role sets. Guide:

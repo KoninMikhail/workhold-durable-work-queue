@@ -1,6 +1,6 @@
 """Wave 0 Nyquist predecessor: fail-closed catalog parse (CTRL-10 / D-07 / D-08).
 
-Owned by 13-02 once ``queue_service.domain.catalog`` lands. Do not import
+Owned by 13-02 once ``workhold.domain.catalog`` lands. Do not import
 ``admin_queues``.
 """
 
@@ -11,8 +11,8 @@ from typing import Any
 
 import pytest
 
-from queue_service.domain.catalog import parse_catalog_bytes
-from queue_service.domain.queue_control import (
+from workhold.domain.catalog import parse_catalog_bytes
+from workhold.domain.queue_control import (
     BackoffStrategy,
     DomainValidationError,
     RETRY_DELAY_SECONDS_ABSOLUTE_MAX,

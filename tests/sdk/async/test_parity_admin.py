@@ -7,15 +7,15 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.async_transport import HttpxAsyncTransport
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_admin import AdminClient, BreakGlassClient
-from queue_service_admin.async_client import (
+from _workhold_client_core.async_transport import HttpxAsyncTransport
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_admin import AdminClient, BreakGlassClient
+from workhold_admin.async_client import (
     AsyncAdminClient,
     AsyncBreakGlassClient,
     AsyncObserverClient,
 )
-from queue_service_admin.models import (
+from workhold_admin.models import (
     BackoffStrategy,
     ConfigVersion,
     PolicyVersion,
@@ -672,7 +672,7 @@ async def test_async_execute_rejects_empty_confirmation_token_before_transport(
     recording_server: Any,
 ) -> None:
     import pytest
-    from queue_service_admin.models import BulkPreviewResult
+    from workhold_admin.models import BulkPreviewResult
 
     server, base_url = recording_server
     _wire_admin_routes(server)
@@ -705,7 +705,7 @@ async def test_async_execute_rejects_oversized_confirmation_token_before_transpo
     recording_server: Any,
 ) -> None:
     import pytest
-    from queue_service_admin.models import (
+    from workhold_admin.models import (
         CONFIRMATION_TOKEN_MAX_LENGTH,
         BulkPreviewResult,
     )
@@ -739,8 +739,8 @@ async def test_async_execute_rejects_oversized_confirmation_token_before_transpo
 
 async def test_admin_lacks_observer_only_task_reads() -> None:
     """OpenAPI/ownership: getTask and listTaskAttempts are Observer (not Admin)."""
-    from queue_service_admin import ObserverClient
-    from queue_service_admin.async_client import AsyncObserverClient
+    from workhold_admin import ObserverClient
+    from workhold_admin.async_client import AsyncObserverClient
 
     for name in ("get_task", "list_task_attempts"):
         assert not hasattr(AdminClient, name), name

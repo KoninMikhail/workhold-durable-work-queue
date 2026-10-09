@@ -7,15 +7,15 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.async_transport import HttpxAsyncTransport
-from _queue_service_client_core.errors import (
+from _workhold_client_core.async_transport import HttpxAsyncTransport
+from _workhold_client_core.errors import (
     LeaseLostError,
     ProtocolError,
     TerminalConflictError,
 )
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_consumer import Claim, ConsumerClient
-from queue_service_consumer.async_client import AsyncClaim, AsyncConsumerClient
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_consumer import Claim, ConsumerClient
+from workhold_consumer.async_client import AsyncClaim, AsyncConsumerClient
 
 from .conftest import normalize_recorded
 

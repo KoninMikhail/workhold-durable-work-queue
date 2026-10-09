@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import pytest
 
-from queue_service.settings import CredentialGeneration, Secret
-from queue_service.security.credentials import (
+from workhold.settings import CredentialGeneration, Secret
+from workhold.security.credentials import (
     AuthenticationResult,
     BearerCredentialAuthenticator,
     CredentialBinding,
     Unauthenticated,
 )
-from queue_service.security.principals import Principal, ServiceRole
+from workhold.security.principals import Principal, ServiceRole
 
 
 def _binding(

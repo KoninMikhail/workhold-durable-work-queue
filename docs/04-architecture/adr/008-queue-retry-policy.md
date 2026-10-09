@@ -7,13 +7,13 @@
 ## Context
 
 Retry behavior in an opaque payload cannot be validated or operated through
-queue-service. A full scheduler in the first release would add extra states
+workhold. A full scheduler in the first release would add extra states
 and algorithms, and omitting scheduling fields would later require a breaking
 schema and API change.
 
 ## Decision
 
-Each task stores queue-service-visible `priority` and `available_at`. The
+Each task stores workhold-visible `priority` and `available_at`. The
 initial release supports only `priority=0` and immediate enqueue. Processing
 failures record a stable `failure_code`; bounded retry timing and attempt
 limits come from named-queue configuration. Retry policy is versioned and
@@ -28,7 +28,7 @@ records the attempt and moves the task to dead-lettered.
 
 | Option | Why not chosen |
 | --- | --- |
-| Retry settings inside payload | queue-service cannot safely enforce, index, or observe them |
+| Retry settings inside payload | workhold cannot safely enforce, index, or observe them |
 | Per-task arbitrary retry policy | Complicates idempotency and allows unbounded operational variance |
 | Omit fields until scheduling phase | Forces table and API migrations for an expected extension |
 | Implement priority and cron immediately | Deep overengineering before workload evidence |

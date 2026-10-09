@@ -14,7 +14,7 @@ import pytest
 from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.domain.queue_control import (
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     ConfigVersion,
@@ -23,15 +23,15 @@ from queue_service.domain.queue_control import (
     RetryPolicyDraft,
     SetQueueStateMutation,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.contracts import IntakeValidationError
-from queue_service.intake.depth import DepthCeilings, reserve_active_depth
-from queue_service.intake.repository import EnqueueRepository
-from queue_service.intake.service import EnqueueFaultHooks, EnqueueService
-from queue_service.scheduling import SchedulingPolicy
-from queue_service.storage.models import (
+from workhold.intake.contracts import IntakeValidationError
+from workhold.intake.depth import DepthCeilings, reserve_active_depth
+from workhold.intake.repository import EnqueueRepository
+from workhold.intake.service import EnqueueFaultHooks, EnqueueService
+from workhold.scheduling import SchedulingPolicy
+from workhold.storage.models import (
     EnqueueDedup,
     Queue,
     QueueCounter,
@@ -300,13 +300,13 @@ def test_changed_fingerprint_conflicts_before_state_or_depth(
 
     with (
         patch(
-            "queue_service.intake.service.evaluate_queue_state_gate",
+            "workhold.intake.service.evaluate_queue_state_gate",
             side_effect=lambda *a, **k: gate_calls.append((a, k)) or (_ for _ in ()).throw(
                 AssertionError("state gate must not run on fingerprint conflict")
             ),
         ),
         patch(
-            "queue_service.intake.service.reserve_active_depth",
+            "workhold.intake.service.reserve_active_depth",
             side_effect=lambda *a, **k: depth_calls.append((a, k)) or (_ for _ in ()).throw(
                 AssertionError("depth must not run on fingerprint conflict")
             ),
@@ -399,14 +399,14 @@ def test_one_session_one_commit_zero_primitive_finalization(
         patch.object(EnqueueRepository, "stage_new_under_lock", tracking_stage),
         patch.object(EnqueueRepository, "resolve_committed_dedup", tracking_resolve),
         patch.object(EnqueueRepository, "lock_named_queue", tracking_lock),
-        patch("queue_service.intake.service.reserve_active_depth", tracking_reserve),
-        patch("queue_service.intake.service.Session", side_effect=AssertionError("no Session()")),
+        patch("workhold.intake.service.reserve_active_depth", tracking_reserve),
+        patch("workhold.intake.service.Session", side_effect=AssertionError("no Session()")),
         patch(
-            "queue_service.intake.service.sessionmaker",
+            "workhold.intake.service.sessionmaker",
             side_effect=AssertionError("no sessionmaker()"),
         ),
         patch(
-            "queue_service.intake.service.create_engine",
+            "workhold.intake.service.create_engine",
             side_effect=AssertionError("no create_engine()"),
         ),
     ):

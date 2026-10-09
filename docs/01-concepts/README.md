@@ -16,7 +16,7 @@ Start with the [reading path](../00-onboarding/01-reading-path.md) (~15 minutes)
 | 6 | [06-glossary.md](06-glossary.md) | Canonical terms for Work Queue, spawn, event, lease, and outbox |
 | 7 | [07-product-boundary.md](07-product-boundary.md) | What the product guarantees, what it owns, and what it is not |
 | 8 | [08-use-cases.md](08-use-cases.md) | Scenarios for producer, worker, relay, operator, and the app-local bridge |
-| 9 | [09-guarantees.md](09-guarantees.md) | What queue-service promises on each stretch of the path |
+| 9 | [09-guarantees.md](09-guarantees.md) | What workhold promises on each stretch of the path |
 | 10 | [10-transactional-outbox.md](10-transactional-outbox.md) | Publication pattern: dual-write, relay, what it provides |
 | 11 | [11-inbox.md](11-inbox.md) | Reception pattern: redelivery, idempotency |
 | 12 | [12-delivery-outbox.md](12-delivery-outbox.md) | Who sends HTTP, the CloudEvents contract, two recipients X and Y |

@@ -11,13 +11,13 @@ distribution and **no** auth-provider or legacy facade.
 
 | Distribution | Import | Role |
 | --- | --- | --- |
-| `queue-service-client-core` | `_queue_service_client_core`, `queue_service_client_testing` | Shared transport / errors / test kit (no operation clients) |
-| `queue-service-producer` | `queue_service_producer` | Enqueue, resolve, producer inspect/cancel; optional bridge |
-| `queue-service-consumer` | `queue_service_consumer` | Claim / lease ops + `ConsumerSupervisor` |
-| `queue-service-admin` | `queue_service_admin` | `ObserverClient`, `AdminClient`, `BreakGlassClient` |
+| `workhold-client-core` | `_workhold_client_core`, `workhold_client_testing` | Shared transport / errors / test kit (no operation clients) |
+| `workhold-producer` | `workhold_producer` | Enqueue, resolve, producer inspect/cancel; optional bridge |
+| `workhold-consumer` | `workhold_consumer` | Claim / lease ops + `ConsumerSupervisor` |
+| `workhold-admin` | `workhold_admin` | `ObserverClient`, `AdminClient`, `BreakGlassClient` |
 
 All four share one repository version. Roles pin
-`queue-service-client-core>=X.Y.0,<X.(Y+1).0`. Publish is atomic: core first,
+`workhold-client-core>=X.Y.0,<X.(Y+1).0`. Publish is atomic: core first,
 then the three roles; partial sets and `queue-client` are rejected by CI.
 The release gate derives this interval from the coordinated role version (a
 role at `1.2.Z` requires exactly `>=1.2.0,<1.3.0`) and checks both
@@ -33,35 +33,35 @@ version bump.
 
 ```bash
 # Sync HTTP (stdlib) — base wheels stay free of httpx
-pip install queue-service-producer
-pip install queue-service-consumer
-pip install queue-service-admin
+pip install workhold-producer
+pip install workhold-consumer
+pip install workhold-admin
 
 # Async HTTP (optional extra pulls core[async] → httpx)
-pip install "queue-service-producer[async]"
-pip install "queue-service-consumer[async]"
-pip install "queue-service-admin[async]"
+pip install "workhold-producer[async]"
+pip install "workhold-consumer[async]"
+pip install "workhold-admin[async]"
 
 # Producer bridge that needs a concrete Postgres driver
-pip install "queue-service-producer[bridge-postgres]"
+pip install "workhold-producer[bridge-postgres]"
 ```
 
 ```python
 # Sync
-from queue_service_producer import HttpJsonTransport, ProducerClient
-from queue_service_consumer import ConsumerClient, ConsumerSupervisor
-from queue_service_admin import ObserverClient, AdminClient, BreakGlassClient
+from workhold_producer import HttpJsonTransport, ProducerClient
+from workhold_consumer import ConsumerClient, ConsumerSupervisor
+from workhold_admin import ObserverClient, AdminClient, BreakGlassClient
 
 # Async (requires [async] extra) — import from async_* modules
-from queue_service_producer.async_client import AsyncProducerClient
-from queue_service_consumer.async_client import AsyncConsumerClient
-from queue_service_consumer.async_supervisor import AsyncConsumerSupervisor
-from queue_service_admin.async_client import (
+from workhold_producer.async_client import AsyncProducerClient
+from workhold_consumer.async_client import AsyncConsumerClient
+from workhold_consumer.async_supervisor import AsyncConsumerSupervisor
+from workhold_admin.async_client import (
     AsyncObserverClient,
     AsyncAdminClient,
     AsyncBreakGlassClient,
 )
-from _queue_service_client_core.async_transport import HttpxAsyncTransport
+from _workhold_client_core.async_transport import HttpxAsyncTransport
 ```
 
 ## Explicit bearer tokens (no auth provider)
@@ -70,9 +70,9 @@ Pass role credentials explicitly. The SDK never discovers tokens from the
 environment, never mints break-glass JIT, and never mixes roles.
 
 ```python
-from _queue_service_client_core.config import ClientConfig
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_producer import ProducerClient
+from _workhold_client_core.config import ClientConfig
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_producer import ProducerClient
 
 config = ClientConfig.for_public(
     "https://queue.example",
@@ -95,7 +95,7 @@ Do not place admin / break-glass tokens in producer or consumer pods.
 
 ## TLS and timeouts
 
-`ClientConfig` (`_queue_service_client_core.config`):
+`ClientConfig` (`_workhold_client_core.config`):
 
 | Field | Default | Notes |
 | --- | --- | --- |
@@ -112,12 +112,12 @@ idle/response timeout ≥ **30 s**. See [08-consumer-long-polling.md](../08-exam
 ## Pagination ceilings
 
 Observer/Admin cursor lists use bounded helpers in
-`queue_service_admin.pagination` / `async_pagination`. Callers **must** pass
+`workhold_admin.pagination` / `async_pagination`. Callers **must** pass
 `max_pages` and/or `max_items` (positive integers). The helpers forward server
 cursors only, do not prefetch, and do not retry cursor protocol errors.
 
 ```python
-from queue_service_admin.pagination import iter_queues
+from workhold_admin.pagination import iter_queues
 
 for queue in iter_queues(observer, max_pages=10, max_items=500):
     ...
@@ -126,7 +126,7 @@ for queue in iter_queues(observer, max_pages=10, max_items=500):
 ## Retry safety
 
 Retries are **opt-in**. Role clients do not retry by default. Use
-`_queue_service_client_core.retry` with an explicit `RetryPolicy` and immutable
+`_workhold_client_core.retry` with an explicit `RetryPolicy` and immutable
 `RetryRequest`. Classes:
 
 | Class | Meaning |
@@ -151,11 +151,11 @@ when asserting in tests.
 
 ## Test kit
 
-Public kit ships inside the **core** wheel as `queue_service_client_testing`
+Public kit ships inside the **core** wheel as `workhold_client_testing`
 (no server, DB, or pytest dependency):
 
 ```python
-from queue_service_client_testing import (
+from workhold_client_testing import (
     ScriptedSyncTransport,
     ScriptedAsyncTransport,
     synthetic_bearer_token,
@@ -169,7 +169,7 @@ conformance.
 
 ## Codecs and capability guards
 
-Opt-in payload codecs (`_queue_service_client_core.codecs`) keep opaque JSON on
+Opt-in payload codecs (`_workhold_client_core.codecs`) keep opaque JSON on
 the wire. Decode failures expose codec/type metadata and preserve raw for
 recovery — they do not invent server fields.
 
@@ -198,4 +198,4 @@ uv run python tools/client_release_gate.py
 - Consumer: [03-worker-claim-complete.md](03-worker-claim-complete.md)
 - Admin: [04-admin-operations.md](04-admin-operations.md)
 - Protocol: [09-client-protocol.md](../04-architecture/09-client-protocol.md)
-- ADR: [029-role-split-python-clients.md](../04-architecture/adr/029-role-split-python-clients.md)
+- ADR: [029-role-split-python-clients.md](../04-architecture/adr/029-role-split-python-clients.md) (role split), [030-workhold-distribution-names.md](../04-architecture/adr/030-workhold-distribution-names.md) (names)

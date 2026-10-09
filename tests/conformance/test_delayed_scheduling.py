@@ -10,7 +10,7 @@ import pytest
 from sqlalchemy import func, select, text, update
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.storage.models import QueueCounter, TaskActive
+from workhold.storage.models import QueueCounter, TaskActive
 from tests.conformance.clients import ConformanceClient
 from tests.conformance.conftest import LEASE_SECONDS, PRODUCER_TOKEN, WORKER_TOKEN
 

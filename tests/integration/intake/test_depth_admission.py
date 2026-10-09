@@ -12,23 +12,23 @@ import pytest
 from sqlalchemy import create_engine, event, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.domain.queue_control import (
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.contracts import IntakeValidationError
-from queue_service.intake.depth import (
+from workhold.intake.contracts import IntakeValidationError
+from workhold.intake.depth import (
     DEFAULT_INSTANCE_ACTIVE_DEPTH,
     DEFAULT_QUEUE_ACTIVE_DEPTH,
     DepthCeilings,
     reserve_active_depth,
 )
-from queue_service.storage.models import Queue, QueueCounter, TaskActive
+from workhold.storage.models import Queue, QueueCounter, TaskActive
 
 _JOIN_TIMEOUT_S = 30.0
 

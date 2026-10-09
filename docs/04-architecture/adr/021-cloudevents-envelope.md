@@ -12,7 +12,7 @@ for deduplication, observability, and future transport adapters.
 
 ## Decision
 
-Delivery events use CloudEvents 1.0 JSON in structured content mode. queue-service
+Delivery events use CloudEvents 1.0 JSON in structured content mode. workhold
 assigns stable `id`, `time`, and `specversion`; the application supplies
 `source`, `type`, optional `subject`, `datacontenttype`, and `data`. HTTP sends
 `application/cloudevents+json`.

@@ -24,7 +24,7 @@ A task goes to dead letter when:
   is no longer granted;
 - retry is off — a failed first attempt is parked immediately.
 
-On every failed attempt queue-service writes a machine-readable
+On every failed attempt workhold writes a machine-readable
 `failure_code` and a diagnostic detail. Attempt history is kept within
 retention, so it is possible to see *why* the task reached dead letter.
 

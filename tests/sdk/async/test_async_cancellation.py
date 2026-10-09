@@ -8,9 +8,9 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.models import Task
-from _queue_service_client_core.transport import TransportResponse
-from queue_service_consumer.async_client import AsyncClaim, AsyncConsumerClient
+from _workhold_client_core.models import Task
+from _workhold_client_core.transport import TransportResponse
+from workhold_consumer.async_client import AsyncClaim, AsyncConsumerClient
 
 CLAIM_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
 TASK_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"

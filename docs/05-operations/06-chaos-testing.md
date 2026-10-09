@@ -1,6 +1,6 @@
 ﻿# Kernel chaos testing
 
-Reproducible fault-injection matrix for queue-service kernel correctness (QUAL-04
+Reproducible fault-injection matrix for workhold kernel correctness (QUAL-04
 kernel slice). Relay duplicate-publication chaos is deferred until Phase 5.
 
 Normative sources: [concurrency.md](../04-architecture/02-concurrency.md),

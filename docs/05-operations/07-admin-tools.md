@@ -107,4 +107,4 @@ Practical how-to: [04-admin-operations.md](../02-guides/04-admin-operations.md).
 - delete audit records through the control plane;
 - treat break-glass, PITR, or replay as exactly-once recovery;
 - a dual-control / four-eyes UI or self-serve minting of break-glass credentials
-  inside queue-service.
+  inside workhold.

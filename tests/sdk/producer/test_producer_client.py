@@ -16,18 +16,18 @@ from urllib.parse import unquote
 
 import pytest
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     AuthenticationError,
     MalformedResponseError,
     ProtocolError,
     QueueClientError,
     TimeoutError as ClientTimeoutError,
 )
-from _queue_service_client_core.models import ErrorCode, TaskState
-from _queue_service_client_core.priority import PRIORITY_MAX, PRIORITY_MIN
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_producer import ProducerClient
-import queue_service_producer as producer_pkg
+from _workhold_client_core.models import ErrorCode, TaskState
+from _workhold_client_core.priority import PRIORITY_MAX, PRIORITY_MIN
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_producer import ProducerClient
+import workhold_producer as producer_pkg
 
 
 class _RecordingHandler(BaseHTTPRequestHandler):
@@ -177,7 +177,7 @@ def _client(
 
 
 def test_package_exports_producer_surface_only() -> None:
-    from queue_service_producer import AsyncProducerClient
+    from workhold_producer import AsyncProducerClient
 
     assert "ProducerClient" in producer_pkg.__all__
     assert "AsyncProducerClient" in producer_pkg.__all__

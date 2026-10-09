@@ -2,7 +2,7 @@
 
 **Status:** authoritative physical catalog  
 **DBMS:** PostgreSQL 18.6  
-**ORM:** SQLAlchemy 2 metadata on `queue_service.db.Base` (`src/queue_service/storage/models.py`)
+**ORM:** SQLAlchemy 2 metadata on `workhold.db.Base` (`src/workhold/storage/models.py`)
 
 This document is the exact catalog of relations, columns, constraints, and indexes. It does **not**
 describe queue runtime behavior. Migrations must match this contract.
@@ -36,7 +36,7 @@ part of the product catalog.
 
 ## Global rules
 
-- All timestamps are queue-service-store `timestamptz`.
+- All timestamps are workhold store `timestamptz`.
 - Public UUID identifiers are generated at runtime (without a database UUID extension and without
   UUID column defaults).
 - Internal keys use `bigint GENERATED ALWAYS AS IDENTITY`, unless stated otherwise.

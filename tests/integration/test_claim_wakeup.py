@@ -10,7 +10,7 @@ import pytest
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.pool import QueuePool
 
-from queue_service.infrastructure.postgres.claim_wakeup import (
+from workhold.infrastructure.postgres.claim_wakeup import (
     CLAIM_WAKE_CHANNEL,
     ClaimWakeListener,
     ListenerHealth,

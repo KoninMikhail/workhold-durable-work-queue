@@ -13,10 +13,10 @@ import uuid
 import pytest
 from sqlalchemy import select
 
-from _queue_service_client_core.config import ClientConfig
-from _queue_service_client_core.errors import RequestCancelledError
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service.domain.queue_control import (
+from _workhold_client_core.config import ClientConfig
+from _workhold_client_core.errors import RequestCancelledError
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold.domain.queue_control import (
     ActivatePolicyMutation,
     AdminRequestMetadata,
     BackoffStrategy,
@@ -25,14 +25,14 @@ from queue_service.domain.queue_control import (
     PolicyVersion,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.settings import CLAIM_MAX_WAIT_SECONDS_DEFAULT
-from queue_service.storage.models import Queue, QueuePolicyVersion
-from queue_service_consumer import ConsumerClient, ConsumerSupervisor
-from queue_service_consumer.async_client import AsyncConsumerClient
-from queue_service_consumer.async_supervisor import AsyncConsumerSupervisor
+from workhold.settings import CLAIM_MAX_WAIT_SECONDS_DEFAULT
+from workhold.storage.models import Queue, QueuePolicyVersion
+from workhold_consumer import ConsumerClient, ConsumerSupervisor
+from workhold_consumer.async_client import AsyncConsumerClient
+from workhold_consumer.async_supervisor import AsyncConsumerSupervisor
 from tests.conformance.clients import RawHttpClientAdapter
 from tests.conformance.conftest import WORKER_TOKEN
 from tests.conformance.long_poll_harness import (

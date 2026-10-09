@@ -22,10 +22,10 @@ import pytest
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
-from queue_service import db, settings
-from queue_service.api.security import ListenerBind
-from queue_service.lifecycle import Lifecycle, LifecyclePhase
-from queue_service.roles import api as api_role
+from workhold import db, settings
+from workhold.api.security import ListenerBind
+from workhold.lifecycle import Lifecycle, LifecyclePhase
+from workhold.roles import api as api_role
 
 PREMAKE_DAYS = 0  # migrated schema already has day-0 partitions; avoid horizon wait
 
@@ -565,8 +565,8 @@ def test_shutdown_stops_wake_listener_before_pools_disposed() -> None:
     Uses ``api_engine=None`` so readiness is process-local; partition horizon is
     out of scope for this shutdown-ordering assertion.
     """
-    from queue_service.application.claim_long_poll import WaiterAdmission
-    from queue_service.infrastructure.postgres.claim_wakeup import (
+    from workhold.application.claim_long_poll import WaiterAdmission
+    from workhold.infrastructure.postgres.claim_wakeup import (
         ClaimWakeListener,
         QueueGenerationCoordinator,
     )
@@ -581,7 +581,7 @@ def test_shutdown_stops_wake_listener_before_pools_disposed() -> None:
 
         @property
         def health(self):  # noqa: ANN201
-            from queue_service.infrastructure.postgres.claim_wakeup import ListenerHealth
+            from workhold.infrastructure.postgres.claim_wakeup import ListenerHealth
 
             return ListenerHealth.CONNECTED if self.started and not self.stopped else ListenerHealth.DEGRADED
 

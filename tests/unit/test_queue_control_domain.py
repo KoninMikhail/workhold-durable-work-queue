@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 
-from queue_service.domain import queue_control as qc
+from workhold.domain import queue_control as qc
 
 # Every cell from docs/04-architecture/runtime-semantics.md operation matrix.
 _OPERATION_STATE_MATRIX: tuple[

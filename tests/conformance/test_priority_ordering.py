@@ -16,7 +16,7 @@ import pytest
 from sqlalchemy import func, select, text, update
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.storage.models import (
+from workhold.storage.models import (
     CompletionEffect,
     EnqueueDedup,
     Queue,

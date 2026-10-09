@@ -2,14 +2,14 @@
 
 [Documentation](../README.md) › [FAQ](README.md) › **Named queue**
 
-**In short.** A named stream of tasks inside one queue-service instance.
+**In short.** A named stream of tasks inside one workhold instance.
 The application has one deploy of the service; inside it, several queues with different
 names (for example `orders` and `billing`). The producer writes a task to a specific
 name. A worker claims only the queues it knows how to process.
 
 ## Why a name, and not a field in the payload
 
-queue-service does not parse the payload as business meaning. If you route
+workhold does not parse the payload as business meaning. If you route
 by a field inside JSON, a worker that only knows billing can accidentally
 take an order — and either crash or do someone else's work.
 
@@ -37,7 +37,7 @@ a silent new queue "from a typo".
 
 ## What a named queue is not
 
-- not the whole queue-service and not "the platform queue";
+- not the whole workhold and not "the platform queue";
 - not a Kafka topic and not pub/sub: one task is taken by one logical worker
   (it may be handed out again after the lease is lost);
 - not a separate instance and not its own database per name;
@@ -46,7 +46,7 @@ a silent new queue "from a typo".
 ```mermaid
 flowchart TB
   app["orders-service application"]
-  inst["one queue-service instance"]
+  inst["one workhold instance"]
   orders["named queue orders"]
   billing["named queue billing"]
   wOrders["order workers"]

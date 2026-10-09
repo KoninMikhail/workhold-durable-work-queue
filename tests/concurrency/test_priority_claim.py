@@ -22,18 +22,18 @@ from sqlalchemy import create_engine, event, func, select, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.application.claim_service import ClaimService
-from queue_service.domain.queue_control import (
+from workhold.application.claim_service import ClaimService
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.claim_repository import ClaimPersistenceResult
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.claim_repository import ClaimPersistenceResult
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.storage.models import (
+from workhold.storage.models import (
     ClaimRegistry,
     Queue,
     TaskActive,

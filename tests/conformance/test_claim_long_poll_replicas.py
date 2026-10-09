@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from queue_service.infrastructure.postgres.claim_wakeup import ListenerHealth
+from workhold.infrastructure.postgres.claim_wakeup import ListenerHealth
 from tests.conformance.long_poll_harness import (
     build_long_poll_adapter,
     claim_via_adapter,
@@ -157,7 +157,7 @@ def test_listener_outage_and_one_per_replica(long_poll_pair) -> None:
     replica_a = world.replicas[0]
     replica_a.listener.stop()
     time.sleep(0.2)
-    from queue_service.infrastructure.postgres.claim_wakeup import ClaimWakeListener
+    from workhold.infrastructure.postgres.claim_wakeup import ClaimWakeListener
     from tests.conformance.long_poll_harness import _wake_dsn
     import os
 

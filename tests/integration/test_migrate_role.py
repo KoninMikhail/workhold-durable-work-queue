@@ -15,8 +15,8 @@ import psycopg
 import pytest
 from sqlalchemy.engine import Engine
 
-from queue_service import db, health, settings
-from queue_service.roles import migrate as migrate_role
+from workhold import db, health, settings
+from workhold.roles import migrate as migrate_role
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -112,7 +112,7 @@ def _subprocess_env(database_url: str, schema: str, *, lock_deadline: float) -> 
     env["DATABASE_URL"] = database_url
     env["ALEMBIC_VERSION_TABLE_SCHEMA"] = schema
     env["QUEUE_MIGRATE_LOCK_DEADLINE_SECONDS"] = str(lock_deadline)
-    # Ensure src layout is importable for `python -m queue_service`.
+    # Ensure src layout is importable for `python -m workhold`.
     src = str(ROOT / "src")
     existing = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = src if not existing else f"{src}{os.pathsep}{existing}"
@@ -179,7 +179,7 @@ def test_two_concurrent_migrate_subprocesses_single_winner(
 ) -> None:
     database_url, schema = empty_schema
     env = _subprocess_env(database_url, schema, lock_deadline=10.0)
-    cmd = [sys.executable, "-m", "queue_service", "migrate"]
+    cmd = [sys.executable, "-m", "workhold", "migrate"]
 
     # Hold the lock briefly so both children race on release.
     holder = _hold_migrate_lock(database_url)
@@ -300,7 +300,7 @@ def test_cli_migrate_subprocess_success(empty_schema: tuple[str, str]) -> None:
     database_url, schema = empty_schema
     env = _subprocess_env(database_url, schema, lock_deadline=30.0)
     completed = subprocess.run(
-        [sys.executable, "-m", "queue_service", "migrate"],
+        [sys.executable, "-m", "workhold", "migrate"],
         cwd=str(ROOT),
         env=env,
         capture_output=True,

@@ -1,21 +1,21 @@
 {
   "pypi_packages": [
-    "queue-service-client-core",
-    "queue-service-producer",
-    "queue-service-consumer",
-    "queue-service-admin"
+    "workhold-client-core",
+    "workhold-producer",
+    "workhold-consumer",
+    "workhold-admin"
   ],
   "extra_version_files": [
-    "packages/queue-service-client-core/pyproject.toml",
-    "packages/queue-service-producer/pyproject.toml",
-    "packages/queue-service-consumer/pyproject.toml",
-    "packages/queue-service-admin/pyproject.toml"
+    "packages/workhold-client-core/pyproject.toml",
+    "packages/workhold-producer/pyproject.toml",
+    "packages/workhold-consumer/pyproject.toml",
+    "packages/workhold-admin/pyproject.toml"
   ],
   "version_py_files": [
-    "src/queue_service/__init__.py",
-    "packages/queue-service-client-core/src/_queue_service_client_core/__init__.py",
-    "packages/queue-service-producer/src/queue_service_producer/__init__.py",
-    "packages/queue-service-consumer/src/queue_service_consumer/__init__.py",
-    "packages/queue-service-admin/src/queue_service_admin/__init__.py"
+    "src/workhold/__init__.py",
+    "packages/workhold-client-core/src/_workhold_client_core/__init__.py",
+    "packages/workhold-producer/src/workhold_producer/__init__.py",
+    "packages/workhold-consumer/src/workhold_consumer/__init__.py",
+    "packages/workhold-admin/src/workhold_admin/__init__.py"
   ]
 }

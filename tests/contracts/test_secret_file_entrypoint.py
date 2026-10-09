@@ -43,7 +43,7 @@ def test_entrypoint_script_shape_and_leak_safety() -> None:
     text = _read_text(ENTRYPOINT)
     raw = ENTRYPOINT.read_bytes()
     assert text.startswith("#!/bin/sh")
-    assert "exec queue" in text
+    assert "exec workhold" in text
     assert "file_env" in text
     assert "materialize_secrets" in text
     for name in (

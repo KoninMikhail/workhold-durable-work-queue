@@ -14,10 +14,10 @@ import pytest
 from sqlalchemy import create_engine, event, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.admin import create_admin_app
-from queue_service.api.security import ListenerBind
-from queue_service.application.claim_service import ClaimService
-from queue_service.domain.queue_control import (
+from workhold.api.admin import create_admin_app
+from workhold.api.security import ListenerBind
+from workhold.application.claim_service import ClaimService
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
@@ -26,19 +26,19 @@ from queue_service.domain.queue_control import (
     SetQueueStateMutation,
     ConfigVersion,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.contracts import normalize_enqueue_command
-from queue_service.intake.repository import EnqueueRepository
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.intake.contracts import normalize_enqueue_command
+from workhold.intake.repository import EnqueueRepository
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
-from queue_service.storage.models import (
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
+from workhold.storage.models import (
     AdminAuditLog,
     EnqueueDedup,
     QueueCounter,

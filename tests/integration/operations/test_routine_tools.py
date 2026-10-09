@@ -13,27 +13,27 @@ import pytest
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.admin import create_admin_app
-from queue_service.api.security import ListenerBind
-from queue_service.domain.queue_control import (
+from workhold.api.admin import create_admin_app
+from workhold.api.security import ListenerBind
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     QueueState,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.roles.maintain import MAINTENANCE_LOCK_KEY
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.roles.maintain import MAINTENANCE_LOCK_KEY
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.payload_policy import PayloadRetentionPolicy
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
+from workhold.security.payload_policy import PayloadRetentionPolicy
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
 
 pytest_plugins = ["tests.integration.conftest"]
 
@@ -448,9 +448,9 @@ def test_routine_admin_handlers_emit_allowlisted_correlation_logs(
     """OPS-08: drain/maintenance handlers emit projected correlation at runtime."""
     import logging
 
-    from queue_service.api import admin_operations as ops_mod
-    from queue_service.api import admin_queues as queues_mod
-    from queue_service.operations import routine as routine_mod
+    from workhold.api import admin_operations as ops_mod
+    from workhold.api import admin_queues as queues_mod
+    from workhold.operations import routine as routine_mod
 
     queue_name = _unique("orders.corr")
     app = create_admin_app(
@@ -483,8 +483,8 @@ def test_routine_admin_handlers_emit_allowlisted_correlation_logs(
     monkeypatch.setattr(queues_mod, "emit_routine_admin_correlation", _capture)
 
     with (
-        caplog.at_level(logging.INFO, logger="queue_service.api.admin_operations"),
-        caplog.at_level(logging.INFO, logger="queue_service.api.admin_queues"),
+        caplog.at_level(logging.INFO, logger="workhold.api.admin_operations"),
+        caplog.at_level(logging.INFO, logger="workhold.api.admin_queues"),
     ):
         status_m, _, _ = _asgi_http_call(
             app,

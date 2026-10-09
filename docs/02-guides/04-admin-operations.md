@@ -7,16 +7,16 @@ Separate role SDKs: `AdminClient` (routine admin + recovery) and
 `/v1` and private `/admin/v1`, and do not put admin / break-glass tokens in
 producer/consumer pods.
 
-## Install (`queue-service-admin`)
+## Install (`workhold-admin`)
 
 ```bash
-pip install queue-service-admin
-pip install "queue-service-admin[async]"
+pip install workhold-admin
+pip install "workhold-admin[async]"
 ```
 
 Sync: `ObserverClient`, `AdminClient`, `BreakGlassClient`.
 Async: `AsyncObserverClient`, `AsyncAdminClient`, `AsyncBreakGlassClient` from
-`queue_service_admin.async_client`.
+`workhold_admin.async_client`.
 Bounded cursor pagination (`max_pages` / `max_items` required), retry helpers,
 instrumentation redaction and capability guards:
 [06-client-sdk-ergonomics.md](06-client-sdk-ergonomics.md).
@@ -30,8 +30,8 @@ instrumentation redaction and capability guards:
 | `BreakGlassClient` | private `/admin/v1` | short-lived `BREAK_GLASS` JIT |
 
 ```python
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_admin import AdminClient, BreakGlassClient
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_admin import AdminClient, BreakGlassClient
 
 public = HttpJsonTransport("https://queue.example")
 admin = HttpJsonTransport("https://queue-admin.example")
@@ -96,7 +96,7 @@ Break-glass does **not**:
 - mint / impersonate worker `claim_token`;
 - mutate terminal history in place;
 - promise exactly-once recovery;
-- issue credentials through the queue-service API (minting is deployment-only).
+- issue credentials through the workhold API (minting is deployment-only).
 
 Allowlist and audit details: [07-admin-tools.md](../05-operations/07-admin-tools.md).
 

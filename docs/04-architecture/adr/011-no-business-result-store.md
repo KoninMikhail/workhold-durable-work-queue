@@ -1,4 +1,4 @@
-# 011. queue-service does not store business results
+# 011. workhold does not store business results
 
 **Status:** Accepted  
 **Date:** 2026-09-18  
@@ -7,12 +7,12 @@
 ## Context
 
 A generic result field would recreate parser-v1 `parse_result`, inflate
-retention cost, and turn queue-service into a business-data query service.
+retention cost, and turn workhold into a business-data query service.
 Idempotent complete still needs a replayable protocol result.
 
 ## Decision
 
-queue-service stores the operational terminal outcome, failure metadata,
+workhold stores the operational terminal outcome, failure metadata,
 attempts, and spawn/event lineage. Business output goes to application
 storage, spawned tasks, or delivery outbox events. Complete replay stores only
 terminal and protocol metadata and the IDs of created resources.
@@ -21,7 +21,7 @@ terminal and protocol metadata and the IDs of created resources.
 
 | Option | Why not chosen |
 | --- | --- |
-| Opaque business-result JSON | Blurs ownership and makes queue-service retention a contract for application data |
+| Opaque business-result JSON | Blurs ownership and makes workhold retention a contract for application data |
 | No retained completion response | Breaks safe retry after an uncertain complete response |
 | Payload-field result conventions | Brings back application-specific contracts |
 

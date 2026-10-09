@@ -7,14 +7,14 @@ from typing import Any
 
 import pytest
 
-from queue_service.intake.admission import (
+from workhold.intake.admission import (
     DEFAULT_IDEMPOTENCY_KEY_MAX_CHARS,
     DEFAULT_PAYLOAD_MAX_BYTES,
     DEFAULT_REQUEST_MAX_BYTES,
     EnqueueAdmissionLimits,
     validate_producer_enqueue_admission,
 )
-from queue_service.intake.contracts import IntakeValidationError
+from workhold.intake.contracts import IntakeValidationError
 
 _SECRET = {"password": "hunter2", "token": "leak-me"}
 
@@ -149,7 +149,7 @@ def test_non_object_body_is_validation_failed() -> None:
 
 
 def test_deployment_hard_ceiling_cannot_be_raised_above_contract() -> None:
-    from queue_service.security.payload_policy import HARD_PAYLOAD_CEILING_BYTES
+    from workhold.security.payload_policy import HARD_PAYLOAD_CEILING_BYTES
 
     with pytest.raises(ValueError):
         EnqueueAdmissionLimits(
@@ -188,7 +188,7 @@ def test_admission_does_not_mutate_or_require_storage(monkeypatch: pytest.Monkey
     real_import = builtins.__import__
 
     def _block_storage(name: str, *args: Any, **kwargs: Any):  # noqa: ANN001
-        if name.startswith("queue_service.storage") or name.startswith("sqlalchemy"):
+        if name.startswith("workhold.storage") or name.startswith("sqlalchemy"):
             raise AssertionError(f"storage import during admission: {name}")
         return real_import(name, *args, **kwargs)
 

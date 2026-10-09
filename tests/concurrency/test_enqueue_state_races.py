@@ -34,7 +34,7 @@ from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.domain.queue_control import (
+from workhold.domain.queue_control import (
     ActivatePolicyMutation,
     AdminRequestMetadata,
     BackoffStrategy,
@@ -46,13 +46,13 @@ from queue_service.domain.queue_control import (
     RetryPolicyDraft,
     SetQueueStateMutation,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.contracts import IntakeValidationError
-from queue_service.intake.repository import EnqueueRepository
-from queue_service.intake.service import EnqueueService
-from queue_service.storage.models import (
+from workhold.intake.contracts import IntakeValidationError
+from workhold.intake.repository import EnqueueRepository
+from workhold.intake.service import EnqueueService
+from workhold.storage.models import (
     EnqueueDedup,
     Queue,
     QueueCounter,

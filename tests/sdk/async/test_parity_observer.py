@@ -8,10 +8,10 @@ from urllib.parse import parse_qs
 
 import pytest
 
-from _queue_service_client_core.async_transport import HttpxAsyncTransport
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_admin import ObserverClient
-from queue_service_admin.async_client import AsyncObserverClient
+from _workhold_client_core.async_transport import HttpxAsyncTransport
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_admin import ObserverClient
+from workhold_admin.async_client import AsyncObserverClient
 
 from .conftest import normalize_recorded
 

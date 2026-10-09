@@ -39,7 +39,7 @@ services:
         "dev",
         "python",
         "-m",
-        "queue_service.contract_stub",
+        "workhold.contract_stub",
       ]
     # TCP/process health only — must not interpret any HTTP/protocol response
     # as conformance evidence.

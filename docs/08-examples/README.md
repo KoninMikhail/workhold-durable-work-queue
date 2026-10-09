@@ -12,7 +12,7 @@ Application usage scenarios. Steps are in [02-guides](../02-guides/README.md). S
 | 4 | [04-complete-and-events.md](04-complete-and-events.md) | Complete + events[]: one webhook, two `type` values (X and Y) |
 | 5 | [05-retry-then-dead-letter.md](05-retry-then-dead-letter.md) | Retry → dead letter |
 | 6 | [06-cooperative-cancel.md](06-cooperative-cancel.md) | Cooperative cancel |
-| 7 | [07-named-queue-catalog.md](07-named-queue-catalog.md) | Mount + `queue apply` catalog ensure-exists |
+| 7 | [07-named-queue-catalog.md](07-named-queue-catalog.md) | Mount + `workhold apply` catalog ensure-exists |
 | 8 | [08-consumer-long-polling.md](08-consumer-long-polling.md) | Bounded claim long polling (capability-gated) |
 
 ---

@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     AuthenticationError,
     MalformedResponseError,
     ProtocolError,
@@ -17,7 +17,7 @@ from _queue_service_client_core.errors import (
     TimeoutError as ClientTimeoutError,
     TransportError,
 )
-from _queue_service_client_core.transport import HttpJsonTransport
+from _workhold_client_core.transport import HttpJsonTransport
 
 
 class _Handler(BaseHTTPRequestHandler):

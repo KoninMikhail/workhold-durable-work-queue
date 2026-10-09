@@ -4,7 +4,7 @@
 
 A reliable-reception pattern: in one transaction the consumer records "I have already seen this message" and its own state change. A repeat delivery of the same message is not applied a second time.
 
-It is the pair of the [transactional outbox](10-transactional-outbox.md). The table schema and the storage location in queue-service are not fixed.
+It is the pair of the [transactional outbox](10-transactional-outbox.md). The table schema and the storage location in workhold are not fixed.
 
 ## What problem it solves
 
@@ -51,11 +51,11 @@ The writer and the outbox do not know about "already processed". That is the con
 | Together with the outbox it closes the loop: do not lose on publication and do not apply twice on reception | Work without a stable message id |
 | | The choice of where the table lives |
 
-## In queue-service
+## In workhold
 
-Here the inbox is described as an integrator pattern, not as a table in queue-service.
+Here the inbox is described as an integrator pattern, not as a table in workhold.
 
-The inbox lives with the owner of the external side effect, so that the "already processed" record can be atomic with the effect itself. If the application has no DB, the handler uses a naturally idempotent operation or an idempotency/CAS mechanism of the external store. queue-service cannot centrally make someone else's side effect exactly-once.
+The inbox lives with the owner of the external side effect, so that the "already processed" record can be atomic with the effect itself. If the application has no DB, the handler uses a naturally idempotent operation or an idempotency/CAS mechanism of the external store. workhold cannot centrally make someone else's side effect exactly-once.
 
 Do not carry the inbox over from parser queue v1 as a specification.
 

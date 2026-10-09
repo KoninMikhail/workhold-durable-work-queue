@@ -1,6 +1,6 @@
 ﻿# Security contract
 
-One queue-service instance serves one application trust boundary. Named queues
+One workhold instance serves one application trust boundary. Named queues
 are routing units, not strong tenant isolation. Unrelated applications
 use separate instances.
 
@@ -14,7 +14,7 @@ use separate instances.
 - **admin:** private runtime control and recovery (not break-glass);
 - **break_glass:** short-lived emergency repair; does **not** inherit grants from
   `ADMIN`, and the reverse is also true;
-- **migrator/maintainer:** schema and partition roles owned by queue-service.
+- **migrator/maintainer:** schema and partition roles owned by workhold.
 
 Credentials map to a stable principal ID and explicit operation/queue scopes.
 Producer identity is part of enqueue idempotency scope. Producer, worker,
@@ -23,7 +23,7 @@ and admin credentials are **never** interchangeable. `BREAK_GLASS` requires a ti
 authenticate. Minting break-glass tokens through admin HTTP is **forbidden** —
 only deployment-issued secrets.
 
-The MVP may use deployment-issued bearer tokens or mTLS. queue-service does not
+The MVP may use deployment-issued bearer tokens or mTLS. workhold does not
 implement a human IAM platform. Production traffic uses only TLS and private-network
 by default.
 
@@ -57,7 +57,7 @@ General inspection and the admin API redact it.
 
 ## Payload handling
 
-queue-service treats the payload as application-owned opaque JSON:
+workhold treats the payload as application-owned opaque JSON:
 
 - hard size limit;
 - no payload logging or metric labels by default;
@@ -70,7 +70,7 @@ queue-service treats the payload as application-owned opaque JSON:
 
 The deployment supports overlapping old/new credentials during rotation. Admin
 changes, claims/attempts, cancellations, and replays record the authenticated actor,
-queue-service-store time, and request correlation. Audit retention is independent of
+workhold store time, and request correlation. Audit retention is independent of
 task-result retention.
 
 `SENTRY_DSN` is a deployment secret on par with `DATABASE_URL` and bearer tokens.
@@ -120,7 +120,7 @@ The runtime image entrypoint materializes allowlisted deployment secrets from si
 - `SENTRY_DSN` ← `SENTRY_DSN_FILE` (optional opt-in error reporting only)
 
 `SENTRY_DSN_FILE` is resolved **only** by the container entrypoint (`entrypoint.sh`,
-DEP-05). Host / `uv run queue` uses `SENTRY_DSN` directly; `from_environ`
+DEP-05). Host / `uv run workhold` uses `SENTRY_DSN` directly; `from_environ`
 on the host does not read `SENTRY_DSN_FILE`.
 
 For each allowlisted name, `NAME` and `NAME_FILE` are exclusive: startup fails closed

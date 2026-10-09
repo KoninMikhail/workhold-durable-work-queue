@@ -2,7 +2,7 @@
 
 **Status:** Accepted architecture; numeric defaults locked by Phase 3.9 QUAL-03.
 
-queue-service rejects work before opening a write transaction when that is possible. Hard
+workhold rejects work before opening a write transaction when that is possible. Hard
 deployment ceilings protect PostgreSQL; softer per-queue quotas may
 be versioned runtime policy.
 
@@ -53,7 +53,7 @@ Add only after metrics exist:
 - replay-rate and batch limits;
 - overload hysteresis.
 
-Overload progression: warning → enqueue throttle → readiness failure. queue-service
+Overload progression: warning → enqueue throttle → readiness failure. workhold
 never acknowledges locally when PostgreSQL cannot commit.
 
 ## Implementation constraints

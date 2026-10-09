@@ -19,10 +19,10 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 
-from queue_service import db, settings
+from workhold import db, settings
 
 # Under test — remapped from plan storage/postgres → infrastructure/postgres.
-from queue_service.infrastructure.postgres import registry_retention
+from workhold.infrastructure.postgres import registry_retention
 
 UTC = timezone.utc
 
@@ -379,7 +379,7 @@ def test_modules_forbid_advisory_locks_and_engine_creation() -> None:
 
 
 def test_no_alternate_admin_registry_model_or_migration() -> None:
-    models_src = Path("src/queue_service/storage/models.py").read_text(encoding="utf-8")
+    models_src = Path("src/workhold/storage/models.py").read_text(encoding="utf-8")
     assert models_src.count('__tablename__ = "admin_replay"') == 1
     assert "admin_replay_alt" not in models_src
     assert "AdminReplayAlt" not in models_src

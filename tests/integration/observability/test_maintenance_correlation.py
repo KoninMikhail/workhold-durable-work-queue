@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from queue_service.observability import context as obs_context
-from queue_service.observability import retention as retention_obs
+from workhold.observability import context as obs_context
+from workhold.observability import retention as retention_obs
 
 
 def test_maintenance_events_project_through_shared_allowlist() -> None:

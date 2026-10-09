@@ -11,7 +11,7 @@ import pytest
 from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.domain.queue_control import (
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
@@ -19,10 +19,10 @@ from queue_service.domain.queue_control import (
     QueueState,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.storage.models import AdminAuditLog, Queue, QueuePolicyVersion
+from workhold.storage.models import AdminAuditLog, Queue, QueuePolicyVersion
 
 
 @pytest.fixture

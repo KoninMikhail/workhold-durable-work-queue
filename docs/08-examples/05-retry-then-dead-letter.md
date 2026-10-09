@@ -4,7 +4,7 @@
 
 **Who:** the worker reports failure_code; named queue policy bounds attempts.
 
-**What queue-service stores:** attempt history, delayed availability, then dead letter
+**What workhold stores:** attempt history, delayed availability, then dead letter
 on exhaustion or disabled retry.
 
 **What is idempotent in the app:** a repeated effect on at-least-once reclaim.

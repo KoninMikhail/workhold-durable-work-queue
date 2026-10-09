@@ -1,6 +1,6 @@
 # Multi-replica concurrency
 
-The queue-service API, workers, and delivery relays may have several replicas. PostgreSQL is
+The workhold API, workers, and delivery relays may have several replicas. PostgreSQL is
 the serialization point; process-local locks are never correctness
 mechanisms.
 
@@ -14,7 +14,7 @@ The claim transaction:
 2. among **eligible** candidates (the due gate is already applied) orders by scheduling
    policy: **`priority` DESC**, then **`available_at` ASC**, then **`id` ASC**;
 3. locks candidates without waiting for already locked rows;
-4. updates one candidate with a new claim token, generation, queue-service-store `claimed_at`,
+4. updates one candidate with a new claim token, generation, workhold store `claimed_at`,
    a diagnostic `worker_id`, and lease expiry;
 5. adjusts counters: `delayed→leased` or `ready→leased`, then
    `leased_count +1`;
@@ -25,7 +25,7 @@ A suitable PostgreSQL implementation is `FOR UPDATE SKIP LOCKED`, usually in one
 short `UPDATE ... FROM (...) RETURNING`. The normative serialization contract and
 the exact SQL are Phase 3 storage decisions.
 
-**Direct due claim:** when queue-service-store time reaches `available_at`, a task in
+**Direct due claim:** when workhold store time reaches `available_at`, a task in
 `delayed` is claimable without a promotion job or an intermediate `ready` transition.
 Retry-scheduled work (a retryable fail or lease expiry with a positive
 `retry_delay_seconds`) stays in `delayed` until `available_at`; once due, it
@@ -50,20 +50,20 @@ may **starve**. That is the expected behavior of static priority without fairnes
 - A task has at most one current claim.
 - Each claim and reclaim uses a new opaque token.
 - A monotonically increasing generation identifies the attempt.
-- queue-service-store time, not the worker, decides expiry and due eligibility.
-- Heartbeat resets expiry from the current queue-service-store time; it does not add to
+- workhold store time, not the worker, decides expiry and due eligibility.
+- Heartbeat resets expiry from the current workhold store time; it does not add to
   the old deadline.
 - Heartbeat, complete, and fail match task, token, generation, and the active lease.
 - `worker_id` comes from the authenticated caller identity or an explicitly validated
   worker-instance identifier; it is not derived from an arbitrary payload.
 - Worker identity is diagnostic metadata only and does not authorize a mutation.
 
-The token fences queue-service state. A stale worker can still call an
+The token fences workhold state. A stale worker can still call an
 external system after losing the lease, so external idempotency is mandatory.
 
 ## Complete transaction
 
-In one queue-service transaction:
+In one workhold transaction:
 
 1. lock and validate the current unexpired claim;
 2. validate the terminal request fingerprint;
@@ -80,7 +80,7 @@ a different body is rejected. Uncertain API outcomes therefore cannot create
 duplicate spawns or events.
 
 Spawn `available_at` follows the same bounded scheduling policy as producer
-enqueue (aware RFC 3339, queue-service-store horizon, `delayed`/`ready` persistence).
+enqueue (aware RFC 3339, workhold store horizon, `delayed`/`ready` persistence).
 
 ## Retry and dead-letter transition
 
@@ -112,7 +112,7 @@ or idempotency handles the duplicate.
 | --- | --- |
 | API dies before or after the enqueue commit | No task, or one task on idempotent retry |
 | Worker dies after claim | The lease expires; another attempt may claim |
-| Stale worker complete after reclaim | Rejected; no duplicate queue-service transition |
+| Stale worker complete after reclaim | Rejected; no duplicate workhold transition |
 | API dies after the complete commit | The same claim/body returns the original result |
 | Two replicas complete one claim | One commit; the other sees replay/conflict |
 | Relay dies after publish, before acknowledgement | The event may be published again |

@@ -16,9 +16,9 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from queue_service.storage.models import EnqueueDedup, Queue, QueueCounter, TaskActive
-from queue_service_producer.bridge.postgres_store import PostgresOutboxMapping, PostgresOutboxStore
-from queue_service_producer.bridge.runner import BridgeRunner
+from workhold.storage.models import EnqueueDedup, Queue, QueueCounter, TaskActive
+from workhold_producer.bridge.postgres_store import PostgresOutboxMapping, PostgresOutboxStore
+from workhold_producer.bridge.runner import BridgeRunner
 from tests.conformance.bridge.fixtures import BridgeWorld, read_intent_row
 
 pytest_plugins = ["tests.integration.conftest"]

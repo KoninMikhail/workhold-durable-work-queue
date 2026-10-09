@@ -21,13 +21,13 @@ import pytest
 from sqlalchemy import create_engine, event, func, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.delivery.models import (
+from workhold.delivery.models import (
     STATE_DEAD_LETTERED,
     STATE_PENDING,
     STATE_PUBLISHED,
     STATE_PUBLISHING,
 )
-from queue_service.delivery.relay import (
+from workhold.delivery.relay import (
     DeliveryDisposition,
     DeliveryResult,
     DeliveryTransport,
@@ -35,17 +35,17 @@ from queue_service.delivery.relay import (
     RelayService,
     TransportReadiness,
 )
-from queue_service.health import DAILY_RANGE_PARENTS
-from queue_service.infrastructure.postgres.maintenance import run_storage_maintenance
-from queue_service.observability.metrics import ALLOWED_LABEL_KEYS, KernelMetrics
-from queue_service.observability.retention import RetentionWindow
-from queue_service.operations.stats import build_stats_snapshot
-from queue_service.security.payload_policy import PayloadRetentionPolicy
-from queue_service.storage.models import DeliveryEventActive
+from workhold.health import DAILY_RANGE_PARENTS
+from workhold.infrastructure.postgres.maintenance import run_storage_maintenance
+from workhold.observability.metrics import ALLOWED_LABEL_KEYS, KernelMetrics
+from workhold.observability.retention import RetentionWindow
+from workhold.operations.stats import build_stats_snapshot
+from workhold.security.payload_policy import PayloadRetentionPolicy
+from workhold.storage.models import DeliveryEventActive
 
 # Under test — RED until modules exist.
-from queue_service.delivery import telemetry as delivery_telemetry
-from queue_service.maintenance import delivery_retention
+from workhold.delivery import telemetry as delivery_telemetry
+from workhold.maintenance import delivery_retention
 
 UTC = timezone.utc
 RELAY_ID = "relay-obs-01"
@@ -315,7 +315,7 @@ def test_metric_labels_stay_within_allowlist_and_exclude_ids() -> None:
 def test_correlation_redacts_payload_token_credentials_and_url_query(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    logger = logging.getLogger("queue_service.delivery.telemetry.test")
+    logger = logging.getLogger("workhold.delivery.telemetry.test")
     projected = delivery_telemetry.project_delivery_correlation(
         {
             "event_id": str(uuid.uuid4()),
@@ -423,7 +423,7 @@ def test_relay_instruments_readiness_backpressure_claim_publish_and_outcomes(
             log_records.append(record.getMessage())
 
     capture = _Capture()
-    tel_logger = logging.getLogger("queue_service.delivery.telemetry.ack_test")
+    tel_logger = logging.getLogger("workhold.delivery.telemetry.ack_test")
     tel_logger.handlers.clear()
     tel_logger.addHandler(capture)
     tel_logger.setLevel(logging.INFO)
@@ -610,8 +610,8 @@ def test_relay_instruments_claim_error_and_fenced_ack_rejection(
     session_factory: sessionmaker[Session],
 ) -> None:
     """Plan AC: claim error → record_claim(error); fence reject → record_ack(rejected)."""
-    from queue_service.delivery.repository import DeliveryEventRepository
-    from queue_service.domain.queue_control import DomainValidationError
+    from workhold.delivery.repository import DeliveryEventRepository
+    from workhold.domain.queue_control import DomainValidationError
 
     metrics = KernelMetrics(process_role="relay")
     tel = delivery_telemetry.DeliveryTelemetry(metrics=metrics)
@@ -743,8 +743,8 @@ def test_published_purge_failure_fails_storage_maintenance_report(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Maintain must not report succeeded after a failed 30d published purge."""
-    import queue_service.maintenance.delivery_retention as dr
-    from queue_service.maintenance.delivery_retention import PublishedPurgeResult
+    import workhold.maintenance.delivery_retention as dr
+    from workhold.maintenance.delivery_retention import PublishedPurgeResult
 
     def _failing_purge(connection: Any, **kwargs: Any) -> PublishedPurgeResult:
         del connection, kwargs
@@ -1089,8 +1089,8 @@ def test_partition_detach_uses_dead_letter_window_and_reports_bounds(
 
 
 def test_retention_health_windows_include_delivery_policies() -> None:
-    from queue_service.infrastructure.postgres.maintenance import StorageMaintenanceReport
-    from queue_service.observability import retention as retention_obs
+    from workhold.infrastructure.postgres.maintenance import StorageMaintenanceReport
+    from workhold.observability import retention as retention_obs
 
     now = datetime(2026, 9, 19, 12, 0, 0, tzinfo=UTC)
     report = StorageMaintenanceReport(

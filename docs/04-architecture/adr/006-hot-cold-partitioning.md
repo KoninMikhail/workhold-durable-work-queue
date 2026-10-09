@@ -6,7 +6,7 @@
 
 ## Context
 
-queue-service can produce about a million tasks per day and retain data for
+workhold can produce about a million tasks per day and retain data for
 30–90 days. Time-partitioning mutable task rows would force claim to scan old
 partitions, complicate global uniqueness, and move rows on state change. A
 bulk DELETE of the entire history would add extra vacuum pressure and bloat.
@@ -15,7 +15,7 @@ bulk DELETE of the entire history would add extra vacuum pressure and bloat.
 
 Active tasks and pending delivery events stay outside time partitions.
 Attempts, terminal tasks, and terminal delivery events use daily UTC RANGE
-partitions on immutable queue-service-store timestamps. queue-service-owned
+partitions on immutable workhold store timestamps. workhold-owned
 maintenance creates partitions ahead of time and detaches or drops expired
 ones. Correctness registries stay unpartitioned or use fixed HASH partitioning
 on the full unique key.

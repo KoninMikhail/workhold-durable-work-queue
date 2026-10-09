@@ -7,14 +7,14 @@ import random
 
 import pytest
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     LeaseLostError,
     ProtocolError,
     RequestCancelledError,
     TransportError,
 )
-from _queue_service_client_core.models import ErrorCode, ProtocolErrorBody
-from _queue_service_client_core.retry import (
+from _workhold_client_core.models import ErrorCode, ProtocolErrorBody
+from _workhold_client_core.retry import (
     RETRY_CLASS_NEVER,
     RETRY_CLASS_SAFE_READ,
     RETRY_CLASS_SAME_IDEMPOTENCY_KEY,

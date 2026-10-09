@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from queue_service.observability import context as obs_context
-from queue_service.operations import routine as routine_ops
+from workhold.observability import context as obs_context
+from workhold.operations import routine as routine_ops
 
 _DENIED_KEYS = ("payload", "claim_token", "dsn", "sql")
 
@@ -124,7 +124,7 @@ def test_emit_correlation_writes_allowlisted_fields_to_logs(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """OPS-08: projected correlation must appear in structured log records."""
-    logger = logging.getLogger("queue_service.observability.context.emit_test")
+    logger = logging.getLogger("workhold.observability.context.emit_test")
     projected = routine_ops.project_routine_admin_correlation(
         operation="runMaintenance",
         request_id="req-emit",
@@ -167,7 +167,7 @@ def test_emit_correlation_writes_allowlisted_fields_to_logs(
 
 def test_emit_correlation_sets_span_attributes_when_span_present() -> None:
     """OPS-08: same projected dict is attached to trace span attributes."""
-    logger = logging.getLogger("queue_service.observability.context.span_test")
+    logger = logging.getLogger("workhold.observability.context.span_test")
     logger.addHandler(logging.NullHandler())
     span = MagicMock()
     projected = routine_ops.project_routine_admin_correlation(
@@ -205,7 +205,7 @@ def test_handler_emit_helpers_project_and_log_outcomes(
 ) -> None:
     """Drain/maintenance outcome helper must emit allowlisted keys for all results."""
     logger = logging.getLogger(
-        "queue_service.tests.routine_admin_correlation.emit_outcomes"
+        "workhold.tests.routine_admin_correlation.emit_outcomes"
     )
     logger.handlers.clear()
     logger.propagate = True

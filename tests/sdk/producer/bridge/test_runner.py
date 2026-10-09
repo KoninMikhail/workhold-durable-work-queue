@@ -14,29 +14,29 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from queue_service_producer.bridge.idempotency import bridge_idempotency_key
-from queue_service_producer.bridge.store import (
+from workhold_producer.bridge.idempotency import bridge_idempotency_key
+from workhold_producer.bridge.store import (
     AppStoreHealthSnapshot,
     BoundedPendingDepth,
     OldestPendingSnapshot,
     OutboxIntent,
 )
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     AuthenticationError,
     MalformedResponseError,
     ProtocolError,
     TimeoutError as ClientTimeoutError,
     TransportError,
 )
-from _queue_service_client_core.models import (
+from _workhold_client_core.models import (
     EnqueueResponse,
     ErrorCode,
     ProtocolErrorBody,
     Task,
     TaskState,
 )
-from queue_service_producer.client import ProducerClient, _AVAILABLE_AT_OMITTED
-from _queue_service_client_core.transport import HttpJsonTransport
+from workhold_producer.client import ProducerClient, _AVAILABLE_AT_OMITTED
+from _workhold_client_core.transport import HttpJsonTransport
 
 
 # ---------------------------------------------------------------------------
@@ -423,7 +423,7 @@ class RecordingSleep:
 
 
 def _runner_cls():
-    from queue_service_producer.bridge.runner import BridgeRunner
+    from workhold_producer.bridge.runner import BridgeRunner
 
     return BridgeRunner
 
@@ -483,7 +483,7 @@ def test_default_without_live_fetcher_blocks_poll() -> None:
 
 
 def test_for_tests_static_snapshot_allows_poll() -> None:
-    from queue_service_producer.bridge.compatibility import SUPPORTED_CAPABILITIES
+    from workhold_producer.bridge.compatibility import SUPPORTED_CAPABILITIES
 
     store = FakeStore()
     store.seed(_intent())
@@ -971,7 +971,7 @@ def test_logs_omit_payload_credentials_source_id_and_idempotency_key(
         [EnqueueResponse(task=_task(task_id="public-task"), replayed=False)],
         store=store,
     )
-    logger = logging.getLogger("queue_service_producer.bridge.runner.test")
+    logger = logging.getLogger("workhold_producer.bridge.runner.test")
     runner = _make_runner(store, producer, logger=logger)
 
     with caplog.at_level(logging.DEBUG, logger=logger.name):
@@ -988,7 +988,7 @@ def test_logs_omit_payload_credentials_source_id_and_idempotency_key(
 
 
 def test_bridge_runner_exported_from_bridge_package() -> None:
-    from queue_service_producer.bridge import BridgeRunner
+    from workhold_producer.bridge import BridgeRunner
 
     assert BridgeRunner is _runner_cls()
 

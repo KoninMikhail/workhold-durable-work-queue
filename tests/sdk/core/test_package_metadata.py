@@ -56,17 +56,17 @@ def _top_level(wheel: Path) -> set[str]:
 @pytest.fixture(scope="module")
 def core_wheel() -> Path:
     DIST_DIR.mkdir(exist_ok=True)
-    for stale in DIST_DIR.glob("queue_service_client_core-*.whl"):
+    for stale in DIST_DIR.glob("workhold_client_core-*.whl"):
         stale.unlink()
-    for stale in DIST_DIR.glob("queue-service-client-core-*.whl"):
+    for stale in DIST_DIR.glob("workhold-client-core-*.whl"):
         stale.unlink()
-    _run(["uv", "build", "--package", "queue-service-client-core", "--out-dir", str(DIST_DIR)])
-    return _latest_wheel("queue_service_client_core")
+    _run(["uv", "build", "--package", "workhold-client-core", "--out-dir", str(DIST_DIR)])
+    return _latest_wheel("workhold_client_core")
 
 
 def test_core_wheel_name_and_no_runtime_dependencies(core_wheel: Path) -> None:
     meta = _metadata(core_wheel)
-    assert meta.get("Name") == "queue-service-client-core"
+    assert meta.get("Name") == "workhold-client-core"
     requires = meta.get_all("Requires-Dist") or []
     pure: list[str] = []
     for req in requires:
@@ -78,8 +78,8 @@ def test_core_wheel_name_and_no_runtime_dependencies(core_wheel: Path) -> None:
 
 def test_core_wheel_contains_private_core_and_public_testkit(core_wheel: Path) -> None:
     tops = _top_level(core_wheel)
-    assert tops == {"_queue_service_client_core", "queue_service_client_testing"}
-    assert "queue_service" not in tops
+    assert tops == {"_workhold_client_core", "workhold_client_testing"}
+    assert "workhold" not in tops
     assert "queue_service_client" not in tops
-    assert "queue_service_producer" not in tops
-    assert "queue_service_admin" not in tops
+    assert "workhold_producer" not in tops
+    assert "workhold_admin" not in tops

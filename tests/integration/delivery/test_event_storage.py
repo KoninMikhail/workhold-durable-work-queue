@@ -20,19 +20,19 @@ from sqlalchemy import create_engine, event, func, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.application import create_application_app
-from queue_service.api.schemas.terminal import (
+from workhold.api.application import create_application_app
+from workhold.api.schemas.terminal import (
     CompleteCommand,
     SpawnCommand,
     compute_complete_fingerprint,
     parse_complete_command,
 )
-from queue_service.api.security import ListenerBind
-from queue_service.application.claim_service import ClaimService
-from queue_service.application.completion import CompletionFaultHooks, CompletionService
-from queue_service.application.lease_service import LeaseService
-from queue_service.delivery.cloudevents import CloudEventInput
-from queue_service.delivery.models import (
+from workhold.api.security import ListenerBind
+from workhold.application.claim_service import ClaimService
+from workhold.application.completion import CompletionFaultHooks, CompletionService
+from workhold.application.lease_service import LeaseService
+from workhold.delivery.cloudevents import CloudEventInput
+from workhold.delivery.models import (
     EFFECT_KIND_EVENT,
     STATE_DEAD_LETTERED,
     STATE_PENDING,
@@ -42,27 +42,27 @@ from queue_service.delivery.models import (
     TERMINAL_OUTCOME_DEAD_LETTERED,
     TERMINAL_OUTCOME_PUBLISHED,
 )
-from queue_service.delivery.repository import DeliveryEventRepository
-from queue_service.domain.queue_control import (
+from workhold.delivery.repository import DeliveryEventRepository
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     DomainValidationError,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.depth import DepthCeilings
-from queue_service.intake.service import EnqueueService
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.intake.depth import DepthCeilings
+from workhold.intake.service import EnqueueService
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
-from queue_service.storage.models import (
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
+from workhold.storage.models import (
     ClaimRegistry,
     CompleteReplay,
     CompletionEffect,

@@ -4,7 +4,7 @@
 
 A reliable-publication pattern: the event is saved in the same transaction as the state change, and only then sent to an external channel (a broker, HTTP, another service).
 
-The base pattern of this service. How it maps onto queue-service is at the end. The table schema and a specific broker are not defined here.
+The base pattern of this service. How it maps onto workhold is at the end. The table schema and a specific broker are not defined here.
 
 ## What problem it solves
 
@@ -55,16 +55,16 @@ sequenceDiagram
 | A retry after a relay failure — the message is not lost because the publisher crashed | Idempotency on the consumer side — that is the [inbox](11-inbox.md) |
 | | The choice of broker and the shape of the record |
 
-## In queue-service
+## In workhold
 
-The Delivery Outbox lives in the **queue-service** store next to task state. On complete, the original task and outbound events are recorded in one queue-service transaction; a separate delivery relay publishes events after commit.
+The Delivery Outbox lives in the **workhold** store next to task state. On complete, the original task and outbound events are recorded in one workhold transaction; a separate delivery relay publishes events after commit.
 
 New follow-up tasks (`spawn[]`) can also be created in the complete transaction, but they are Work Queue entities, not outbox records. This split is recorded in [ADR 003](../04-architecture/adr/003-separate-spawns-and-events.md).
 
 | The application | How |
 | --- | --- |
-| Has no DB of its own | Enqueue directly. queue-service guarantees atomicity of its own records, but not of business state that does not exist |
-| Has a business DB | App-local outbox and a bridge to idempotent enqueue. The business change and the intent are atomic in the app DB; delivery into queue-service is eventual. See [ADR 004](../04-architecture/adr/004-app-local-outbox-bridge.md) |
+| Has no DB of its own | Enqueue directly. workhold guarantees atomicity of its own records, but not of business state that does not exist |
+| Has a business DB | App-local outbox and a bridge to idempotent enqueue. The business change and the intent are atomic in the app DB; delivery into workhold is eventual. See [ADR 004](../04-architecture/adr/004-app-local-outbox-bridge.md) |
 
 How the Delivery Outbox is structured in the product, who sends HTTP, and how to separate two recipients — [12-delivery-outbox.md](12-delivery-outbox.md).
 

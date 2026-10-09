@@ -4,7 +4,7 @@
 
 **Who:** an application with a business transaction and a bridge.
 
-**What queue-service stores:** one task per outbox row through a deterministic
+**What workhold stores:** one task per outbox row through a deterministic
 idempotency key; enqueue is eventual.
 
 **What is idempotent in the app:** mark delivered outbox only after durable enqueue.
@@ -12,19 +12,19 @@ idempotency key; enqueue is eventual.
 ## Install
 
 ```bash
-pip install "queue-service-producer[bridge-postgres]"
-pip install "queue-service-producer[async]"   # optional
+pip install "workhold-producer[bridge-postgres]"
+pip install "workhold-producer[async]"   # optional
 ```
 
-Base `queue-service-producer` is enough if you inject your own PEP 249 factory
+Base `workhold-producer` is enough if you inject your own PEP 249 factory
 without the documented Postgres driver extra.
 
 ## Imports
 
 ```python
-from queue_service_producer import ProducerClient
-from queue_service_producer.bridge import BridgeRunner
-from queue_service_producer.bridge.postgres_store import PostgresOutboxStore
+from workhold_producer import ProducerClient
+from workhold_producer.bridge import BridgeRunner
+from workhold_producer.bridge.postgres_store import PostgresOutboxStore
 ```
 
 Use a **producer** bearer token only. Bridge calls OpenAPI

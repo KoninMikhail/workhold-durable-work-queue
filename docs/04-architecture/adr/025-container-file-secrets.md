@@ -14,7 +14,7 @@ the secret surface without need. Image roles are already fixed by ADR 015.
 ## Decision
 
 Only the runtime `docker/entrypoint.sh` materializes **allowlisted** secrets from
-a sibling `NAME_FILE` into `NAME` before `exec queue`. Host and `uv run queue` use
+a sibling `NAME_FILE` into `NAME` before `exec workhold`. Host and `uv run workhold` use
 `NAME` only. `NAME` and `NAME_FILE` are exclusive: both set, missing, unreadable,
 empty, or a non-absolute path fails closed. Allowlist: `DATABASE_URL`,
 `QUEUE_API_BEARER_TOKEN`, `QUEUE_API_BEARER_TOKEN_PREVIOUS`, `SENTRY_DSN`.

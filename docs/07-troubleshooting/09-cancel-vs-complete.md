@@ -23,7 +23,7 @@ Cancellation never creates `spawn[]` or `events[]`.
 
 On heartbeat the worker sees that cancellation was requested and must stop
 cooperatively: do not start a new external effect, and confirm `ack_cancel`.
-queue-service does not kill the process itself.
+workhold does not kill the process itself.
 
 The race is who was recorded first:
 
@@ -50,7 +50,7 @@ winner. A retry with a *different* body cannot overturn the outcome.
    key), not spawn from the complete that lost.
 3. Worker: on a heartbeat that carries cancel, send `ack_cancel`, not complete
    "I almost finished". If the effect already went outside, use idempotency
-   plus compensation in the application; queue-service will not spawn from a
+   plus compensation in the application; workhold will not spawn from a
    cancellation.
 4. Producer: delayed/ready is cancelled immediately; for leased, wait for the
    ack or for expiry. An HTTP cancel is not an instant stop of the external

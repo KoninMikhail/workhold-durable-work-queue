@@ -2,14 +2,14 @@
 
 Entry point for AI agents.
 
-**Product:** Workhold - Durable work queue. Runtime/package: `queue-service` / `queue_service`.
+**Product:** Workhold - Durable work queue. Runtime/package: `workhold`.
 
 1. Read `docs/_ai/README.md` and the Memory Bank files in order.
 2. Follow `.cursor/rules/` (Graphify, roles, workflow, docs).
 3. Sources of product truth — `docs/01-concepts/07-product-boundary.md`,
-   `09-guarantees.md` and `docs/04-architecture/`. Workhold (`queue-service`) — per-app durable Work Queue:
+   `09-guarantees.md` and `docs/04-architecture/`. Workhold — per-app durable Work Queue:
    named queues, fenced leases, distinct `spawn[]` tasks and Delivery Outbox
-   `events[]`. queue-service always owns its PostgreSQL; a client business DB
+   `events[]`. workhold always owns its PostgreSQL; a client business DB
    is optional. App with business DB uses app-local outbox bridge. Do not promise
    exactly-once or a distributed transaction. `docs/03-reference/03-formats.md`,
    `04-storage.md`, `05-http-api.md` — superseded proposals, not an implementation contract.

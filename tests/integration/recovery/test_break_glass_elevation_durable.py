@@ -15,19 +15,19 @@ import pytest
 from sqlalchemy import create_engine, event, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.domain.queue_control import (
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     DomainValidationError,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.operations.break_glass import BreakGlassAck, raise_replay_limit
-from queue_service.operations.bulk import BulkReplayRateGate, DurableReplayElevation
-from queue_service.storage.models import BreakGlassElevation
+from workhold.operations.break_glass import BreakGlassAck, raise_replay_limit
+from workhold.operations.bulk import BulkReplayRateGate, DurableReplayElevation
+from workhold.storage.models import BreakGlassElevation
 
 pytest_plugins = ["tests.integration.conftest"]
 

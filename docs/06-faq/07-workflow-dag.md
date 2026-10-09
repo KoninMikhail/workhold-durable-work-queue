@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [FAQ](README.md) › **Workflow / DAG**
 
-**In short.** No. queue-service is a durable work queue with competing
+**In short.** No. workhold is a durable work queue with competing
 workers, not a process orchestrator. There are no joins, compensation, human
 tasks, or a built-in DAG model. `spawn[]` creates the next independent
 piece of work, but it does not "wait for all children".
@@ -10,7 +10,7 @@ piece of work, but it does not "wait for all children".
 ## What the queue can do that an orchestrator cannot
 
 An orchestrator holds a graph: step B waits for A and C, rolls back
-with compensation on error, and a human approves a step. queue-service does not model that.
+with compensation on error, and a human approves a step. workhold does not model that.
 
 What exists:
 

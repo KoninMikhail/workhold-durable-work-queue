@@ -1,6 +1,6 @@
 # Workhold - Durable work queue
 
-Workhold (`queue-service`) is a durable Work Queue next to the application, not a platform-wide bus.
+Workhold is a durable Work Queue next to the application, not a platform-wide bus.
 
 Reading order is section order, then file numbers. Product semantics and architecture decisions are accepted; the physical API, storage, and operations are derived from them phase by phase.
 

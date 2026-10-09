@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from queue_service import settings
-from queue_service.security import payload_policy
-from queue_service.security import redaction
-from queue_service.security.payload_policy import (
+from workhold import settings
+from workhold.security import payload_policy
+from workhold.security import redaction
+from workhold.security.payload_policy import (
     PayloadIndexingRejected,
     PayloadRetentionPolicy,
     PayloadView,
@@ -281,5 +281,5 @@ def test_phase_32_does_not_delete_or_detach_payload_rows() -> None:
     # Explicit handoff name for Phase 3.8 consumers.
     assert (
         f"{PayloadRetentionPolicy.__module__}.{PayloadRetentionPolicy.__qualname__}"
-        == "queue_service.security.payload_policy.PayloadRetentionPolicy"
+        == "workhold.security.payload_policy.PayloadRetentionPolicy"
     )

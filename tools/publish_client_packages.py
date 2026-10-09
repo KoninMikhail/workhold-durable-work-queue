@@ -28,7 +28,8 @@ def _packages() -> list[str]:
     if not isinstance(packages, list) or not packages:
         raise PublishError("release-packages.json pypi_packages must be a non-empty list")
     names = [str(item) for item in packages]
-    if "queue-client" in names or "queue_client" in names:
+    legacy = {"queue-client", "queue_client", "queue-service-client", "queue_service_client"}
+    if legacy.intersection(names):
         raise PublishError("refusing to publish a legacy queue-client distribution")
     return names
 

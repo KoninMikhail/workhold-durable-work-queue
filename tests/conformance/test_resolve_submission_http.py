@@ -20,28 +20,28 @@ import pytest
 from sqlalchemy import create_engine, event, select, text, update
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.api.application import create_application_app
-from queue_service.api.security import ListenerBind
-from queue_service.domain.queue_control import (
+from workhold.api.application import create_application_app
+from workhold.api.security import ListenerBind
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.depth import DepthCeilings
-from queue_service.intake.repository import EnqueueRepository
-from queue_service.intake.service import EnqueueService
-from queue_service.security.authorization import Authorizer
-from queue_service.security.credentials import (
+from workhold.intake.depth import DepthCeilings
+from workhold.intake.repository import EnqueueRepository
+from workhold.intake.service import EnqueueService
+from workhold.security.authorization import Authorizer
+from workhold.security.credentials import (
     BearerCredentialAuthenticator,
     CredentialBinding,
 )
-from queue_service.security.principals import ServiceRole
-from queue_service.settings import Secret
-from queue_service.storage.models import EnqueueDedup, Queue
+from workhold.security.principals import ServiceRole
+from workhold.settings import Secret
+from workhold.storage.models import EnqueueDedup, Queue
 from tests.conformance.harness import ConformanceHarness, ObservedResponse
 
 pytest_plugins = ["tests.integration.conftest"]

@@ -12,10 +12,10 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import pytest
 
-from _queue_service_client_core.errors import ProtocolError
-from _queue_service_client_core.transport import HttpJsonTransport
-from queue_service_admin import AdminClient, ObserverClient
-from queue_service_admin.pagination import (
+from _workhold_client_core.errors import ProtocolError
+from _workhold_client_core.transport import HttpJsonTransport
+from workhold_admin import AdminClient, ObserverClient
+from workhold_admin.pagination import (
     bounded_item_iterator,
     bounded_page_iterator,
     iter_admin_audit_pages,

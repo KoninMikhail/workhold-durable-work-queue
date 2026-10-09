@@ -8,8 +8,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from queue_service.db import psycopg_connect_timeout_seconds
-from queue_service.infrastructure.postgres.claim_wakeup import (
+from workhold.db import psycopg_connect_timeout_seconds
+from workhold.infrastructure.postgres.claim_wakeup import (
     ClaimWakeListener,
     ListenerHealth,
     QueueGenerationCoordinator,
@@ -33,7 +33,7 @@ def test_default_connect_passes_bounded_timeout(monkeypatch: pytest.MonkeyPatch)
         return fake_conn
 
     monkeypatch.setattr(
-        "queue_service.infrastructure.postgres.claim_wakeup.psycopg.connect",
+        "workhold.infrastructure.postgres.claim_wakeup.psycopg.connect",
         fake_connect,
     )
     coordinator = QueueGenerationCoordinator()
@@ -70,7 +70,7 @@ def test_reconnect_default_connect_keeps_timeout_and_stop_is_prompt(
         return fake_conn
 
     monkeypatch.setattr(
-        "queue_service.infrastructure.postgres.claim_wakeup.psycopg.connect",
+        "workhold.infrastructure.postgres.claim_wakeup.psycopg.connect",
         fake_connect,
     )
     coordinator = QueueGenerationCoordinator()

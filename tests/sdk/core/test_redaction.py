@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from _queue_service_client_core.redaction import (
+from _workhold_client_core.redaction import (
     REDACTED,
     redact_headers,
     redact_text,

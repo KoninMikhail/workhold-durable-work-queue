@@ -7,16 +7,16 @@ from datetime import UTC, datetime
 
 import pytest
 
-from queue_service import db, settings
-from queue_service.application.claim_long_poll import (
+from workhold import db, settings
+from workhold.application.claim_long_poll import (
     ClaimAttemptBatch,
     ClaimLongPollService,
     ClaimWaitAborted,
     WaiterAdmission,
 )
-from queue_service.infrastructure.postgres.claim_wakeup import QueueGenerationCoordinator
-from queue_service.intake.contracts import IntakeValidationError
-from queue_service.observability import metrics as metrics_mod
+from workhold.infrastructure.postgres.claim_wakeup import QueueGenerationCoordinator
+from workhold.intake.contracts import IntakeValidationError
+from workhold.observability import metrics as metrics_mod
 from tests.fixtures.claim_long_poll import (
     FORBIDDEN_DIAGNOSTIC_SUBSTRINGS,
     WAVE0_SCENARIO_IDS,

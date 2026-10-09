@@ -15,8 +15,8 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.errors import LeaseLostError, ProtocolError
-from _queue_service_client_core.models import (
+from _workhold_client_core.errors import LeaseLostError, ProtocolError
+from _workhold_client_core.models import (
     ClaimSummary,
     ErrorCode,
     HeartbeatResult,
@@ -24,9 +24,9 @@ from _queue_service_client_core.models import (
     Task,
     TaskState,
 )
-from _queue_service_client_core.transport import TransportResponse
-from queue_service_consumer.client import Claim, ConsumerClient
-from queue_service_consumer.supervisor import (
+from _workhold_client_core.transport import TransportResponse
+from workhold_consumer.client import Claim, ConsumerClient
+from workhold_consumer.supervisor import (
     HEARTBEAT_JITTER_RATIO,
     CancellationToken,
     ConsumerSupervisor,
@@ -207,7 +207,7 @@ class FakeConsumerClient:
                 if cancellation is not None:
                     is_set = getattr(cancellation, "is_set", None)
                     if callable(is_set) and is_set():
-                        from _queue_service_client_core.errors import RequestCancelledError
+                        from _workhold_client_core.errors import RequestCancelledError
 
                         raise RequestCancelledError()
                 time.sleep(0.01)
@@ -836,7 +836,7 @@ def test_grace_expiry_stops_heartbeats_without_forced_terminals() -> None:
     hold.set()
 
 def _enabled_caps(**overrides: object) -> Any:
-    from _queue_service_client_core.capabilities import Capabilities
+    from _workhold_client_core.capabilities import Capabilities
 
     body: dict[str, object] = {
         "protocol_major": 1,
@@ -895,7 +895,7 @@ def test_supervisor_default_wait_capped_when_max_wait_lower() -> None:
 
 
 def test_supervisor_defaults_to_15_after_capability_preflight() -> None:
-    from queue_service_consumer.supervisor import DEFAULT_WAIT_SECONDS
+    from workhold_consumer.supervisor import DEFAULT_WAIT_SECONDS
 
     caps = _enabled_caps()
     consumer = FakeConsumerClient(capabilities=caps)

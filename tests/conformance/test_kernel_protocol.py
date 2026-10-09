@@ -12,7 +12,7 @@ from typing import Any
 
 import pytest
 
-from queue_service.domain.queue_control import QueueState
+from workhold.domain.queue_control import QueueState
 from tests.conformance.clients import OperationResult, build_client
 from tests.conformance.conftest import (
     FOREIGN_TOKEN,

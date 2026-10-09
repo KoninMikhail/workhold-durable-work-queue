@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.codecs import (
+from _workhold_client_core.codecs import (
     PayloadDecodeError,
     TypedClaimView,
     TypedTaskView,
@@ -16,9 +16,9 @@ from _queue_service_client_core.codecs import (
     encode_payload,
     measure_json_bytes,
 )
-from _queue_service_client_core.models import Task, TaskState
-from queue_service_consumer import ConsumerClient
-from queue_service_producer import ProducerClient
+from _workhold_client_core.models import Task, TaskState
+from workhold_consumer import ConsumerClient
+from workhold_producer import ProducerClient
 
 
 @dataclass(frozen=True, slots=True)

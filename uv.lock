@@ -4,11 +4,11 @@ requires-python = ">=3.13"
 
 [manifest]
 members = [
-    "queue-service",
-    "queue-service-admin",
-    "queue-service-client-core",
-    "queue-service-consumer",
-    "queue-service-producer",
+    "workhold",
+    "workhold-admin",
+    "workhold-client-core",
+    "workhold-consumer",
+    "workhold-producer",
 ]
 
 [[package]]
@@ -324,117 +324,6 @@ wheels = [
 ]
 
 [[package]]
-name = "queue-service"
-version = "1.0.0"
-source = { editable = "." }
-dependencies = [
-    { name = "alembic" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "sentry-sdk" },
-    { name = "sqlalchemy" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "httpx" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.20.0" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.3.5" },
-    { name = "sentry-sdk", specifier = ">=2.69.2,<3" },
-    { name = "sqlalchemy", specifier = ">=2.0.54" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "httpx", specifier = ">=0.28.0" },
-    { name = "pytest", specifier = ">=8" },
-    { name = "pytest-asyncio", specifier = ">=0.25" },
-]
-
-[[package]]
-name = "queue-service-admin"
-version = "1.0.0"
-source = { editable = "packages/queue-service-admin" }
-dependencies = [
-    { name = "queue-service-client-core" },
-]
-
-[package.optional-dependencies]
-async = [
-    { name = "queue-service-client-core", extra = ["async"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "queue-service-client-core", editable = "packages/queue-service-client-core" },
-    { name = "queue-service-client-core", extras = ["async"], marker = "extra == 'async'", editable = "packages/queue-service-client-core" },
-]
-provides-extras = ["async"]
-
-[[package]]
-name = "queue-service-client-core"
-version = "1.0.0"
-source = { editable = "packages/queue-service-client-core" }
-
-[package.optional-dependencies]
-async = [
-    { name = "httpx" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "httpx", marker = "extra == 'async'", specifier = ">=0.28" }]
-provides-extras = ["async"]
-
-[[package]]
-name = "queue-service-consumer"
-version = "1.0.0"
-source = { editable = "packages/queue-service-consumer" }
-dependencies = [
-    { name = "queue-service-client-core" },
-]
-
-[package.optional-dependencies]
-async = [
-    { name = "queue-service-client-core", extra = ["async"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "queue-service-client-core", editable = "packages/queue-service-client-core" },
-    { name = "queue-service-client-core", extras = ["async"], marker = "extra == 'async'", editable = "packages/queue-service-client-core" },
-]
-provides-extras = ["async"]
-
-[[package]]
-name = "queue-service-producer"
-version = "1.0.0"
-source = { editable = "packages/queue-service-producer" }
-dependencies = [
-    { name = "queue-service-client-core" },
-]
-
-[package.optional-dependencies]
-async = [
-    { name = "queue-service-client-core", extra = ["async"] },
-]
-bridge-postgres = [
-    { name = "psycopg", extra = ["binary"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "psycopg", extras = ["binary"], marker = "extra == 'bridge-postgres'", specifier = ">=3.3.5" },
-    { name = "queue-service-client-core", editable = "packages/queue-service-client-core" },
-    { name = "queue-service-client-core", extras = ["async"], marker = "extra == 'async'", editable = "packages/queue-service-client-core" },
-]
-provides-extras = ["bridge-postgres", "async"]
-
-[[package]]
 name = "sentry-sdk"
 version = "2.69.2"
 source = { registry = "https://pypi.org/simple" }
@@ -507,3 +396,114 @@ sdist = { url = "https://files.pythonhosted.org/packages/e3/05/b17359e1cefb4f909
 wheels = [
     { url = "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl", hash = "sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3", size = 135717, upload-time = "2026-09-15T19:29:34.577Z" },
 ]
+
+[[package]]
+name = "workhold"
+version = "1.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "alembic" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "sentry-sdk" },
+    { name = "sqlalchemy" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "httpx" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.20.0" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.3.5" },
+    { name = "sentry-sdk", specifier = ">=2.69.2,<3" },
+    { name = "sqlalchemy", specifier = ">=2.0.54" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "httpx", specifier = ">=0.28.0" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-asyncio", specifier = ">=0.25" },
+]
+
+[[package]]
+name = "workhold-admin"
+version = "1.0.0"
+source = { editable = "packages/workhold-admin" }
+dependencies = [
+    { name = "workhold-client-core" },
+]
+
+[package.optional-dependencies]
+async = [
+    { name = "workhold-client-core", extra = ["async"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "workhold-client-core", editable = "packages/workhold-client-core" },
+    { name = "workhold-client-core", extras = ["async"], marker = "extra == 'async'", editable = "packages/workhold-client-core" },
+]
+provides-extras = ["async"]
+
+[[package]]
+name = "workhold-client-core"
+version = "1.0.0"
+source = { editable = "packages/workhold-client-core" }
+
+[package.optional-dependencies]
+async = [
+    { name = "httpx" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "httpx", marker = "extra == 'async'", specifier = ">=0.28" }]
+provides-extras = ["async"]
+
+[[package]]
+name = "workhold-consumer"
+version = "1.0.0"
+source = { editable = "packages/workhold-consumer" }
+dependencies = [
+    { name = "workhold-client-core" },
+]
+
+[package.optional-dependencies]
+async = [
+    { name = "workhold-client-core", extra = ["async"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "workhold-client-core", editable = "packages/workhold-client-core" },
+    { name = "workhold-client-core", extras = ["async"], marker = "extra == 'async'", editable = "packages/workhold-client-core" },
+]
+provides-extras = ["async"]
+
+[[package]]
+name = "workhold-producer"
+version = "1.0.0"
+source = { editable = "packages/workhold-producer" }
+dependencies = [
+    { name = "workhold-client-core" },
+]
+
+[package.optional-dependencies]
+async = [
+    { name = "workhold-client-core", extra = ["async"] },
+]
+bridge-postgres = [
+    { name = "psycopg", extra = ["binary"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "psycopg", extras = ["binary"], marker = "extra == 'bridge-postgres'", specifier = ">=3.3.5" },
+    { name = "workhold-client-core", editable = "packages/workhold-client-core" },
+    { name = "workhold-client-core", extras = ["async"], marker = "extra == 'async'", editable = "packages/workhold-client-core" },
+]
+provides-extras = ["bridge-postgres", "async"]

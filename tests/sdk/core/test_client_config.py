@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from _queue_service_client_core.config import ClientConfig
-from _queue_service_client_core.transport import HttpJsonTransport
+from _workhold_client_core.config import ClientConfig
+from _workhold_client_core.transport import HttpJsonTransport
 
 
 def test_public_base_url_is_normalized() -> None:
@@ -70,7 +70,7 @@ def test_missing_public_base_url_is_rejected() -> None:
         ClientConfig.for_public("")
 
 def test_long_poll_budgets_are_wait_plus_slack() -> None:
-    from _queue_service_client_core.config import (
+    from _workhold_client_core.config import (
         long_poll_read_timeout_s,
         long_poll_total_timeout_s,
     )

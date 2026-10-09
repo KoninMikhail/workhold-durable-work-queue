@@ -27,7 +27,7 @@ Your personal rules:
 
 ### Technologies and project agreements
 
-- Product: **Workhold - Durable work queue** (runtime/package: `queue-service` / `queue_service`)
-- Stack: Python 3.13, `uv`, package `queue_service` — see `docs/_ai/tech-stack.md`
+- Product: **Workhold - Durable work queue** (runtime/package: `workhold`)
+- Stack: Python 3.13, `uv`, package `workhold` — see `docs/_ai/tech-stack.md`
 - Architecture: not fixed — see `docs/_ai/architecture.md`
 - Conventions: Graphify, Docker (`Dockerfile`, `docker-compose.dev.yml`), `.cursor/rules/`

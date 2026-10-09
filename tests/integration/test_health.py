@@ -12,7 +12,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
-from queue_service import db, health, settings
+from workhold import db, health, settings
 
 # Helpers live in the integration conftest; import lazily where needed so
 # collection does not depend on package layout quirks.

@@ -6,7 +6,7 @@
 
 ## Context
 
-queue-service needs API, migration, partition maintenance, and later a delivery relay role.
+workhold needs API, migration, partition maintenance, and later a delivery relay role.
 Separate images multiply release coordination; one process that runs every role
 couples scaling, readiness, and failure domains.
 

@@ -1,10 +1,10 @@
 # Codebase map
 
-Product: **Workhold - Durable work queue**. Runtime package: `queue_service`.
+Product: **Workhold - Durable work queue**. Runtime package: `workhold`.
 
 ```
 .
-├── src/queue_service/          # import package (not stdlib queue)
+├── src/workhold/          # import package (not stdlib queue)
 │   ├── admission/              # hard ceilings / depth gates
 │   ├── api/                    # pure ASGI apps, v1 + admin routes
 │   ├── application/            # lease, inspection, expiry services
@@ -20,10 +20,10 @@ Product: **Workhold - Durable work queue**. Runtime package: `queue_service`.
 │   ├── storage/                # SQLAlchemy models
 │   └── db.py                   # Base / metadata
 ├── packages/
-│   ├── queue-service-client-core/   # _queue_service_client_core + queue_service_client_testing
-│   ├── queue-service-producer/      # queue_service_producer (+ bridge)
-│   ├── queue-service-consumer/      # queue_service_consumer
-│   ├── queue-service-admin/         # queue_service_admin
+│   ├── workhold-client-core/   # _workhold_client_core + workhold_client_testing
+│   ├── workhold-producer/      # workhold_producer (+ bridge)
+│   ├── workhold-consumer/      # workhold_consumer
+│   ├── workhold-admin/         # workhold_admin
 │   └── client-operation-ownership.json
 ├── alembic/                    # migrations
 ├── openapi/                    # queue.openapi.json
@@ -34,7 +34,7 @@ Product: **Workhold - Durable work queue**. Runtime package: `queue_service`.
 │   └── 04-architecture/schemas/# JSON Schema companions (incl. named-queue-catalog)
 ├── graphify-out/               # local knowledge graph, gitignored
 ├── Dockerfile
-├── docker/entrypoint.sh        # *_FILE → NAME then exec queue
+├── docker/entrypoint.sh        # *_FILE → NAME then exec workhold
 ├── docker-compose.dev.yml      # profiles maintain|relay|apply; see 02-deployment.md
 ├── .github/workflows/          # ci.yml and release-please release.yml
 ├── release-please-config.json  # Conventional Commits → changelog and tags
@@ -42,10 +42,10 @@ Product: **Workhold - Durable work queue**. Runtime package: `queue_service`.
 └── CHANGELOG.md                # written by release-please
 ```
 
-For a typical new module, look at the neighboring package under `src/queue_service/`
+For a typical new module, look at the neighboring package under `src/workhold/`
 (for example `intake/` for enqueue, `delivery/` for relay). Client APIs are
-role packages under `packages/queue-service-{producer,consumer,admin}/`
-(shared core: `_queue_service_client_core`). The `queue-client` /
+role packages under `packages/workhold-{producer,consumer,admin}/`
+(shared core: `_workhold_client_core`). The `queue-client` /
 `queue_service_client` prototype has been removed.
 
 Break-glass: delivery ops `forceDeliveryReclaim` / `forceDeliveryDeadLetter` in

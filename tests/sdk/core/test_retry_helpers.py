@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     AuthenticationError,
     LeaseLostError,
     ProtocolError,
@@ -20,8 +20,8 @@ from _queue_service_client_core.errors import (
     TimeoutError,
     TransportError,
 )
-from _queue_service_client_core.models import ErrorCode, ProtocolErrorBody
-from _queue_service_client_core.retry import (
+from _workhold_client_core.models import ErrorCode, ProtocolErrorBody
+from _workhold_client_core.retry import (
     RETRY_CLASS_NEVER,
     RETRY_CLASS_SAFE_READ,
     RETRY_CLASS_SAME_IDEMPOTENCY_KEY,
@@ -63,7 +63,7 @@ def _protocol(
 
 def test_bundled_manifest_loads_without_monorepo_path() -> None:
     ref = (
-        files("_queue_service_client_core")
+        files("_workhold_client_core")
         / "data"
         / "client-operation-ownership.json"
     )
@@ -75,7 +75,7 @@ def test_bundled_manifest_loads_without_monorepo_path() -> None:
 
 
 def test_wheel_includes_ownership_manifest(tmp_path: Path) -> None:
-    pkg_root = ROOT / "packages" / "queue-service-client-core"
+    pkg_root = ROOT / "packages" / "workhold-client-core"
     out_dir = tmp_path / "dist"
     subprocess.run(
         ["uv", "build", "--wheel", "-o", str(out_dir)],
@@ -83,7 +83,7 @@ def test_wheel_includes_ownership_manifest(tmp_path: Path) -> None:
         check=True,
         capture_output=True,
     )
-    wheel = next(out_dir.glob("queue_service_client_core-*.whl"))
+    wheel = next(out_dir.glob("workhold_client_core-*.whl"))
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
         bundled = next(

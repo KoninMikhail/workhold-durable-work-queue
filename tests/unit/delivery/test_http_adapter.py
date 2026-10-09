@@ -17,14 +17,14 @@ from uuid import uuid4
 
 import pytest
 
-from queue_service.delivery.cloudevents import CLOUDEVENTS_JSON_MEDIA_TYPE
-from queue_service.delivery.relay import DeliveryDisposition
-from queue_service.delivery.repository import ClaimedDeliveryEvent
-from queue_service.delivery.transports.http import (
+from workhold.delivery.cloudevents import CLOUDEVENTS_JSON_MEDIA_TYPE
+from workhold.delivery.relay import DeliveryDisposition
+from workhold.delivery.repository import ClaimedDeliveryEvent
+from workhold.delivery.transports.http import (
     HttpDeliveryConfig,
     HttpDeliveryTransport,
 )
-from queue_service.settings import EnvironmentMode, Secret
+from workhold.settings import EnvironmentMode, Secret
 
 
 class _SinkHandler(BaseHTTPRequestHandler):

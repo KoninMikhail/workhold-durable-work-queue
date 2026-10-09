@@ -35,7 +35,7 @@ def _to_psycopg_conninfo(url: str) -> str:
 
 @pytest.fixture(scope="module")
 def psycopg_mod():
-    """psycopg is a *test* dependency of the repo; queue-service-producer must not import it."""
+    """psycopg is a *test* dependency of the repo; workhold-producer must not import it."""
     import psycopg
 
     return psycopg
@@ -113,7 +113,7 @@ def _connection_factory(psycopg_mod, conninfo: str):
 
 
 def _make_store(psycopg_mod, schema: str, table: str, conninfo: str):
-    from queue_service_producer.bridge.postgres_store import (
+    from workhold_producer.bridge.postgres_store import (
         PostgresOutboxMapping,
         PostgresOutboxStore,
     )
@@ -219,13 +219,13 @@ def test_postgres_store_module_does_not_import_db_driver() -> None:
 
     # Ensure a clean import path observation for the adapter module.
     for name in list(sys.modules):
-        if name == "queue_service_producer.bridge.postgres_store" or name.startswith(
-            "queue_service_producer.bridge.postgres_store."
+        if name == "workhold_producer.bridge.postgres_store" or name.startswith(
+            "workhold_producer.bridge.postgres_store."
         ):
             del sys.modules[name]
 
     before = {k for k in sys.modules if k == "psycopg" or k.startswith("psycopg.")}
-    importlib.import_module("queue_service_producer.bridge.postgres_store")
+    importlib.import_module("workhold_producer.bridge.postgres_store")
     after = {k for k in sys.modules if k == "psycopg" or k.startswith("psycopg.")}
     assert after == before, "PostgresOutboxStore must not import a database driver"
 
@@ -240,7 +240,7 @@ def test_producer_base_import_stays_driver_free() -> None:
         if name == "psycopg" or name.startswith("psycopg."):
             # Allow other tests to have imported psycopg; re-check via source.
             break
-    src = importlib.import_module("queue_service_producer.bridge.postgres_store")
+    src = importlib.import_module("workhold_producer.bridge.postgres_store")
     text = open(src.__file__, encoding="utf-8").read()  # noqa: PTH123
     assert "import psycopg" not in text
     assert "from psycopg" not in text
@@ -251,7 +251,7 @@ def test_producer_base_import_stays_driver_free() -> None:
     pyproject = (
         Path(__file__).resolve().parents[4]
         / "packages"
-        / "queue-service-producer"
+        / "workhold-producer"
         / "pyproject.toml"
     )
     data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
@@ -262,7 +262,7 @@ def test_producer_base_import_stays_driver_free() -> None:
 
 
 def test_unsafe_mapping_identifiers_rejected(psycopg_mod, app_outbox_schema) -> None:
-    from queue_service_producer.bridge.postgres_store import (
+    from workhold_producer.bridge.postgres_store import (
         PostgresOutboxMapping,
         PostgresOutboxStore,
     )
@@ -539,7 +539,7 @@ def test_health_snapshot_empty_store(psycopg_mod, app_outbox_schema) -> None:
 
 
 def test_health_snapshot_unavailable_store(psycopg_mod, app_outbox_schema) -> None:
-    from queue_service_producer.bridge.postgres_store import (
+    from workhold_producer.bridge.postgres_store import (
         PostgresOutboxMapping,
         PostgresOutboxStore,
     )
@@ -582,7 +582,7 @@ def test_depth_cap_must_be_positive(psycopg_mod, app_outbox_schema) -> None:
 def test_missing_claim_or_deliver_column_fail_at_startup(
     psycopg_mod, app_outbox_schema, missing_column: str
 ) -> None:
-    from queue_service_producer.bridge.postgres_store import (
+    from workhold_producer.bridge.postgres_store import (
         PostgresOutboxMapping,
         PostgresOutboxStore,
     )
@@ -633,7 +633,7 @@ def test_missing_claim_or_deliver_column_fail_at_startup(
 def test_missing_required_columns_fail_at_startup(
     psycopg_mod, app_outbox_schema
 ) -> None:
-    from queue_service_producer.bridge.postgres_store import (
+    from workhold_producer.bridge.postgres_store import (
         PostgresOutboxMapping,
         PostgresOutboxStore,
     )
@@ -662,7 +662,7 @@ def test_missing_required_columns_fail_at_startup(
 
 
 def test_protocol_exports_expected_surface() -> None:
-    from queue_service_producer.bridge import store as store_mod
+    from workhold_producer.bridge import store as store_mod
 
     assert hasattr(store_mod, "OutboxStore")
     assert hasattr(store_mod, "OutboxIntent")

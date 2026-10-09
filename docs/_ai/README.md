@@ -1,7 +1,7 @@
 # Memory Bank
 
 Compressed repository context for an agent. Product: **Workhold - Durable work queue**
-(runtime/package: `queue-service` / `queue_service`). Read it before a task, in this order.
+(runtime/package: `workhold`). Read it before a task, in this order.
 
 | # | File | When to read |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Compressed repository context for an agent. Product: **Workhold - Durable work q
 | --- | --- |
 | Reading path (≈15 min) | [../00-onboarding/01-reading-path.md](../00-onboarding/01-reading-path.md) |
 | Why the service exists, v1 | [../01-concepts/01-overview.md](../01-concepts/01-overview.md) |
-| Why queue-service rather than a broker | [../01-concepts/02-why-queue.md](../01-concepts/02-why-queue.md) |
+| Why workhold rather than a broker | [../01-concepts/02-why-queue.md](../01-concepts/02-why-queue.md) |
 | How it works | [../01-concepts/03-how-it-works.md](../01-concepts/03-how-it-works.md) |
 | Product boundary and terms | [product boundary](../01-concepts/07-product-boundary.md), [glossary](../01-concepts/06-glossary.md), [named queue](../01-concepts/04-named-queues.md), [follow-up / spawn](../01-concepts/05-follow-up.md) |
 | Guarantees and use cases | [guarantees](../01-concepts/09-guarantees.md), [use cases](../01-concepts/08-use-cases.md) |

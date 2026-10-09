@@ -126,7 +126,7 @@ def load_manifest(path: Path) -> dict[str, Any]:
 def _http_role_grants() -> dict[str, frozenset[str]]:
     """Map ServiceRole.name → frozenset of HTTP operationId strings."""
     # Import lazily so the CLI works without editable install edge-cases.
-    from queue_service.security.authorization import (  # noqa: PLC0415
+    from workhold.security.authorization import (  # noqa: PLC0415
         Operation,
         ROLE_OPERATION_GRANTS,
     )

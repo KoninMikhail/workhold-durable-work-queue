@@ -15,7 +15,7 @@ relay retries the same event.
 The event path:
 
 1. On complete the worker submits `events[]`. Pending delivery outbox rows
-   appear in the queue-service transaction. That is an intention, not a
+   appear in the workhold transaction. That is an intention, not a
    publication.
 2. The `relay` role claims pending rows with its own lease.
 3. The relay does an HTTP POST to the one webhook of the deployment.
@@ -37,7 +37,7 @@ separate from the Work Queue task dead letter.
 
 ## What to do
 
-Downstream **must** deduplicate on the stable `id` that queue-service assigns
+Downstream **must** deduplicate on the stable `id` that workhold assigns
 (not a client uuid from `data`).
 
 The classic pattern is an inbox on the consumer:
@@ -62,7 +62,7 @@ two events: [15-events-to-two-services.md](../06-faq/15-events-to-two-services.m
 | Deduplicate by time, payload, or "similar data" | Unstable; two different events can be merged |
 | Blame the relay for the second POST | That is how at-least-once works |
 | Turn off relay retries "so there are no duplicates" | Delivery is lost on a crash after a timeout |
-| Expect exactly-once from queue-service | The product does not promise that |
+| Expect exactly-once from workhold | The product does not promise that |
 
 How the inbox works: [11-inbox.md](../01-concepts/11-inbox.md).
 Why there is no exactly-once: [05-exactly-once.md](../06-faq/05-exactly-once.md).

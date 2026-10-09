@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://workhold.local/schemas/queue/service-principal-manifest.schema.json",
   "title": "ServicePrincipalManifest",
-  "description": "Deployment-issued HTTP bearer principals for one queue-service instance. The whole document is secret.",
+  "description": "Deployment-issued HTTP bearer principals for one workhold instance. The whole document is secret.",
   "type": "object",
   "additionalProperties": false,
   "required": [

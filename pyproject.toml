@@ -1,5 +1,5 @@
 [project]
-name = "queue_service"
+name = "workhold"
 version = "1.0.0"
 description = "Workhold - Durable work queue"
 authors = [
@@ -15,14 +15,14 @@ dependencies = [
 ]
 
 [project.scripts]
-queue = "queue_service.cli:run"
+workhold = "workhold.cli:run"
 
 [build-system]
 requires = ["uv_build>=0.11.30,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-name = "queue_service"
+module-name = "workhold"
 
 [dependency-groups]
 dev = [
@@ -33,10 +33,10 @@ dev = [
 
 [tool.uv.workspace]
 members = [
-    "packages/queue-service-client-core",
-    "packages/queue-service-producer",
-    "packages/queue-service-consumer",
-    "packages/queue-service-admin",
+    "packages/workhold-client-core",
+    "packages/workhold-producer",
+    "packages/workhold-consumer",
+    "packages/workhold-admin",
 ]
 
 [tool.pytest.ini_options]

@@ -5,7 +5,7 @@ import re
 from alembic import context
 from sqlalchemy import engine_from_config, pool, text
 
-from queue_service.db import Base
+from workhold.db import Base
 
 config = context.config
 

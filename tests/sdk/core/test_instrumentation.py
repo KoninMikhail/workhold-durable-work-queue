@@ -7,19 +7,19 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.errors import (
+from _workhold_client_core.errors import (
     LeaseLostError,
     ProtocolError,
     RequestCancelledError,
     TimeoutError as ClientTimeoutError,
     TransportError,
 )
-from _queue_service_client_core.instrumentation import (
+from _workhold_client_core.instrumentation import (
     OperationEvent,
     SyncInstrumentation,
 )
-from _queue_service_client_core.models import ErrorCode, ProtocolErrorBody
-from _queue_service_client_core.transport import (
+from _workhold_client_core.models import ErrorCode, ProtocolErrorBody
+from _workhold_client_core.transport import (
     TransportResponse,
     request_with_instrumentation,
 )

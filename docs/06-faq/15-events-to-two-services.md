@@ -23,7 +23,7 @@ them after commit. It is not an HTTP proxy and not an address book.
 ## These are notifications: "X and Y must learn"
 
 Put two CloudEvents into `events[]`, with a **different** `type` (and their own `data`).
-Each event has its own `id`, which queue-service assigns. The inbox at X
+Each event has its own `id`, which workhold assigns. The inbox at X
 and the inbox at Y are independent: a retry of one event does not count as a retry of the other.
 
 ```mermaid
@@ -62,7 +62,7 @@ the same thing. If billing and the notifier must survive a retry independently
 
 ### Two queue deploys are not the answer
 
-Do not stand up a second queue-service instance "so that each one has its own
+Do not stand up a second workhold instance "so that each one has its own
 webhook". An instance belongs to one trust boundary of the application. Two
 instances are already two products, or a forbidden attempt to make a bus.
 

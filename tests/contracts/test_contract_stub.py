@@ -180,7 +180,7 @@ def stub_process() -> subprocess.Popen[str]:
         creationflags = subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
 
     proc = subprocess.Popen(
-        [sys.executable, "-m", "queue_service.contract_stub"],
+        [sys.executable, "-m", "workhold.contract_stub"],
         cwd=str(ROOT),
         env=env,
         stdout=subprocess.PIPE,
@@ -319,7 +319,7 @@ def test_conformance_compose_topology() -> None:
 
     assert "target: dev" in text
     assert "8080:8080" in text
-    assert "queue_service.contract_stub" in text
+    assert "workhold.contract_stub" in text
     assert "DATABASE_URL" in text
     assert "@conformance-postgres:" in text or "@conformance-postgres/" in text
     assert "condition: service_healthy" in text

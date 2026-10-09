@@ -13,7 +13,7 @@ business database, and follow-up tasks are not ordinary outbox events.
 
 ## Decision
 
-queue-service is first a PostgreSQL-backed durable competing-consumer work queue,
+workhold is first a PostgreSQL-backed durable competing-consumer work queue,
 deployed per application. Transactional outbox is a separate delivery capability
 and an integration pattern, not the name of task processing itself.
 
@@ -27,7 +27,7 @@ and an integration pattern, not the name of task processing itself.
 
 ## Consequences
 
-**Positive:** Product guarantees match what queue-service PostgreSQL controls;
+**Positive:** Product guarantees match what workhold PostgreSQL controls;
 parser v1 fields stay outside the model.
 
 **Negative / trade-offs:** Outbound delivery and app-database integration

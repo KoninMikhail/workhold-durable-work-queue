@@ -19,37 +19,37 @@ from sqlalchemy import create_engine, event, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from queue_service.admission.adaptive import (
+from workhold.admission.adaptive import (
     AdaptivePressureConfig,
     AdaptivePressureController,
     OverloadMode,
 )
-from queue_service.admission.enqueue import (
+from workhold.admission.enqueue import (
     HARD_INSTANCE_ENQUEUE_RPS_CEILING,
     HARD_QUEUE_ENQUEUE_RPS_CEILING,
     AdaptiveEnqueueConfig,
     AdaptiveEnqueueGate,
 )
-from queue_service.application.claim_service import ClaimService
-from queue_service.domain.queue_control import (
+from workhold.application.claim_service import ClaimService
+from workhold.domain.queue_control import (
     AdminRequestMetadata,
     BackoffStrategy,
     CreateQueueMutation,
     RetryPolicyDraft,
 )
-from queue_service.health import ReasonCode, check_readiness
-from queue_service.infrastructure.postgres.queue_control_repository import (
+from workhold.health import ReasonCode, check_readiness
+from workhold.infrastructure.postgres.queue_control_repository import (
     QueueControlRepository,
 )
-from queue_service.intake.contracts import IntakeValidationError
-from queue_service.intake.service import EnqueueService
-from queue_service.observability.pressure import (
+from workhold.intake.contracts import IntakeValidationError
+from workhold.intake.service import EnqueueService
+from workhold.observability.pressure import (
     Freshness,
     PressureSnapshot,
     build_snapshot,
     unavailable_snapshot,
 )
-from queue_service.storage.models import Queue
+from workhold.storage.models import Queue
 
 
 @pytest.fixture

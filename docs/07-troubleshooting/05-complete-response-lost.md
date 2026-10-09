@@ -13,7 +13,7 @@ not have arrived.
 
 ## Why
 
-In one queue-service transaction:
+In one workhold transaction:
 
 1. the original task → succeeded;
 2. `spawn[]` → new tasks;
@@ -24,7 +24,7 @@ Then the API writes the response. If the process dies between steps 1–4 and
 the response, the client sees an error and the store sees success.
 
 A retry of *the same* terminal command with *the same* claim and *the same*
-body does not create a second spawn and second events: queue-service returns
+body does not create a second spawn and second events: workhold returns
 the stored result.
 
 ## What to do

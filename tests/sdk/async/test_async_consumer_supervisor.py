@@ -15,8 +15,8 @@ from typing import Any
 
 import pytest
 
-from _queue_service_client_core.errors import LeaseLostError, ProtocolError
-from _queue_service_client_core.models import (
+from _workhold_client_core.errors import LeaseLostError, ProtocolError
+from _workhold_client_core.models import (
     ClaimSummary,
     ErrorCode,
     HeartbeatResult,
@@ -24,13 +24,13 @@ from _queue_service_client_core.models import (
     Task,
     TaskState,
 )
-from _queue_service_client_core.transport import TransportResponse
-from queue_service_consumer.async_client import AsyncClaim, AsyncConsumerClient
-from queue_service_consumer.async_supervisor import (
+from _workhold_client_core.transport import TransportResponse
+from workhold_consumer.async_client import AsyncClaim, AsyncConsumerClient
+from workhold_consumer.async_supervisor import (
     AsyncCancellationToken,
     AsyncConsumerSupervisor,
 )
-from queue_service_consumer.supervisor import (
+from workhold_consumer.supervisor import (
     HEARTBEAT_JITTER_RATIO,
     HandlerErrorEvent,
     LeaseLostEvent,
@@ -881,7 +881,7 @@ async def test_callbacks_contain_no_claim_token_or_payload() -> None:
 
 
 def _enabled_caps(**overrides: object) -> Any:
-    from _queue_service_client_core.capabilities import Capabilities
+    from _workhold_client_core.capabilities import Capabilities
 
     body: dict[str, object] = {
         "protocol_major": 1,
@@ -941,7 +941,7 @@ async def test_supervisor_default_wait_capped_when_max_wait_lower() -> None:
 
 
 async def test_supervisor_defaults_to_15_after_capability_preflight() -> None:
-    from queue_service_consumer.supervisor import DEFAULT_WAIT_SECONDS
+    from workhold_consumer.supervisor import DEFAULT_WAIT_SECONDS
 
     caps = _enabled_caps()
     consumer = FakeAsyncConsumerClient(capabilities=caps)
