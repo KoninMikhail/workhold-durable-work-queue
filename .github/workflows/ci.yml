@@ -25,35 +25,27 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          ref: ${{ github.head_ref }}
 
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.13"
           enable-cache: true
 
-      - name: Align coordinated versions
-        env:
-          RELEASE_PLEASE_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+      - name: Require coordinated versions
         run: |
           set -euo pipefail
           uv run python tools/sync_coordinated_version.py
-          git add -u -- pyproject.toml src/workhold/__init__.py packages
-          if git diff --cached --quiet; then
-            echo "versions already coordinated"
-            exit 0
-          fi
-          echo "Coordinated version files differ from the root version."
-          git diff --cached
-          if [ -z "${RELEASE_PLEASE_TOKEN}" ]; then
-            echo "Commit the diff, or set RELEASE_PLEASE_TOKEN so this job can push it."
+          if ! git diff --quiet -- pyproject.toml src/workhold/__init__.py packages; then
+            echo "Coordinated version files differ from the root version."
+            git diff -- pyproject.toml src/workhold/__init__.py packages
+            echo "Release Please should have updated these files on the release branch."
             exit 1
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(release): sync coordinated version files"
-          git push "https://x-access-token:${RELEASE_PLEASE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${GITHUB_HEAD_REF}"
+          if ! uv lock --check; then
+            echo "uv.lock does not match the release version."
+            echo "The Release workflow should have committed the refreshed lockfile."
+            exit 1
+          fi
 
   test:
     name: Test

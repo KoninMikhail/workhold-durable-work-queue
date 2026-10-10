@@ -37,6 +37,10 @@ FORBIDDEN_DISTRIBUTIONS = frozenset(
     {"queue-client", "queue_client", "queue-service-client", "queue_service_client"}
 )
 _PY_VERSION_RE = re.compile(r'^__version__\s*=\s*"([^"]+)"', re.MULTILINE)
+_RELEASE_PLEASE_VERSION_MARKER = re.compile(
+    r'^__version__\s*=\s*"[^"]+"\s+#\s*x-release-please-version\s*$',
+    re.MULTILINE,
+)
 _CORE_REQUIREMENT_RE = re.compile(
     r"^workhold-client-core"
     r"(?P<extras>\[[A-Za-z0-9_,.-]+\])?"
@@ -286,9 +290,21 @@ def _assert_ci_atomic_publish_shape() -> None:
     package_config = config["packages"]["."]
     extra = package_config["extra-files"]
     extra_paths = [item["path"] for item in extra]
-    expected_extra = ["pyproject.toml", *version_files]
+    expected_extra = ["pyproject.toml", *version_files, *version_modules]
     if extra_paths != expected_extra:
         raise GateError(f"release-please extra-files drifted: {extra_paths!r}")
+    version_module_set = set(version_modules)
+    for item in extra:
+        path = item["path"]
+        if path not in version_module_set:
+            continue
+        if item.get("type") != "generic":
+            raise GateError(
+                f"release-please extra-file {path} must use the generic updater"
+            )
+        text = (REPO_ROOT / path).read_text(encoding="utf-8")
+        if _RELEASE_PLEASE_VERSION_MARKER.search(text) is None:
+            raise GateError(f"{path} must mark __version__ with x-release-please-version")
     initial_version = package_config.get("initial-version") or config.get("initial-version")
     if initial_version != "1.0.0":
         raise GateError(

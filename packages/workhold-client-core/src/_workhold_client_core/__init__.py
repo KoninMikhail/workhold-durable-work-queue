@@ -61,7 +61,7 @@ from _workhold_client_core.transport import (
     encode_path_segment,
 )
 
-__version__ = "1.0.2"
+__version__ = "1.0.2"  # x-release-please-version
 
 __all__ = [
     "AckCancelResult",
