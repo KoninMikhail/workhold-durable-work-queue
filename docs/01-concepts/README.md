@@ -9,7 +9,7 @@ Start with the [reading path](../00-onboarding/01-reading-path.md) (~15 minutes)
 | # | File | About |
 | --- | --- | --- |
 | 1 | [01-overview.md](01-overview.md) | Why Workhold exists, how it is delivered, how it differs from v1 |
-| 2 | [02-why-queue.md](02-why-queue.md) | Comparison with RabbitMQ and Kafka; when they complement / compete |
+| 2 | [02-why-queue.md](02-why-queue.md) | Comparison with RabbitMQ, Kafka, and Temporal; when to use each model |
 | 3 | [03-how-it-works.md](03-how-it-works.md) | End-to-end lifecycle enqueue → claim → complete / spawn / events |
 | 4 | [04-named-queues.md](04-named-queues.md) | Named queue: the name of a task stream inside an instance |
 | 5 | [05-follow-up.md](05-follow-up.md) | Follow-up / spawn: the next task on complete, not a subtask |

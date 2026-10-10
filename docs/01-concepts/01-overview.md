@@ -36,6 +36,7 @@ flowchart LR
 | --- | --- | --- |
 | Kafka | The same events go to many readers, log replay | **One** worker takes the work |
 | RabbitMQ | A message lands in a queue and someone takes it | Closer, but the broker does not hold a fenced lease and cannot atomically `complete + spawn[] + events[]` |
+| Temporal | A durable workflow coordinates Activities through Event History and replay | An independent task is claimed and completed; there is no workflow replay, join, or durable process state |
 
 If Kafka or RabbitMQ is still needed, they take an already prepared outbound delivery event — and they do not replace the work queue.
 
