@@ -17,7 +17,7 @@ The reading path is ≈15 minutes — in [reading-path.md](../00-onboarding/01-r
 | 4 | Does the application need its own database? | [04-application-db.md](04-application-db.md) |
 | 5 | Is there exactly-once? | [05-exactly-once.md](05-exactly-once.md) |
 | 6 | Does Workhold store the business result? | [06-business-result.md](06-business-result.md) |
-| 7 | Is this a workflow/DAG engine? | [07-workflow-dag.md](07-workflow-dag.md) |
+| 7 | Is this Temporal or a workflow/DAG engine? | [07-workflow-dag.md](07-workflow-dag.md) |
 | 8 | What is a follow-up / spawn? | [08-what-is-follow-up.md](08-what-is-follow-up.md) |
 | 9 | How does `spawn[]` differ from `events[]`? | [09-spawn-vs-events.md](09-spawn-vs-events.md) |
 | 10 | How does `pause` differ from `drain`? | [10-pause-vs-drain.md](10-pause-vs-drain.md) |

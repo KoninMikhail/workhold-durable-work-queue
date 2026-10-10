@@ -60,7 +60,7 @@ Commands, schema, and architecture contracts: [03-reference](03-reference/01-com
 | Topic | Page |
 | --- | --- |
 | End-to-end lifecycle | [03-how-it-works.md](01-concepts/03-how-it-works.md) |
-| How this differs from a broker | [02-why-queue.md](01-concepts/02-why-queue.md) |
+| How this differs from brokers and Temporal | [02-why-queue.md](01-concepts/02-why-queue.md) |
 | What the product promises | [07-product-boundary.md](01-concepts/07-product-boundary.md), [09-guarantees.md](01-concepts/09-guarantees.md) |
 
 The root [README.md](../README.md) is the repository landing page.

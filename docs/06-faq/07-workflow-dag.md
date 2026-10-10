@@ -1,16 +1,30 @@
-# Is this a workflow or DAG engine?
+# Is this Temporal or a workflow/DAG engine?
 
 [Documentation](../README.md) › [FAQ](README.md) › **Workflow / DAG**
 
 **In short.** No. workhold is a durable work queue with competing
-workers, not a process orchestrator. There are no joins, compensation, human
-tasks, or a built-in DAG model. `spawn[]` creates the next independent
-piece of work, but it does not "wait for all children".
+workers, not a process orchestrator such as Temporal. There are no workflow
+replay, joins, compensation, human tasks, or a built-in DAG model. `spawn[]`
+creates the next independent piece of work, but it does not "wait for all
+children".
 
-## What the queue can do that an orchestrator cannot
+## Different units of durability
 
-An orchestrator holds a graph: step B waits for A and C, rolls back
-with compensation on error, and a human approves a step. workhold does not model that.
+Workhold durably owns an independent task: its queue state, fenced lease,
+attempts, and terminal outcome. Temporal durably owns a Workflow Execution:
+its Event History is replayed to reconstruct workflow state, while Activities
+perform external I/O.
+
+| | workhold | Temporal |
+| --- | --- | --- |
+| Durable unit | Independent queue task | Workflow Execution |
+| Worker code | Ordinary handler for a claimed payload | Deterministic workflow code plus Activities |
+| Coordination | Independent `spawn[]` follow-ups | Timers, signals, child workflows, waits, and multi-step control flow |
+| Recovery | Lease expiry and another claim | Event History and workflow replay |
+| External effects | At-least-once worker execution; require idempotency | Activities may execute more than once; require idempotency |
+
+An orchestrator can hold a graph: step B waits for A and C, compensates after
+an error, or waits for a human decision. workhold does not model that.
 
 What exists:
 
@@ -39,7 +53,7 @@ depend on two independent steps, the application writes that join
 | --- | --- |
 | The next unit of work after success | `spawn[]` |
 | To notify an external service that a step finished | `events[]`, not a workflow |
-| A graph with join / compensation / a human | a separate workflow product |
+| A graph with joins, signals, compensation, or long-lived process state | Temporal or another workflow product |
 
 Do not emulate a DAG on top of the queue as "the parent stays open until the children close".
 On complete the parent is already succeeded. A hanging parent that waits for children
@@ -47,4 +61,5 @@ is a different model, and the queue does not support it.
 
 ---
 
+Detailed comparison: [why-queue.md](../01-concepts/02-why-queue.md).
 What a follow-up is: [08-what-is-follow-up.md](08-what-is-follow-up.md).
