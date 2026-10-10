@@ -47,6 +47,26 @@
           "type": "toml",
           "path": "packages/workhold-admin/pyproject.toml",
           "jsonpath": "$.project.version"
+        },
+        {
+          "type": "generic",
+          "path": "src/workhold/__init__.py"
+        },
+        {
+          "type": "generic",
+          "path": "packages/workhold-client-core/src/_workhold_client_core/__init__.py"
+        },
+        {
+          "type": "generic",
+          "path": "packages/workhold-producer/src/workhold_producer/__init__.py"
+        },
+        {
+          "type": "generic",
+          "path": "packages/workhold-consumer/src/workhold_consumer/__init__.py"
+        },
+        {
+          "type": "generic",
+          "path": "packages/workhold-admin/src/workhold_admin/__init__.py"
         }
       ]
     }
