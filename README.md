@@ -1,5 +1,20 @@
 # Workhold - Durable work queue
 
+[![CI](https://github.com/KoninMikhail/workhold-durable-work-queue/actions/workflows/ci.yml/badge.svg)](https://github.com/KoninMikhail/workhold-durable-work-queue/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/KoninMikhail/workhold-durable-work-queue)](https://github.com/KoninMikhail/workhold-durable-work-queue/releases/latest)
+[![PyPI clients](https://img.shields.io/pypi/v/workhold-producer?label=PyPI%20clients)](https://pypi.org/project/workhold-producer/)
+[![Python 3.13+](https://img.shields.io/badge/Python-3.13%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![PostgreSQL 18](https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Container image](https://img.shields.io/badge/container-GHCR-2496ED?logo=docker&logoColor=white)](https://github.com/users/KoninMikhail/packages/container/package/workhold-durable-work-queue)
+[![License: MIT](https://img.shields.io/github/license/KoninMikhail/workhold-durable-work-queue)](LICENSE)
+
+[Quick start](#quick-start) ·
+[Features](#what-you-get) ·
+[Python clients](#python-clients) ·
+[Documentation](docs/README.md) ·
+[Examples](docs/08-examples/README.md) ·
+[Contributing](CONTRIBUTING.md)
+
 **A durable Work Queue for applications that run across multiple replicas.**
 
 Workhold gives application teams reliable background execution without
@@ -23,8 +38,8 @@ business database is optional.
 Run the service, migrations, and PostgreSQL locally with Docker:
 
 ```bash
-git clone <repository-url>
-cd queue
+git clone https://github.com/KoninMikhail/workhold-durable-work-queue.git
+cd workhold-durable-work-queue
 docker compose -f docker-compose.dev.yml up --build
 ```
 
@@ -39,6 +54,32 @@ uv run pytest
 
 See the [local setup guide](docs/00-onboarding/02-local-setup.md) for
 configuration, migrations, Docker profiles, and client development.
+
+## Releases and installation
+
+The service is distributed as a
+[container image](https://github.com/users/KoninMikhail/packages/container/package/workhold-durable-work-queue).
+Release tags and immutable commit-SHA tags are published to GHCR. Application
+processes install only the role-specific client they need:
+
+```bash
+pip install workhold-producer
+pip install workhold-consumer
+pip install workhold-admin
+```
+
+| Artifact | Source |
+| --- | --- |
+| Runtime image | [GitHub Container Registry](https://github.com/users/KoninMikhail/packages/container/package/workhold-durable-work-queue) |
+| Producer client | [PyPI](https://pypi.org/project/workhold-producer/) |
+| Consumer client | [PyPI](https://pypi.org/project/workhold-consumer/) |
+| Admin client | [PyPI](https://pypi.org/project/workhold-admin/) |
+| Wire contract | [OpenAPI 3.1](openapi/queue.openapi.json) |
+| Release notes | [GitHub Releases](https://github.com/KoninMikhail/workhold-durable-work-queue/releases) |
+
+Python 3.13 or newer is required by the clients. For production deployment,
+read the [deployment guide](docs/05-operations/02-deployment.md) and
+[security guide](docs/05-operations/01-security.md).
 
 ## Where next
 
@@ -214,3 +255,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Workhold is a personal project.
 Changes land as pull requests to `main`. Report a vulnerability through
 [SECURITY.md](SECURITY.md). AI-assisted contributors start with
 [AGENTS.md](AGENTS.md).
+
+## Support and security
+
+Use [GitHub Issues](https://github.com/KoninMikhail/workhold-durable-work-queue/issues)
+for reproducible bugs and feature proposals. For usage questions, see
+[SUPPORT.md](SUPPORT.md). Report vulnerabilities privately according to
+[SECURITY.md](SECURITY.md); do not open a public issue for security reports.
+
+## License
+
+Workhold is available under the [MIT License](LICENSE).
