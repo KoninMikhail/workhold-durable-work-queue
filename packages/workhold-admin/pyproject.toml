@@ -1,6 +1,6 @@
 [project]
 name = "workhold-admin"
-version = "1.0.3"
+version = "1.0.4"
 description = "Workhold admin/observer/break-glass client (public shell)"
 authors = [
     { name = "Mikhail Konin", email = "dev.konin@gmail.com" }

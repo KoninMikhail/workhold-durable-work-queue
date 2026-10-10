@@ -73,7 +73,7 @@ from workhold_admin.models import (
 )
 from workhold_admin.observer import ObserverClient
 
-__version__ = "1.0.3"  # x-release-please-version
+__version__ = "1.0.4"  # x-release-please-version
 
 __all__ = [
     "AdminClient",
