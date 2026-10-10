@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.2...v1.0.3) (2026-10-10)
+
+
+### Documentation
+
+* **readme:** improve project presentation ([9b9f2e0](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/9b9f2e085cdcfee434b1401afecf60ac8bc48e6b))
+* **readme:** improve project presentation ([dfee636](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/dfee63659fee16488bd5b444f7a0538aec443558))
+
 ## [1.0.2](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.1...v1.0.2) (2026-10-09)
 
 
