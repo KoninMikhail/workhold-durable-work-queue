@@ -1,6 +1,6 @@
 [project]
 name = "workhold-client-core"
-version = "1.0.3"
+version = "1.0.4"
 description = "Private shared transport, errors, and wire models for Workhold role clients"
 authors = [
     { name = "Mikhail Konin", email = "dev.konin@gmail.com" }

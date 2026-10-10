@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.4](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.3...v1.0.4) (2026-10-10)
+
+
+### Documentation
+
+* **concepts:** compare Workhold with Temporal ([41216cc](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/41216cc27c3a2a3b6cd02905b96e898fc936867f))
+* **concepts:** compare Workhold with Temporal ([bcfd71c](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/bcfd71cdcd3da6b6c8da16d02da8e6c00d1354a1))
+
 ## [1.0.3](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.2...v1.0.3) (2026-10-10)
 
 

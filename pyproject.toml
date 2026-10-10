@@ -1,6 +1,6 @@
 [project]
 name = "workhold"
-version = "1.0.3"
+version = "1.0.4"
 description = "Workhold - Durable work queue"
 authors = [
     { name = "Mikhail Konin", email = "dev.konin@gmail.com" }
