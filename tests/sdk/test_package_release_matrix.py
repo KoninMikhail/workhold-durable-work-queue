@@ -184,11 +184,12 @@ def test_runtime_import_of_old_package_fails() -> None:
         __import__("queue_service_client")
 
 
-def test_workspace_members_are_core_and_three_roles_only() -> None:
+def test_workspace_members_are_clients_then_mcp() -> None:
     members = _workspace_members()
     expected = [f"packages/{name}" for name in CLIENT_DISTRIBUTIONS]
+    expected.append("packages/workhold-mcp")
     assert members == expected
-    assert all("queue-client" not in m for m in members)
+    assert all("queue-client" not in member for member in members)
 
 
 def test_lockfile_members_exclude_prototype() -> None:
@@ -200,9 +201,27 @@ def test_lockfile_members_exclude_prototype() -> None:
     assert "queue-client" not in listed
     for dist in CLIENT_DISTRIBUTIONS:
         assert dist in listed
+    assert "workhold-mcp" in listed
     # No editable source for the deleted distribution.
     assert 'editable = "packages/queue-client"' not in lock
     assert 'name = "queue-client"' not in lock
+
+
+def test_mcp_release_train_is_fenced() -> None:
+    config = json.loads(
+        (REPO_ROOT / "release-please-config.json").read_text(encoding="utf-8")
+    )
+    assert list(config["packages"]) == [
+        ".",
+        "packages",
+        "packages/workhold-mcp",
+    ]
+    excludes = config["packages"]["packages"]["exclude-paths"]
+    assert "packages/workhold-mcp" in excludes
+    manifest = json.loads(
+        (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["packages/workhold-mcp"] == "0.0.0"
 
 
 def test_coordinated_client_versions_match_client_release_train() -> None:

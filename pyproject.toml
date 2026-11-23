@@ -37,6 +37,7 @@ members = [
     "packages/workhold-producer",
     "packages/workhold-consumer",
     "packages/workhold-admin",
+    "packages/workhold-mcp",
 ]
 
 [tool.pytest.ini_options]

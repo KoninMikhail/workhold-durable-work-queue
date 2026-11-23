@@ -38,6 +38,7 @@ FORBIDDEN_DISTRIBUTIONS = frozenset(
 )
 SERVER_RELEASE_PATH = "."
 CLIENT_RELEASE_PATH = "packages"
+MCP_RELEASE_PATH = "packages/workhold-mcp"
 _PY_VERSION_RE = re.compile(r'^__version__\s*=\s*"([^"]+)"', re.MULTILINE)
 _RELEASE_PLEASE_VERSION_MARKER = re.compile(
     r'^__version__\s*=\s*"[^"]+"\s+#\s*x-release-please-version\s*$',
@@ -104,6 +105,7 @@ def _assert_no_legacy_tree() -> None:
     if not isinstance(members, list):
         raise GateError("tool.uv.workspace.members missing")
     expected = [f"packages/{name}" for name in CLIENT_DISTRIBUTIONS]
+    expected.append(MCP_RELEASE_PATH)
     if [str(m).replace("\\", "/") for m in members] != expected:
         raise GateError(f"workspace members drifted: {members!r}")
 
@@ -321,10 +323,11 @@ def _assert_ci_atomic_publish_shape() -> None:
     if not isinstance(packages_config, dict) or set(packages_config) != {
         SERVER_RELEASE_PATH,
         CLIENT_RELEASE_PATH,
+        MCP_RELEASE_PATH,
     }:
         raise GateError(
-            "release-please packages must be exactly the server '.' and client "
-            f"'{CLIENT_RELEASE_PATH}' release trains"
+            "release-please packages must be the server '.', the client "
+            f"'{CLIENT_RELEASE_PATH}' train, and '{MCP_RELEASE_PATH}'"
         )
     server_config = packages_config[SERVER_RELEASE_PATH]
     client_config = packages_config[CLIENT_RELEASE_PATH]
@@ -332,6 +335,12 @@ def _assert_ci_atomic_publish_shape() -> None:
         raise GateError(
             f"server release train must exclude '{CLIENT_RELEASE_PATH}' so client "
             "changes do not release the server"
+        )
+    client_excludes = client_config.get("exclude-paths", [])
+    if not isinstance(client_excludes, list) or MCP_RELEASE_PATH not in client_excludes:
+        raise GateError(
+            f"client release train must exclude '{MCP_RELEASE_PATH}' so MCP "
+            "changes do not release the coordinated clients"
         )
     if client_config.get("include-component-in-tag") is not True:
         raise GateError("client release train must include its component in the tag")
@@ -349,6 +358,23 @@ def _assert_ci_atomic_publish_shape() -> None:
         [*version_files, *version_modules],
         set(version_modules),
     )
+    mcp_config = packages_config[MCP_RELEASE_PATH]
+    if not isinstance(mcp_config, dict):
+        raise GateError(f"release-please '{MCP_RELEASE_PATH}' must be an object")
+    if mcp_config.get("component") != "workhold-mcp":
+        raise GateError("MCP release train component must be 'workhold-mcp'")
+    if mcp_config.get("include-component-in-tag") is not True:
+        raise GateError("MCP release train must include its component in the tag")
+    mcp_init = f"{MCP_RELEASE_PATH}/src/workhold_mcp/__init__.py"
+    _assert_extra_files(
+        MCP_RELEASE_PATH,
+        mcp_config,
+        [
+            f"{MCP_RELEASE_PATH}/pyproject.toml",
+            mcp_init,
+        ],
+        {mcp_init},
+    )
     initial_version = config.get("initial-version")
     if initial_version != "1.0.0":
         raise GateError(
@@ -358,9 +384,11 @@ def _assert_ci_atomic_publish_shape() -> None:
     manifest = json.loads(
         (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
     )
+    mcp_version = _project_version(REPO_ROOT / MCP_RELEASE_PATH / "pyproject.toml")
     for release_path, version in (
         (SERVER_RELEASE_PATH, root_version),
         (CLIENT_RELEASE_PATH, client_version),
+        (MCP_RELEASE_PATH, mcp_version),
     ):
         manifest_version = manifest.get(release_path)
         if manifest_version == "0.0.0":

@@ -1,0 +1,27 @@
+[project]
+name = "workhold-mcp"
+version = "1.0.0"
+description = "Local MCP observer adapter for Workhold"
+authors = [
+    { name = "Mikhail Konin", email = "dev.konin@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "mcp>=2.3.0,<3",
+    "workhold-admin>=1.0.4,<1.1.0",
+    "workhold-client-core>=1.0.4,<1.1.0",
+]
+
+[project.scripts]
+workhold-mcp = "workhold_mcp.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.30,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "workhold_mcp"
+
+[tool.uv.sources]
+workhold-admin = { workspace = true }
+workhold-client-core = { workspace = true }

@@ -48,6 +48,9 @@
     "packages": {
       "component": "workhold-clients",
       "include-component-in-tag": true,
+      "exclude-paths": [
+        "packages/workhold-mcp"
+      ],
       "extra-files": [
         {
           "type": "toml",
@@ -84,6 +87,21 @@
         {
           "type": "generic",
           "path": "workhold-admin/src/workhold_admin/__init__.py"
+        }
+      ]
+    },
+    "packages/workhold-mcp": {
+      "component": "workhold-mcp",
+      "include-component-in-tag": true,
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "generic",
+          "path": "src/workhold_mcp/__init__.py"
         }
       ]
     }
