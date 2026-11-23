@@ -10,6 +10,7 @@ from workhold_mcp.config import (
     configs_for,
     load_settings,
 )
+from workhold_mcp.registry import preset_names
 
 _TOKEN = "WHMCP-TOKEN-CANARY"
 _PUBLIC = "http://127.0.0.1:9"
@@ -161,9 +162,54 @@ def test_invalid_settings_name_the_key_only(
         assert value not in message
 
 
+def test_producer_only_does_not_require_observer_token_or_admin_url() -> None:
+    producer = "WHMCP-PRODUCER-CANARY"
+    settings = load_settings(
+        {
+            "WORKHOLD_MCP_PUBLIC_BASE_URL": _PUBLIC,
+            "WORKHOLD_MCP_PRODUCER_TOKEN": producer,
+        },
+        names=frozenset(preset_names("producer")),
+    )
+    assert settings.public_base_url.rstrip("/") == _PUBLIC
+    assert settings.producer_token == producer
+    assert settings.observer_token is None
+    assert settings.admin_base_url is None
+    rendered = repr(settings)
+    assert "<redacted>" in rendered
+    assert producer not in rendered
+    assert producer not in str(settings)
+
+
+def test_observer_only_does_not_require_producer_token() -> None:
+    producer = "WHMCP-PRODUCER-CANARY"
+    env = _required_env()
+    env["WORKHOLD_MCP_PRODUCER_TOKEN"] = producer
+    settings = load_settings(env, names=frozenset(preset_names("observer")))
+    assert settings.observer_token == _TOKEN
+    assert settings.producer_token is None
+    rendered = repr(settings)
+    assert producer not in rendered
+    assert producer not in str(settings)
+    assert _TOKEN not in rendered
+
+
 def test_unrelated_env_is_ignored() -> None:
     env = _required_env()
     env["PATH"] = _TOKEN
     settings = load_settings(env)
     assert _TOKEN not in repr(settings)
     assert _TOKEN not in str(settings)
+
+
+def test_producer_selection_missing_token_names_the_setting() -> None:
+    with pytest.raises(ConfigError) as caught:
+        load_settings(
+            {
+                "WORKHOLD_MCP_PUBLIC_BASE_URL": _PUBLIC,
+                "WORKHOLD_MCP_OBSERVER_TOKEN": _TOKEN,
+            },
+            names=frozenset(preset_names("producer")),
+        )
+    assert caught.value.setting_name == "WORKHOLD_MCP_PRODUCER_TOKEN"
+    assert _TOKEN not in str(caught.value)
