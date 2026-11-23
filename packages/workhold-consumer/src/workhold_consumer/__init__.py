@@ -18,6 +18,7 @@ from _workhold_client_core.codecs import (
     decode_payload,
     encode_payload,
 )
+from _workhold_client_core.content_key import ContentDecryptError
 from _workhold_client_core.errors import (
     AuthenticationError,
     ErrorCode,
@@ -74,6 +75,7 @@ __all__ = [
     "LeaseLostError",
     "LeaseLostEvent",
     "MalformedResponseError",
+    "ContentDecryptError",
     "PayloadDecodeError",
     "PayloadDecoder",
     "PayloadEncoder",
