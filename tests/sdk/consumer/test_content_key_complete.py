@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -470,3 +471,25 @@ def test_complete_retry_fingerprint_stable() -> None:
     assert "event-plain-enc10" not in spawn_text
     assert "spawn-plain-enc09" not in spawn_text
     _assert_key_absent(spawn_text)
+
+
+def test_guide_names_spawn_and_event_data() -> None:
+    root = Path(__file__).resolve().parents[3]
+    guide = root / "docs" / "02-guides" / "06-client-sdk-ergonomics.md"
+    text = guide.read_text(encoding="utf-8").casefold()
+    start = text.index("## optional content key")
+    next_heading = text.find("\n## ", start + 1)
+    section = text[start:next_heading] if next_heading != -1 else text[start:]
+    for phrase in (
+        "task payload",
+        "spawn payload",
+        "event data",
+        "source",
+        "type",
+        "subject",
+        "datacontenttype",
+        "extensions",
+        "require_delivery_events",
+        "terminalconflicterror",
+    ):
+        assert phrase in section, phrase
