@@ -36,6 +36,7 @@ from _workhold_client_core.transport import encode_path_segment
 
 from workhold_consumer.client import (
     _CLAIM_TOKEN_HEADER,
+    _encode_event_items,
     _encode_spawn_items,
     _fingerprint,
     _require_bool,
@@ -405,7 +406,11 @@ class AsyncClaim:
             "spawn": wire_spawn,
         }
         if events:
-            body["events"] = [dict(item) for item in events]
+            body["events"] = _encode_event_items(
+                events,
+                content_key=self._client._content_key,
+                max_payload_bytes=limit,
+            )
         fingerprint = self._check_terminal("complete", body)
         result = await self._request_lease("complete", body, CompleteResult.parse)
         self._terminal = ("complete", fingerprint)

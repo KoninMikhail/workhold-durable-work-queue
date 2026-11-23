@@ -475,9 +475,15 @@ async def test_async_keyed_complete_leaves_spawn_and_events_plaintext() -> None:
     )
 
     body = transport.complete_bodies[0]
+    event = body["events"][0]
     assert is_content_envelope(body["spawn"][0]["payload"])
-    assert body["events"][0]["data"] == {"child": 1}
-    assert "$workhold_enc" not in json.dumps(body["events"])
+    assert is_content_envelope(event["data"])
+    assert event["specversion"] == "1.0"
+    assert event["type"] == "com.example.done"
+    assert event["source"] == "/app"
+    assert event["id"] == "evt-1"
+    identity = {key: value for key, value in event.items() if key != "data"}
+    assert "$workhold_enc" not in json.dumps(identity)
 
 
 def test_async_empty_content_key_raises_without_leaking() -> None:

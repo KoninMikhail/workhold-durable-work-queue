@@ -377,7 +377,11 @@ class Claim:
             "spawn": wire_spawn,
         }
         if events:
-            body["events"] = [dict(item) for item in events]
+            body["events"] = _encode_event_items(
+                events,
+                content_key=self._client._content_key,
+                max_payload_bytes=limit,
+            )
         fingerprint = self._check_terminal("complete", body)
         result = self._request_lease("complete", body, CompleteResult.parse)
         self._terminal = ("complete", fingerprint)
@@ -492,6 +496,25 @@ def _encode_spawn_items(
                 wire["payload"] = encode_payload(
                     sealed, None, max_bytes=max_payload_bytes
                 )
+        items.append(wire)
+    return items
+
+
+def _encode_event_items(
+    events: Sequence[Mapping[str, Any]],
+    *,
+    content_key: bytes | None,
+    max_payload_bytes: int | None,
+) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    for item in events:
+        wire = dict(item)
+        if content_key is not None and "data" in wire:
+            wire["data"] = encode_payload(
+                seal_task_payload(wire["data"], content_key),
+                None,
+                max_bytes=max_payload_bytes,
+            )
         items.append(wire)
     return items
 
