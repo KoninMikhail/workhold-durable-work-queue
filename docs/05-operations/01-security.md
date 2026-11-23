@@ -63,6 +63,7 @@ workhold treats the payload as application-owned opaque JSON:
 - no payload logging or metric labels by default;
 - no arbitrary payload indexes/search;
 - storage encryption is the deployment's responsibility;
+- when the application passes a content key, the client encrypts the task payload before HTTP and the server still stores opaque JSON; the content key is not a bearer credential ([ADR 032](../04-architecture/adr/032-client-side-content-key.md));
 - secrets must be references, not embedded values;
 - the payload expires with the configured task/event retention.
 
