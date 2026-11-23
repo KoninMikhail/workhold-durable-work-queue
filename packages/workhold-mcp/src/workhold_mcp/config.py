@@ -1,4 +1,4 @@
-"""Parse ``WORKHOLD_MCP_*`` settings into two transports and one observer."""
+"""Parse ``WORKHOLD_MCP_*`` settings for the roles a tool selection needs."""
 
 from __future__ import annotations
 
@@ -12,12 +12,17 @@ from _workhold_client_core.config import ClientConfig
 from _workhold_client_core.transport import HttpJsonTransport
 from workhold_admin.observer import ObserverClient
 
+from workhold_mcp.registry import load_manifest, preset_names
+
 __all__ = [
     "ConfigError",
     "McpSettings",
+    "SelectionNeeds",
     "build_observer",
     "configs_for",
     "load_settings",
+    "origin_config",
+    "selection_needs",
 ]
 
 _PREFIX = "WORKHOLD_MCP_"
@@ -65,12 +70,26 @@ class ConfigError(Exception):
 
 
 @dataclass(frozen=True, slots=True)
-class McpSettings:
-    """Validated MCP process settings. The observer token is not a config field."""
+class SelectionNeeds:
+    """URLs and role clients required by one selected name set."""
 
-    public_base_url: str
-    admin_base_url: str
-    observer_token: str
+    public: bool
+    admin_url: bool
+    observer: bool
+    producer: bool
+    admin: bool
+
+
+@dataclass(frozen=True, slots=True)
+class McpSettings:
+    """Validated MCP process settings. Tokens and the content key stay redacted."""
+
+    public_base_url: str | None
+    admin_base_url: str | None
+    observer_token: str | None
+    producer_token: str | None = None
+    admin_token: str | None = None
+    content_key: str | None = None
     connect_timeout_s: float = 5.0
     read_timeout_s: float = 30.0
     total_timeout_s: float | None = None
@@ -82,6 +101,9 @@ class McpSettings:
             f"public_base_url={self.public_base_url!r}, "
             f"admin_base_url={self.admin_base_url!r}, "
             "observer_token=<redacted>, "
+            "producer_token=<redacted>, "
+            "admin_token=<redacted>, "
+            "content_key=<redacted>, "
             f"connect_timeout_s={self.connect_timeout_s!r}, "
             f"read_timeout_s={self.read_timeout_s!r}, "
             f"total_timeout_s={self.total_timeout_s!r}, "
@@ -92,29 +114,83 @@ class McpSettings:
         return self.__repr__()
 
 
-def load_settings(env: Mapping[str, str] | None = None) -> McpSettings:
-    """Read MCP settings from ``env``.
+def selection_needs(names: frozenset[str]) -> SelectionNeeds:
+    """Return the URLs and roles required by ``names``.
 
-    ``os.environ`` is used only when ``env`` is omitted. Unknown
-    ``WORKHOLD_MCP_*`` names and invalid values raise ``ConfigError`` before
-    any client exists.
+    Producer tools need the public origin. Observer tools need both origins.
+    Admin-plane tools need the admin origin. ``admin_get_capabilities`` also
+    needs the public origin. Names outside the manifest add nothing.
+    """
+
+    by_name = {row.name: row for row in load_manifest()}
+    public = False
+    admin_url = False
+    observer = False
+    producer = False
+    admin = False
+    for name in names:
+        row = by_name.get(name)
+        if row is None:
+            continue
+        if row.role == "producer":
+            producer = True
+            public = True
+        elif row.role == "observer":
+            observer = True
+            public = True
+            admin_url = True
+        elif row.role == "admin":
+            admin = True
+            admin_url = True
+            if row.method == "get_capabilities":
+                public = True
+    return SelectionNeeds(
+        public=public,
+        admin_url=admin_url,
+        observer=observer,
+        producer=producer,
+        admin=admin,
+    )
+
+
+def load_settings(
+    env: Mapping[str, str] | None = None,
+    *,
+    names: frozenset[str] | None = None,
+) -> McpSettings:
+    """Read MCP settings from ``env`` for the selected tool names.
+
+    ``os.environ`` is used only when ``env`` is omitted. Omitted ``names``
+    is the observer preset. Unknown ``WORKHOLD_MCP_*`` names and invalid
+    values raise ``ConfigError`` before any client exists. A content key
+    with no producer tool is rejected here. An empty key is left for the
+    producer client to reject.
     """
 
     source: Mapping[str, str] = os.environ if env is None else env
     _reject_unknown(source)
-    public_base_url = _http_origin(
-        _required_text(source, _PUBLIC_BASE_URL),
-        _PUBLIC_BASE_URL,
+    selected = frozenset(preset_names("observer")) if names is None else names
+    needs = selection_needs(selected)
+    public_base_url = (
+        _http_origin(_required_text(source, _PUBLIC_BASE_URL), _PUBLIC_BASE_URL)
+        if needs.public
+        else None
     )
-    admin_base_url = _http_origin(
-        _required_text(source, _ADMIN_BASE_URL),
-        _ADMIN_BASE_URL,
+    admin_base_url = (
+        _http_origin(_required_text(source, _ADMIN_BASE_URL), _ADMIN_BASE_URL)
+        if needs.admin_url
+        else None
     )
-    observer_token = _required_text(source, _OBSERVER_TOKEN)
+    if _CONTENT_KEY in source and not needs.producer:
+        raise ConfigError(_CONTENT_KEY)
+    content_key = source[_CONTENT_KEY] if _CONTENT_KEY in source else None
     return McpSettings(
         public_base_url=public_base_url,
         admin_base_url=admin_base_url,
-        observer_token=observer_token,
+        observer_token=_required_text(source, _OBSERVER_TOKEN) if needs.observer else None,
+        producer_token=_required_text(source, _PRODUCER_TOKEN) if needs.producer else None,
+        admin_token=_required_text(source, _ADMIN_TOKEN) if needs.admin else None,
+        content_key=content_key,
         connect_timeout_s=_positive_timeout(source, _CONNECT_TIMEOUT_S, 5.0),
         read_timeout_s=_positive_timeout(source, _READ_TIMEOUT_S, 30.0),
         total_timeout_s=_optional_timeout(source, _TOTAL_TIMEOUT_S),
@@ -129,10 +205,20 @@ def configs_for(settings: McpSettings) -> tuple[ClientConfig, ClientConfig]:
     left only on ``admin_base_url``.
     """
 
+    if settings.public_base_url is None:
+        raise ConfigError(_PUBLIC_BASE_URL)
+    if settings.admin_base_url is None:
+        raise ConfigError(_ADMIN_BASE_URL)
     return (
         _config(settings.public_base_url, settings),
         _config(settings.admin_base_url, settings),
     )
+
+
+def origin_config(settings: McpSettings, base_url: str) -> ClientConfig:
+    """Return one transport config whose request root is ``base_url``."""
+
+    return _config(base_url, settings)
 
 
 def build_observer(settings: McpSettings) -> ObserverClient:

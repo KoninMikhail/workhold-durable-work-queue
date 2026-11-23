@@ -398,6 +398,7 @@ def test_secrets_stay_off_argv(args: tuple[str, ...], hidden: tuple[str, ...]) -
 
 def test_new_env_names_are_known() -> None:
     from workhold_mcp.config import ConfigError, load_settings
+    from workhold_mcp.registry import preset_names
 
     base = {
         "WORKHOLD_MCP_PUBLIC_BASE_URL": _PUBLIC,
@@ -405,7 +406,12 @@ def test_new_env_names_are_known() -> None:
         "WORKHOLD_MCP_OBSERVER_TOKEN": "observer-token",
     }
     for name in _KNOWN_ENV:
-        load_settings({**base, name: "present"})
+        env = {**base, name: "present"}
+        if name == "WORKHOLD_MCP_CONTENT_KEY":
+            env["WORKHOLD_MCP_PRODUCER_TOKEN"] = "producer-token"
+            load_settings(env, names=frozenset(preset_names("producer")))
+            continue
+        load_settings(env)
     with pytest.raises(ConfigError) as caught:
         load_settings({**base, "WORKHOLD_MCP_TOKEN": "present"})
     assert caught.value.setting_name == "WORKHOLD_MCP_TOKEN"
