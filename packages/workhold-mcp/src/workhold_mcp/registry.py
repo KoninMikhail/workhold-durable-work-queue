@@ -13,11 +13,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from workhold_admin.admin import AdminClient
 from workhold_admin.models import (
     CURSOR_MAX_LENGTH,
     PAGE_LIMIT_DEFAULT,
     PAGE_LIMIT_MAX,
     PAGE_LIMIT_MIN,
+    RetryPolicyDraft,
 )
 from _workhold_client_core.priority import PRIORITY_DEFAULT
 from workhold_admin.observer import ObserverClient
@@ -178,6 +180,18 @@ def _require_idempotency_key(key: str | None) -> str:
     if not isinstance(key, str) or not key.strip():
         raise ValueError("idempotency_key is required")
     return key
+
+
+def _require_expected_config_version(value: int | None) -> int:
+    if value is None:
+        raise ValueError("expected_config_version is required")
+    return value
+
+
+def _require_reason(value: str | None) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("reason is required")
+    return value
 
 
 def _loose_object_schema() -> dict[str, Any]:
@@ -532,8 +546,433 @@ def _producer_registry(rows: tuple[ManifestTool, ...]) -> tuple[ToolSpec, ...]:
     return tuple(specs)
 
 
+def _admin_list_queues(
+    admin: AdminClient,
+    *,
+    cursor: str | None = None,
+    limit: int = PAGE_LIMIT_DEFAULT,
+) -> Any:
+    return admin.list_queues(cursor=cursor, limit=limit)
+
+
+def _admin_create_queue(
+    admin: AdminClient,
+    name: str,
+    *,
+    initial_policy: Any,
+    idempotency_key: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    policy = RetryPolicyDraft.parse(initial_policy)
+    return admin.create_queue(
+        name, initial_policy=policy, idempotency_key=wire_key
+    )
+
+
+def _admin_get_queue(admin: AdminClient, queue_name: str) -> Any:
+    return admin.get_queue(queue_name)
+
+
+def _admin_create_queue_policy(
+    admin: AdminClient,
+    queue_name: str,
+    policy: Any,
+    *,
+    idempotency_key: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    draft = RetryPolicyDraft.parse(policy)
+    return admin.create_queue_policy(
+        queue_name, draft, idempotency_key=wire_key
+    )
+
+
+def _admin_activate_queue_policy(
+    admin: AdminClient,
+    queue_name: str,
+    policy_version: int,
+    *,
+    expected_config_version: int | None = None,
+    idempotency_key: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    wire_config = _require_expected_config_version(expected_config_version)
+    return admin.activate_queue_policy(
+        queue_name,
+        policy_version,
+        expected_config_version=wire_config,
+        idempotency_key=wire_key,
+    )
+
+
+def _admin_set_queue_state(
+    admin: AdminClient,
+    queue_name: str,
+    state: str,
+    *,
+    expected_config_version: int | None = None,
+    idempotency_key: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    wire_config = _require_expected_config_version(expected_config_version)
+    return admin.set_queue_state(
+        queue_name,
+        state,
+        expected_config_version=wire_config,
+        idempotency_key=wire_key,
+    )
+
+
+def _admin_get_maintenance_status(admin: AdminClient) -> Any:
+    return admin.get_maintenance_status()
+
+
+def _admin_get_capabilities(admin: AdminClient) -> Any:
+    return admin.get_capabilities()
+
+
+def _admin_get_stats(admin: AdminClient) -> Any:
+    return admin.get_stats()
+
+
+def _admin_list_inspection_tasks(
+    admin: AdminClient,
+    queue_name: str,
+    *,
+    cursor: str | None = None,
+    limit: int = PAGE_LIMIT_DEFAULT,
+) -> Any:
+    return admin.list_inspection_tasks(queue_name, cursor=cursor, limit=limit)
+
+
+def _admin_list_inspection_attempts(
+    admin: AdminClient,
+    task_id: str,
+    *,
+    time_from: str,
+    time_to: str,
+    cursor: str | None = None,
+    limit: int = PAGE_LIMIT_DEFAULT,
+) -> Any:
+    return admin.list_inspection_attempts(
+        task_id,
+        time_from=_require_aware(time_from),
+        time_to=_require_aware(time_to),
+        cursor=cursor,
+        limit=limit,
+    )
+
+
+def _admin_list_dead_letters(
+    admin: AdminClient,
+    queue_name: str,
+    *,
+    time_from: str,
+    time_to: str,
+    cursor: str | None = None,
+    limit: int = PAGE_LIMIT_DEFAULT,
+) -> Any:
+    return admin.list_dead_letters(
+        queue_name,
+        time_from=_require_aware(time_from),
+        time_to=_require_aware(time_to),
+        cursor=cursor,
+        limit=limit,
+    )
+
+
+def _admin_list_admin_audit(
+    admin: AdminClient,
+    *,
+    time_from: str,
+    time_to: str,
+    queue_name: str | None = None,
+    cursor: str | None = None,
+    limit: int = PAGE_LIMIT_DEFAULT,
+) -> Any:
+    return admin.list_admin_audit(
+        time_from=_require_aware(time_from),
+        time_to=_require_aware(time_to),
+        queue_name=queue_name,
+        cursor=cursor,
+        limit=limit,
+    )
+
+
+def _admin_run_maintenance(
+    admin: AdminClient,
+    *,
+    idempotency_key: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    return admin.run_maintenance(idempotency_key=wire_key)
+
+
+def _admin_replay_dead_letter(
+    admin: AdminClient,
+    queue_name: str,
+    task_id: str,
+    *,
+    idempotency_key: str | None = None,
+    reason: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    wire_reason = _require_reason(reason)
+    return admin.replay_dead_letter(
+        queue_name,
+        task_id,
+        idempotency_key=wire_key,
+        reason=wire_reason,
+    )
+
+
+def _admin_preview_bulk_replay(
+    admin: AdminClient,
+    queue_name: str,
+    *,
+    filters: Any | None = None,
+) -> Any:
+    return admin.preview_bulk_replay(queue_name, filters=filters)
+
+
+def _admin_preview_bulk_cancel(
+    admin: AdminClient,
+    queue_name: str,
+    *,
+    filters: Any | None = None,
+) -> Any:
+    return admin.preview_bulk_cancel(queue_name, filters=filters)
+
+
+_ADMIN_CALLS: dict[str, tuple[str, dict[str, Any], Callable[..., Any], bool]] = {
+    "list_queues": (
+        "Admin one page of queue registrations.",
+        _object_schema(
+            {
+                "cursor": _cursor_schema(),
+                "limit": _limit_schema(),
+            },
+            (),
+        ),
+        _admin_list_queues,
+        True,
+    ),
+    "create_queue": (
+        "Create a queue with an initial retry policy draft.",
+        _object_schema(
+            {
+                "name": _string_schema(),
+                "initial_policy": _loose_object_schema(),
+                "idempotency_key": _string_schema(),
+            },
+            ("name", "initial_policy", "idempotency_key"),
+        ),
+        _admin_create_queue,
+        False,
+    ),
+    "get_queue": (
+        "Admin lookup of one queue.",
+        _object_schema({"queue_name": _string_schema()}, ("queue_name",)),
+        _admin_get_queue,
+        True,
+    ),
+    "create_queue_policy": (
+        "Draft a new retry policy version for one queue.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "policy": _loose_object_schema(),
+                "idempotency_key": _string_schema(),
+            },
+            ("queue_name", "policy", "idempotency_key"),
+        ),
+        _admin_create_queue_policy,
+        False,
+    ),
+    "activate_queue_policy": (
+        "Activate a policy version with caller-supplied config version.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "policy_version": {"type": "integer"},
+                "expected_config_version": {"type": "integer"},
+                "idempotency_key": _string_schema(),
+            },
+            (
+                "queue_name",
+                "policy_version",
+                "expected_config_version",
+                "idempotency_key",
+            ),
+        ),
+        _admin_activate_queue_policy,
+        False,
+    ),
+    "set_queue_state": (
+        "Set queue state with caller-supplied config version.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "state": _string_schema(),
+                "expected_config_version": {"type": "integer"},
+                "idempotency_key": _string_schema(),
+            },
+            ("queue_name", "state", "expected_config_version", "idempotency_key"),
+        ),
+        _admin_set_queue_state,
+        False,
+    ),
+    "get_maintenance_status": (
+        "Maintenance status (admin-authorized).",
+        _object_schema({}, ()),
+        _admin_get_maintenance_status,
+        True,
+    ),
+    "get_capabilities": (
+        "Deployment capabilities (admin-authorized).",
+        _object_schema({}, ()),
+        _admin_get_capabilities,
+        True,
+    ),
+    "get_stats": (
+        "Statistics snapshot (admin plane).",
+        _object_schema({}, ()),
+        _admin_get_stats,
+        True,
+    ),
+    "list_inspection_tasks": (
+        "Admin one page of tasks in one queue.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "cursor": _cursor_schema(),
+                "limit": _limit_schema(),
+            },
+            ("queue_name",),
+        ),
+        _admin_list_inspection_tasks,
+        True,
+    ),
+    "list_inspection_attempts": (
+        "Admin one page of attempts in a time range.",
+        _object_schema(
+            {
+                "task_id": _string_schema(),
+                "time_from": _string_schema(),
+                "time_to": _string_schema(),
+                "cursor": _cursor_schema(),
+                "limit": _limit_schema(),
+            },
+            ("task_id", "time_from", "time_to"),
+        ),
+        _admin_list_inspection_attempts,
+        True,
+    ),
+    "list_dead_letters": (
+        "Admin one page of dead letters in a time range.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "time_from": _string_schema(),
+                "time_to": _string_schema(),
+                "cursor": _cursor_schema(),
+                "limit": _limit_schema(),
+            },
+            ("queue_name", "time_from", "time_to"),
+        ),
+        _admin_list_dead_letters,
+        True,
+    ),
+    "list_admin_audit": (
+        "Admin one page of audit records in a time range.",
+        _object_schema(
+            {
+                "time_from": _string_schema(),
+                "time_to": _string_schema(),
+                "queue_name": _string_schema(),
+                "cursor": _cursor_schema(),
+                "limit": _limit_schema(),
+            },
+            ("time_from", "time_to"),
+        ),
+        _admin_list_admin_audit,
+        True,
+    ),
+    "run_maintenance": (
+        "Run maintenance with caller-supplied idempotency identity.",
+        _object_schema({"idempotency_key": _string_schema()}, ("idempotency_key",)),
+        _admin_run_maintenance,
+        False,
+    ),
+    "replay_dead_letter": (
+        "Replay one dead letter with caller reason and idempotency key.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "task_id": _string_schema(),
+                "idempotency_key": _string_schema(),
+                "reason": _string_schema(),
+            },
+            ("queue_name", "task_id", "idempotency_key", "reason"),
+        ),
+        _admin_replay_dead_letter,
+        False,
+    ),
+    "preview_bulk_replay": (
+        "Dry-run bulk replay preview for one queue.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "filters": _loose_object_schema(),
+            },
+            ("queue_name",),
+        ),
+        _admin_preview_bulk_replay,
+        True,
+    ),
+    "preview_bulk_cancel": (
+        "Dry-run bulk cancel preview for one queue.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "filters": _loose_object_schema(),
+            },
+            ("queue_name",),
+        ),
+        _admin_preview_bulk_cancel,
+        True,
+    ),
+}
+
+
+def _admin_registry(rows: tuple[ManifestTool, ...]) -> tuple[ToolSpec, ...]:
+    by_method = {
+        row.method: row
+        for row in rows
+        if row.role == "admin" and row.client == "AdminClient"
+    }
+    specs: list[ToolSpec] = []
+    for method, (description, schema, call, read_only) in _ADMIN_CALLS.items():
+        row = by_method.get(method)
+        if row is None:
+            continue
+        specs.append(
+            _spec(
+                row.name,
+                description,
+                schema,
+                call,
+                surface="admin",
+                read_only_hint=read_only,
+            )
+        )
+    return tuple(specs)
+
+
 _MANIFEST_ROWS = load_manifest()
-REGISTRY: tuple[ToolSpec, ...] = _observer_registry(_MANIFEST_ROWS) + _producer_registry(
-    _MANIFEST_ROWS
+REGISTRY: tuple[ToolSpec, ...] = (
+    _observer_registry(_MANIFEST_ROWS)
+    + _producer_registry(_MANIFEST_ROWS)
+    + _admin_registry(_MANIFEST_ROWS)
 )
 REGISTRY_BY_NAME: dict[str, ToolSpec] = _index_registry(REGISTRY)

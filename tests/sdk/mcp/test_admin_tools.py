@@ -201,10 +201,6 @@ def test_forbidden_filter_omits_value() -> None:
 
 
 def test_list_is_one_page() -> None:
-    _, _, admin_transport = _admin(
-        [],
-        [ok(page_body([_queue_body()]))],
-    )
     client, _, admin_transport = _admin([], [ok(page_body([_queue_body()]))])
     REGISTRY_BY_NAME["admin_list_queues"].call(client)
     admin_transport.assert_request_count(1)
