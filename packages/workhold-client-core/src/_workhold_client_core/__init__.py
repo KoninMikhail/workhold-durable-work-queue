@@ -13,6 +13,7 @@ from _workhold_client_core.codecs import (
     encode_payload,
     measure_json_bytes,
 )
+from _workhold_client_core.content_key import ContentDecryptError
 from _workhold_client_core.errors import (
     AuthenticationError,
     ErrorCode,
@@ -78,6 +79,7 @@ __all__ = [
     "HeartbeatResult",
     "HttpJsonTransport",
     "LeaseLostError",
+    "ContentDecryptError",
     "PayloadDecodeError",
     "PayloadDecoder",
     "PayloadEncoder",
