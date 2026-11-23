@@ -188,12 +188,12 @@ auth-provider paths around these gates.
 ## Optional content key
 
 `ProducerClient` and `ConsumerClient` (and their async twins) accept one optional
-constructor argument, `content_key`. It protects the task `payload` before it
-leaves the client. The application passes the same key to every client that must
-write or read protected payloads.
+constructor argument, `content_key`. One `content_key` covers the task payload, the
+spawn payload, and event data. The application passes the same key to every client
+that must write or read those fields.
 
 ```python
-# Keyed: the task payload is encrypted before HTTP and restored on read.
+# Keyed: the task payload, spawn payload, and event data are encrypted before HTTP.
 producer = ProducerClient(
     transport, bearer_token=producer_secret, content_key=content_key
 )
@@ -201,25 +201,31 @@ consumer = ConsumerClient(
     transport, bearer_token=worker_secret, content_key=content_key
 )
 
-# Unkeyed: the task payload is plaintext JSON, exactly as without this option.
+# Unkeyed: the task payload, spawn payload, and event data stay plaintext JSON.
 producer = ProducerClient(transport, bearer_token=producer_secret)
 consumer = ConsumerClient(transport, bearer_token=worker_secret)
 ```
 
 `content_key` is a variable your application already holds, for example one
 injected by your deployment's secret store. The samples never contain a key.
+A sample argument is `content_key="<32-byte standard-base64>"`.
 
 - The parameter name is `content_key`. Omitting it, or passing `None`, leaves the
-  task payload as plaintext JSON.
-- Passing it encrypts the task payload before the HTTP request is built.
+  task payload, the spawn payload, and event data as plaintext JSON.
+- Passing it encrypts the task payload, the spawn payload, and event data before
+  the HTTP request is built.
+- Event `source`, `type`, `subject`, `datacontenttype`, and `extensions` stay
+  plaintext.
+- `require_delivery_events` still runs before HTTP when `events` is non-empty.
+- Two completes with the same spawn payloads, the same event data, and the same
+  key keep the same complete body, so a retry does not raise `TerminalConflictError`.
 - The SDK does not read the key from the environment. The application passes it
   explicitly, the same way it passes `bearer_token`.
 - The key is not the bearer token and does not grant a role. Producer, worker, and
   admin credentials stay distinct
   ([ADR 013](../04-architecture/adr/013-separate-security-planes.md)).
-- The HTTP request does not contain the key.
-- The server does not decrypt. It stores and returns opaque JSON, so it cannot read
-  the business content of an encrypted payload.
+- The server does not receive the key and does not decrypt. The HTTP request does
+  not contain the key. The server stores and returns opaque JSON.
 
 The decision is recorded in
 [ADR 032](../04-architecture/adr/032-client-side-content-key.md).
