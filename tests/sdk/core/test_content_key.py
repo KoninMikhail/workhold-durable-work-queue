@@ -9,6 +9,7 @@ from typing import Any
 import pytest
 
 from _workhold_client_core import QueueClientError
+from _workhold_client_core.codecs import encode_payload, measure_json_bytes
 from _workhold_client_core.content_key import (
     ContentDecryptError,
     is_content_envelope,
@@ -264,3 +265,33 @@ def test_task_with_opened_payload_replaces_envelope_payload() -> None:
     assert opened.payload == value
     assert opened.task_id == task.task_id
     assert task.payload is envelope
+
+
+class _FixedEncoder:
+    codec_name = "fixed-v1"
+
+    def encode(self, value: Any) -> Any:
+        return {"encoded": True, "n": 1}
+
+
+def test_encode_payload_without_key_keeps_identity() -> None:
+    payload = {"order_id": 7}
+    assert encode_payload(payload) is payload
+    assert encode_payload(payload, content_key=None) is payload
+
+
+def test_encode_payload_seals_after_encoder() -> None:
+    original = {"order_id": 7}
+    wire = encode_payload(original, _FixedEncoder(), content_key=KEY_BYTES)
+    assert is_content_envelope(wire)
+    assert original == {"order_id": 7}
+    assert open_task_payload(wire, KEY_BYTES) == {"encoded": True, "n": 1}
+
+
+def test_encode_payload_measures_envelope_not_plaintext() -> None:
+    plaintext = {"order_id": 7}
+    plain_size = measure_json_bytes(plaintext)
+    assert plain_size < measure_json_bytes(seal_task_payload(plaintext, KEY_BYTES))
+    assert encode_payload(plaintext, max_bytes=plain_size) is plaintext
+    with pytest.raises(ValueError, match="payload exceeds"):
+        encode_payload(plaintext, max_bytes=plain_size, content_key=KEY_BYTES)
