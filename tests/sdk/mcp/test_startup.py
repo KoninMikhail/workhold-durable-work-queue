@@ -135,9 +135,15 @@ def _valid_env() -> dict[str, str]:
         ),
         pytest.param(
             _valid_env(),
-            ("workhold-mcp", "--token", _CANARY),
+            ("not-a-flag",),
+            (_CANARY, _PUBLIC, _ADMIN, "not-a-flag"),
+            id="bare-argument",
+        ),
+        pytest.param(
+            _valid_env(),
+            ("--token", _CANARY),
             (_CANARY, _PUBLIC, _ADMIN),
-            id="extra-argv",
+            id="token-flag",
         ),
     ],
 )
