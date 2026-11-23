@@ -42,3 +42,6 @@ members = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+# pytest-asyncio 1.5 warns when this is unset. fixture-scope is the
+# current implicit behavior; function scope would change fixture loops.
+asyncio_default_fixture_loop_scope = "fixture-scope"
