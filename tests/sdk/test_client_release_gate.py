@@ -285,6 +285,58 @@ def test_client_release_gate_builds_inventory_and_dry_run() -> None:
     assert inventory["dependency_graph"]["workhold-client-core"] == []
     for role in CLIENT_DISTRIBUTIONS[1:]:
         assert inventory["dependency_graph"][role] == ["workhold-client-core"]
+    dry_run = result["dry_run"]
+    assert isinstance(dry_run, str)
+    assert "workhold_mcp-" in dry_run or "workhold-mcp-" in dry_run, (
+        "uv publish --dry-run must name the workhold-mcp wheel"
+    )
+
+
+def test_mcp_package_stays_outside_the_coordinated_set() -> None:
+    payload = json.loads((REPO_ROOT / "release-packages.json").read_text(encoding="utf-8"))
+    assert payload.get("mcp_package") == "workhold-mcp", (
+        "release-packages.json mcp_package must be workhold-mcp"
+    )
+    assert payload["pypi_packages"] == list(CLIENT_DISTRIBUTIONS)
+    assert "workhold-mcp" not in payload["pypi_packages"]
+
+
+def test_mcp_publisher_script_is_separate() -> None:
+    path = REPO_ROOT / "tools" / "publish_mcp_package.py"
+    assert path.is_file(), "missing publisher tools/publish_mcp_package.py"
+    text = path.read_text(encoding="utf-8")
+    assert "workhold-mcp" in text
+    assert "WORKHOLD_PUBLISH" in text
+    assert "pypi_packages" in text
+    assert "--trusted-publishing" in text
+    assert "always" in text
+
+
+def test_release_workflow_has_an_mcp_dispatch_choice() -> None:
+    workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    assert re.search(r"(?m)^\s+- mcp\s*$", workflow), "missing mcp dispatch choice"
+    assert "publish-mcp:" in workflow, "missing publish-mcp job"
+    assert "publish_mcp:" in workflow, "missing publish_mcp output"
+    assert "pypi-workhold-mcp" in workflow, "missing environment pypi-workhold-mcp"
+    assert "tools/publish_mcp_package.py" in workflow, (
+        "missing publisher tools/publish_mcp_package.py"
+    )
+    job = workflow.split("publish-mcp:", 1)[1]
+    assert "packages--release_created" not in job
+    assert "publish_clients" not in job
+
+
+def test_dispatch_all_does_not_select_mcp() -> None:
+    workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    for line in workflow.splitlines():
+        if "mcp=true" in line.replace(" ", ""):
+            assert "all" not in line, "all dispatch must not set the MCP flag"
+        if (
+            "PUBLISH_EXISTING" in line
+            and re.search(r'=\s*"all"', line)
+            and "mcp" in line
+        ):
+            raise AssertionError(f"all dispatch selects mcp: {line.strip()}")
 
 
 def re_sha256(value: str) -> bool:

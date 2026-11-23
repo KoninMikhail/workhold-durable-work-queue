@@ -222,6 +222,47 @@ def test_mcp_release_train_is_fenced() -> None:
         (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
     )
     assert manifest["packages/workhold-mcp"] == "0.0.0"
+    assert _project_version(REPO_ROOT / "packages" / "workhold-mcp" / "pyproject.toml") == "1.0.0"
+
+
+def test_mcp_package_is_not_a_coordinated_client() -> None:
+    payload = json.loads((REPO_ROOT / "release-packages.json").read_text(encoding="utf-8"))
+    assert payload.get("mcp_package") == "workhold-mcp", (
+        "release-packages.json mcp_package must be workhold-mcp"
+    )
+    assert payload["pypi_packages"] == list(CLIENT_DISTRIBUTIONS)
+    assert "workhold-mcp" not in payload["pypi_packages"]
+    version_files = payload["extra_version_files"]
+    assert all("workhold-mcp" not in path for path in version_files)
+
+
+def test_release_workflow_publishes_mcp_independently() -> None:
+    workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    publisher = REPO_ROOT / "tools" / "publish_mcp_package.py"
+    assert publisher.is_file(), "missing publisher tools/publish_mcp_package.py"
+    assert re.search(r"(?m)^\s+- mcp\s*$", workflow), "missing mcp dispatch choice"
+    assert "publish-mcp:" in workflow, "missing publish-mcp job"
+    assert "publish_mcp:" in workflow, "missing publish_mcp output"
+    assert "pypi-workhold-mcp" in workflow, "missing environment pypi-workhold-mcp"
+    assert "tools/publish_mcp_package.py" in workflow
+    job = workflow.split("publish-mcp:", 1)[1]
+    assert "packages--release_created" not in job, (
+        "publish-mcp must not run when only the coordinated client train releases"
+    )
+    assert "publish_clients" not in job
+
+
+def test_dispatch_all_does_not_publish_mcp() -> None:
+    workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    for line in workflow.splitlines():
+        if "mcp=true" in line.replace(" ", ""):
+            assert "all" not in line, "all dispatch must not set the MCP flag"
+        if (
+            "PUBLISH_EXISTING" in line
+            and re.search(r'=\s*"all"', line)
+            and "mcp" in line
+        ):
+            raise AssertionError(f"all dispatch selects mcp: {line.strip()}")
 
 
 def test_coordinated_client_versions_match_client_release_train() -> None:
