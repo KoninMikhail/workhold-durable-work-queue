@@ -388,7 +388,10 @@ class AsyncClaim:
         if limit is None and capabilities is not None:
             limit = capabilities.payload_runtime_max_bytes
         wire_spawn = _encode_spawn_items(
-            spawn, encoder=spawn_encoder, max_payload_bytes=limit
+            spawn,
+            encoder=spawn_encoder,
+            max_payload_bytes=limit,
+            content_key=self._client._content_key,
         )
         if events:
             caps = (

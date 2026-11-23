@@ -1,4 +1,4 @@
-"""Sync consumer opens the claimed task payload; spawn and events stay plaintext."""
+"""Sync consumer opens the claimed task payload and seals spawn payload."""
 
 from __future__ import annotations
 
@@ -10,7 +10,11 @@ import pytest
 
 from _workhold_client_core.capabilities import Capabilities
 from _workhold_client_core.codecs import TypedClaimView
-from _workhold_client_core.content_key import ContentDecryptError, seal_task_payload
+from _workhold_client_core.content_key import (
+    ContentDecryptError,
+    is_content_envelope,
+    seal_task_payload,
+)
 from _workhold_client_core.errors import MalformedResponseError
 import workhold_consumer
 from workhold_consumer import ConsumerClient
@@ -212,9 +216,9 @@ def test_keyed_complete_leaves_spawn_and_events_plaintext() -> None:
     )
 
     body = transport.complete_bodies[0]
-    assert body["spawn"][0]["payload"] == {"child": 1}
+    assert is_content_envelope(body["spawn"][0]["payload"])
     assert body["events"][0]["data"] == {"child": 1}
-    assert "$workhold_enc" not in json.dumps(body)
+    assert "$workhold_enc" not in json.dumps(body["events"])
 
 
 def test_empty_content_key_raises_without_leaking() -> None:

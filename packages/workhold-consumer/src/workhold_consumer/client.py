@@ -18,6 +18,7 @@ from _workhold_client_core.codecs import (
 )
 from _workhold_client_core.content_key import (
     parse_content_key,
+    seal_task_payload,
     task_with_opened_payload,
 )
 from _workhold_client_core.errors import (
@@ -363,7 +364,10 @@ class Claim:
         if limit is None and capabilities is not None:
             limit = capabilities.payload_runtime_max_bytes
         wire_spawn = _encode_spawn_items(
-            spawn, encoder=spawn_encoder, max_payload_bytes=limit
+            spawn,
+            encoder=spawn_encoder,
+            max_payload_bytes=limit,
+            content_key=self._client._content_key,
         )
         if events:
             caps = capabilities if capabilities is not None else self._client.get_capabilities()
@@ -465,16 +469,29 @@ def _encode_spawn_items(
     *,
     encoder: PayloadEncoder[Any] | None,
     max_payload_bytes: int | None,
+    content_key: bytes | None = None,
 ) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for item in spawn or ():
         wire = dict(item)
         if "payload" in wire:
-            # Always encode+gate via core helper, including encoder=None so an
-            # explicit max_payload_bytes still rejects oversize before transport.
-            wire["payload"] = encode_payload(
-                wire["payload"], encoder, max_bytes=max_payload_bytes
-            )
+            if content_key is None:
+                # Always encode+gate via core helper, including encoder=None so an
+                # explicit max_payload_bytes still rejects oversize before transport.
+                # Pass no content key: an omitted key must keep today's JSON.
+                wire["payload"] = encode_payload(
+                    wire["payload"], encoder, max_bytes=max_payload_bytes
+                )
+            else:
+                encoded = (
+                    wire["payload"]
+                    if encoder is None
+                    else encoder.encode(wire["payload"])
+                )
+                sealed = seal_task_payload(encoded, content_key)
+                wire["payload"] = encode_payload(
+                    sealed, None, max_bytes=max_payload_bytes
+                )
         items.append(wire)
     return items
 
