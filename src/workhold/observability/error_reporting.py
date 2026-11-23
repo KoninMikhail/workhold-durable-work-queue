@@ -89,11 +89,12 @@ def maybe_init_error_reporting(
         return False
 
     try:
+        # Do not pass send_default_pii. sentry-sdk 2.76 deprecates it, and the
+        # unset default is already off. data_collection would disable EventScrubber.
         sentry_sdk.init(
             dsn=value,
             environment=environment,
             release=release,
-            send_default_pii=False,
             debug=False,
             include_local_variables=False,
             max_request_body_size="never",
