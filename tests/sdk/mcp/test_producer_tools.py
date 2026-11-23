@@ -48,9 +48,32 @@ def _producer(steps: list[Any], **kwargs: Any) -> tuple[ProducerClient, Scripted
     return client, transport
 
 
+_SAFE_READ_PRODUCER_TOOLS = (
+    "producer_get_capabilities",
+    "producer_inspect_task",
+    "producer_resolve_submission",
+)
+_MUTATING_PRODUCER_TOOLS = (
+    "producer_enqueue",
+    "producer_cancel_task",
+)
+
+
 def test_producer_names_join_the_registry() -> None:
     for name in _PRODUCER_TOOL_NAMES:
         assert name in REGISTRY_BY_NAME
+    for name in _SAFE_READ_PRODUCER_TOOLS:
+        spec = REGISTRY_BY_NAME[name]
+        assert spec.read_only_hint is True
+        assert spec.open_world_hint is True
+        assert spec.surface == "producer"
+        assert not hasattr(spec, "idempotent_hint")
+        assert not hasattr(spec, "destructive_hint")
+    for name in _MUTATING_PRODUCER_TOOLS:
+        spec = REGISTRY_BY_NAME[name]
+        assert spec.read_only_hint is False
+        assert spec.open_world_hint is True
+        assert spec.surface == "producer"
     for excluded in (
         "consumer_enqueue",
         "worker_claim",

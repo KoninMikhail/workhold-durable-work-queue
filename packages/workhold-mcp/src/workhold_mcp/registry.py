@@ -175,7 +175,7 @@ def _require_aware(value: str) -> datetime:
 
 
 def _require_idempotency_key(key: str | None) -> str:
-    if key is None or not str(key).strip():
+    if not isinstance(key, str) or not key.strip():
         raise ValueError("idempotency_key is required")
     return key
 
@@ -485,7 +485,7 @@ _PRODUCER_CALLS: dict[str, tuple[str, dict[str, Any], Callable[..., Any], bool]]
             ("queue_name", "idempotency_key"),
         ),
         _producer_resolve_submission,
-        False,
+        True,
     ),
     "inspect_task": (
         "Producer-authorized task lookup (opened payload when keyed).",
