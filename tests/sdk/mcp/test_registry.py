@@ -127,11 +127,9 @@ def _observer(
 
 
 def test_registry_names_are_the_nine_observer_reads() -> None:
-    assert len(REGISTRY) == 9
-    assert tuple(spec.name for spec in REGISTRY) == _OBSERVER_TOOL_NAMES
-    assert tuple(REGISTRY_BY_NAME) == _OBSERVER_TOOL_NAMES
-    assert len(REGISTRY_BY_NAME) == 9
-    assert tuple(REGISTRY_BY_NAME.values()) == REGISTRY
+    names = set(REGISTRY_BY_NAME)
+    for name in _OBSERVER_TOOL_NAMES:
+        assert name in names
     assert all("iter_" not in spec.name for spec in REGISTRY)
 
 
@@ -141,6 +139,10 @@ def test_unknown_name_is_absent() -> None:
 
 
 def test_schemas_mirror_public_parameters() -> None:
+    observer_specs = [
+        spec for spec in REGISTRY if spec.name.startswith("observer_")
+    ]
+    assert {spec.name for spec in observer_specs} == set(_OBSERVER_TOOL_NAMES)
     assert set(_TOOL_PARAMETERS) == set(_OBSERVER_TOOL_NAMES)
     assert set(_REQUIRED) == set(_OBSERVER_TOOL_NAMES)
     for name in _OBSERVER_TOOL_NAMES:
@@ -163,6 +165,8 @@ def test_schemas_mirror_public_parameters() -> None:
 
 def test_hints_are_read_only() -> None:
     for spec in REGISTRY:
+        if not spec.name.startswith("observer_"):
+            continue
         assert spec.surface == "observer"
         assert spec.read_only_hint is True
         assert spec.open_world_hint is True

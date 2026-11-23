@@ -1,7 +1,7 @@
-"""MCP tool catalog and the static observer callables.
+"""MCP tool catalog and static observer and producer callables.
 
 ``load_manifest`` reads the checked-in role-prefixed catalog. ``REGISTRY``
-still exposes only the observer tools that have a static callable.
+joins manifest rows to explicit per-role handlers (no dynamic dispatch).
 """
 
 from __future__ import annotations
@@ -19,7 +19,9 @@ from workhold_admin.models import (
     PAGE_LIMIT_MAX,
     PAGE_LIMIT_MIN,
 )
+from _workhold_client_core.priority import PRIORITY_DEFAULT
 from workhold_admin.observer import ObserverClient
+from workhold_producer.client import ProducerClient
 
 
 @dataclass(frozen=True, slots=True)
@@ -172,6 +174,16 @@ def _require_aware(value: str) -> datetime:
     return parsed
 
 
+def _require_idempotency_key(key: str | None) -> str:
+    if not isinstance(key, str) or not key.strip():
+        raise ValueError("idempotency_key is required")
+    return key
+
+
+def _loose_object_schema() -> dict[str, Any]:
+    return {"type": "object", "additionalProperties": True}
+
+
 def _get_capabilities(observer: ObserverClient) -> Any:
     return observer.get_capabilities()
 
@@ -253,14 +265,17 @@ def _spec(
     description: str,
     input_schema: dict[str, Any],
     call: Callable[..., Any],
+    *,
+    surface: str,
+    read_only_hint: bool,
 ) -> ToolSpec:
     return ToolSpec(
         name=name,
         description=description,
         input_schema=input_schema,
         call=call,
-        surface="observer",
-        read_only_hint=True,
+        surface=surface,
+        read_only_hint=read_only_hint,
         open_world_hint=True,
     )
 
@@ -367,9 +382,158 @@ def _observer_registry(rows: tuple[ManifestTool, ...]) -> tuple[ToolSpec, ...]:
         row = by_method.get(method)
         if row is None:
             continue
-        specs.append(_spec(row.name, description, schema, call))
+        specs.append(
+            _spec(
+                row.name,
+                description,
+                schema,
+                call,
+                surface="observer",
+                read_only_hint=True,
+            )
+        )
     return tuple(specs)
 
 
-REGISTRY: tuple[ToolSpec, ...] = _observer_registry(load_manifest())
+def _producer_get_capabilities(producer: ProducerClient) -> Any:
+    return producer.get_capabilities()
+
+
+def _producer_enqueue(
+    producer: ProducerClient,
+    queue_name: str,
+    *,
+    idempotency_key: str | None = None,
+    payload: Any,
+    priority: int = PRIORITY_DEFAULT,
+    available_at: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    if available_at is not None:
+        return producer.enqueue(
+            queue_name,
+            idempotency_key=wire_key,
+            payload=payload,
+            priority=priority,
+            available_at=_require_aware(available_at),
+        )
+    return producer.enqueue(
+        queue_name,
+        idempotency_key=wire_key,
+        payload=payload,
+        priority=priority,
+    )
+
+
+def _producer_resolve_submission(
+    producer: ProducerClient,
+    queue_name: str,
+    *,
+    idempotency_key: str | None = None,
+) -> Any:
+    wire_key = _require_idempotency_key(idempotency_key)
+    return producer.resolve_submission(queue_name, idempotency_key=wire_key)
+
+
+def _producer_inspect_task(producer: ProducerClient, task_id: str) -> Any:
+    return producer.inspect_task(task_id)
+
+
+def _producer_cancel_task(
+    producer: ProducerClient,
+    task_id: str,
+    *,
+    reason: str | None = None,
+) -> Any:
+    if reason is None:
+        return producer.cancel_task(task_id)
+    return producer.cancel_task(task_id, reason=reason)
+
+
+_PRODUCER_CALLS: dict[str, tuple[str, dict[str, Any], Callable[..., Any], bool]] = {
+    "get_capabilities": (
+        "Producer deployment capabilities.",
+        _object_schema({}, ()),
+        _producer_get_capabilities,
+        True,
+    ),
+    "enqueue": (
+        "Enqueue one task with caller-supplied idempotency identity.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "idempotency_key": _string_schema(),
+                "payload": _loose_object_schema(),
+                "priority": {
+                    "type": "integer",
+                    "default": PRIORITY_DEFAULT,
+                },
+                "available_at": _string_schema(),
+            },
+            ("queue_name", "idempotency_key", "payload"),
+        ),
+        _producer_enqueue,
+        False,
+    ),
+    "resolve_submission": (
+        "Resolve a prior enqueue by idempotency key.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "idempotency_key": _string_schema(),
+            },
+            ("queue_name", "idempotency_key"),
+        ),
+        _producer_resolve_submission,
+        True,
+    ),
+    "inspect_task": (
+        "Producer-authorized task lookup (opened payload when keyed).",
+        _object_schema({"task_id": _string_schema()}, ("task_id",)),
+        _producer_inspect_task,
+        True,
+    ),
+    "cancel_task": (
+        "Cancel one task; reason is optional.",
+        _object_schema(
+            {
+                "task_id": _string_schema(),
+                "reason": _string_schema(),
+            },
+            ("task_id",),
+        ),
+        _producer_cancel_task,
+        False,
+    ),
+}
+
+
+def _producer_registry(rows: tuple[ManifestTool, ...]) -> tuple[ToolSpec, ...]:
+    by_method = {
+        row.method: row
+        for row in rows
+        if row.role == "producer" and row.client == "ProducerClient"
+    }
+    specs: list[ToolSpec] = []
+    for method, (description, schema, call, read_only) in _PRODUCER_CALLS.items():
+        row = by_method.get(method)
+        if row is None:
+            continue
+        specs.append(
+            _spec(
+                row.name,
+                description,
+                schema,
+                call,
+                surface="producer",
+                read_only_hint=read_only,
+            )
+        )
+    return tuple(specs)
+
+
+_MANIFEST_ROWS = load_manifest()
+REGISTRY: tuple[ToolSpec, ...] = _observer_registry(_MANIFEST_ROWS) + _producer_registry(
+    _MANIFEST_ROWS
+)
 REGISTRY_BY_NAME: dict[str, ToolSpec] = _index_registry(REGISTRY)

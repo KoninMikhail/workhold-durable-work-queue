@@ -10,6 +10,7 @@ dependencies = [
     "mcp>=2.3.0,<3",
     "workhold-admin>=1.0.4,<1.1.0",
     "workhold-client-core>=1.0.4,<1.1.0",
+    "workhold-producer>=1.0.4,<1.1.0",
 ]
 
 [project.scripts]
@@ -25,3 +26,4 @@ module-name = "workhold_mcp"
 [tool.uv.sources]
 workhold-admin = { workspace = true }
 workhold-client-core = { workspace = true }
+workhold-producer = { workspace = true }
