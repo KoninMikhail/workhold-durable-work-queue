@@ -46,8 +46,16 @@ Branch from `main`. Keep one pull request to one change.
 
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/).
 release-please opens the release pull request from those messages and writes
-[CHANGELOG.md](CHANGELOG.md). Do not bump versions or edit `CHANGELOG.md` by
-hand.
+[CHANGELOG.md](CHANGELOG.md) for the server and `packages/CHANGELOG.md` for the
+client packages. Do not bump versions or edit changelogs by hand.
+
+The server and the client packages release separately
+([ADR 031](docs/04-architecture/adr/031-separate-server-and-client-release-trains.md)).
+A `feat`, `fix`, `perf`, `security`, `build`, or `refactor` commit releases the
+client packages only if it changes files under `packages/`, and releases the
+server only if it changes files outside `packages/`, `tests/`, `tools/`,
+`benchmarks/`, `docs/` and `.github/`. `docs`, `ci`, `chore`, `test` and
+`style` commits never start a release.
 
 | Type | When |
 | --- | --- |

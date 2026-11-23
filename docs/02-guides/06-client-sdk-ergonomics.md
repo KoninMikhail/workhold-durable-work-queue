@@ -16,7 +16,10 @@ distribution and **no** auth-provider or legacy facade.
 | `workhold-consumer` | `workhold_consumer` | Claim / lease ops + `ConsumerSupervisor` |
 | `workhold-admin` | `workhold_admin` | `ObserverClient`, `AdminClient`, `BreakGlassClient` |
 
-All four share one repository version. Roles pin
+All four share one client-set version, released separately from the server
+([ADR 031](../04-architecture/adr/031-separate-server-and-client-release-trains.md)):
+a client release happens only when files under `packages/` change, and is
+tagged `workhold-clients-vX.Y.Z`. Roles pin
 `workhold-client-core>=X.Y.0,<X.(Y+1).0`. Publish is atomic: core first,
 then the three roles; partial sets and `queue-client` are rejected by CI.
 The release gate derives this interval from the coordinated role version (a
