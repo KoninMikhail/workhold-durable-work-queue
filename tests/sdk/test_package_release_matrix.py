@@ -285,7 +285,13 @@ def test_built_wheels_share_version_and_metadata(
         if dist == "workhold-client-core":
             requires = meta.get_all("Requires-Dist") or []
             pure = [r for r in requires if ";" not in r or "extra" not in r.split(";", 1)[1]]
-            assert pure == []
+            assert len(pure) == 1, f"core must have exactly one base dependency, got {pure}"
+            parsed_core = re.match(
+                r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)\s*\(?\s*(.*?)\s*\)?\s*$", pure[0]
+            )
+            assert parsed_core is not None, f"unparseable requirement {pure[0]!r}"
+            assert parsed_core.group(1).lower() == "cryptography"
+            assert ">=50.0.2" in parsed_core.group(2).replace(" ", "")
         else:
             requires = meta.get_all("Requires-Dist") or []
             core_reqs = [

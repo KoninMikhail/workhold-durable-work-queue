@@ -1,10 +1,11 @@
-"""Core wheel metadata: no runtime deps, no server modules."""
+"""Core wheel metadata: cryptography as the only base dep, no server modules."""
 
 from __future__ import annotations
 
 import email.message
 import email.parser
 import os
+import re
 import subprocess
 import zipfile
 from pathlib import Path
@@ -64,7 +65,7 @@ def core_wheel() -> Path:
     return _latest_wheel("workhold_client_core")
 
 
-def test_core_wheel_name_and_no_runtime_dependencies(core_wheel: Path) -> None:
+def test_core_wheel_name_and_cryptography_dependency(core_wheel: Path) -> None:
     meta = _metadata(core_wheel)
     assert meta.get("Name") == "workhold-client-core"
     requires = meta.get_all("Requires-Dist") or []
@@ -73,7 +74,11 @@ def test_core_wheel_name_and_no_runtime_dependencies(core_wheel: Path) -> None:
         if ";" in req and "extra" in req.split(";", 1)[1]:
             continue
         pure.append(req)
-    assert pure == [], f"core must have empty runtime deps, got {pure}"
+    assert len(pure) == 1, f"core must have exactly one base dependency, got {pure}"
+    parsed = re.match(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)\s*\(?\s*(.*?)\s*\)?\s*$", pure[0])
+    assert parsed is not None, f"unparseable requirement {pure[0]!r}"
+    assert parsed.group(1).lower() == "cryptography"
+    assert ">=50.0.2" in parsed.group(2).replace(" ", "")
 
 
 def test_core_wheel_contains_private_core_and_public_testkit(core_wheel: Path) -> None:
