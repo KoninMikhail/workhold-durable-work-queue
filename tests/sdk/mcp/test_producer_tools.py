@@ -93,7 +93,7 @@ def test_resolve_forwards_queue_and_idempotency_key() -> None:
     assert len(transport.calls) == 1
     call = transport.calls[0]
     assert _QUEUE_NAME in call.path
-    assert call.json_body() == {"idempotency_key": idem}
+    assert call.json_body(include_secrets=True) == {"idempotency_key": idem}
 
     producer, transport = _producer([ok(body)])
     with pytest.raises(ValueError):
@@ -166,7 +166,7 @@ def test_hidden_enqueue_parameters_are_absent() -> None:
 def test_content_key_envelope_round_trip() -> None:
     sealed = seal_task_payload(_PLAINTEXT, _KEY_BYTES)
     producer, transport = _producer(
-        [ok(enqueue_response_body(task_overrides={"payload": sealed}))],
+        [ok({"task": task_body(payload=sealed), "replayed": False})],
         content_key=_KEY_B64,
     )
     result = REGISTRY_BY_NAME["producer_enqueue"].call(
@@ -175,7 +175,7 @@ def test_content_key_envelope_round_trip() -> None:
         idempotency_key="idem-envelope",
         payload=_PLAINTEXT,
     )
-    wire = transport.calls[0].json_body()
+    wire = transport.calls[0].json_body(include_secrets=True)
     assert isinstance(wire, dict)
     payload = wire["payload"]
     assert isinstance(payload, dict)

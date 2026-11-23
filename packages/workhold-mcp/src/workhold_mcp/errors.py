@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from _workhold_client_core.content_key import ContentDecryptError
 from _workhold_client_core.errors import (
     MalformedResponseError,
     ProtocolError,
@@ -49,6 +50,9 @@ def project_error(exc: BaseException) -> dict[str, Any]:
         projected["kind"] = "cancelled"
     elif isinstance(exc, ValueError):
         projected["kind"] = "invalid_argument"
+    elif isinstance(exc, ContentDecryptError):
+        projected["kind"] = "content_decrypt"
+        projected["retryable"] = False
     else:
         projected["kind"] = "internal"
     return projected
