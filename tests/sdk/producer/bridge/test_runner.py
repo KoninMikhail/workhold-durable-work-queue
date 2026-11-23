@@ -1068,6 +1068,57 @@ def test_bridge_explicit_null_emits_json_null_on_wire(recording_server: Any) -> 
     assert wire == {"payload": {"x": 1}, "priority": 0, "available_at": None}
 
 
+def test_keyed_producer_bridge_posts_stable_envelope(recording_server: Any) -> None:
+    server, base_url = recording_server
+    server.routes[("POST", "/v1/queues/orders/tasks")] = (
+        lambda body, headers: (
+            201,
+            {
+                "task": {
+                    "task_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                    "queue_name": "orders",
+                    "producer_id": "p",
+                    "state": "ready",
+                    "priority": 0,
+                    "available_at": "2026-09-19T00:00:00Z",
+                    "retry_policy_version": 1,
+                    "created_at": "2026-09-19T00:00:00Z",
+                    "spawned_task_ids": [],
+                    "delivery_event_ids": [],
+                },
+                "replayed": False,
+            },
+        )
+    )
+    producer = ProducerClient(
+        HttpJsonTransport(base_url, timeout_s=2.0),
+        bearer_token="secret-token-value",
+        content_key=bytes(range(32)),
+    )
+    payload = {"order_id": 7, "sku": "plaintext-sentinel"}
+    store = FakeStore()
+    store.seed(
+        _intent(
+            row_id="row-1",
+            queue="orders",
+            enqueue_request={"payload": payload, "priority": 0},
+        )
+    )
+    store.seed(
+        _intent(
+            row_id="row-2",
+            queue="orders",
+            enqueue_request={"payload": dict(payload), "priority": 0},
+        )
+    )
+    runner = _make_runner(store, producer, batch_size=2)
+    assert runner.poll_once() == 2
+    assert len(server.recorded) == 2
+    first = json.loads(server.recorded[0]["body"].decode("utf-8"))
+    assert first["payload"]["$workhold_enc"] == 1
+    assert server.recorded[0]["body"] == server.recorded[1]["body"]
+
+
 # ---------------------------------------------------------------------------
 # Phase 12 Wave 0 scaffolds (WORK-16 bounded priority) — Plan 08 removes skips
 # ---------------------------------------------------------------------------

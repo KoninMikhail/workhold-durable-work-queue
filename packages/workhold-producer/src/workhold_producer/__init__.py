@@ -16,6 +16,7 @@ from _workhold_client_core.codecs import (
     decode_payload,
     encode_payload,
 )
+from _workhold_client_core.content_key import ContentDecryptError
 from workhold_producer.async_client import AsyncProducerClient
 from _workhold_client_core.errors import (
     AuthenticationError,
@@ -57,6 +58,7 @@ __all__ = [
     "PRIORITY_DEFAULT",
     "PRIORITY_MAX",
     "PRIORITY_MIN",
+    "ContentDecryptError",
     "PayloadDecodeError",
     "PayloadDecoder",
     "PayloadEncoder",

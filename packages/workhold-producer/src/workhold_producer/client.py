@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime
 from typing import Any
 
 from _workhold_client_core.capabilities import Capabilities
 from _workhold_client_core.codecs import PayloadEncoder, encode_payload
+from _workhold_client_core.content_key import (
+    parse_content_key,
+    seal_task_payload,
+    task_with_opened_payload,
+)
 from _workhold_client_core.errors import MalformedResponseError
 from _workhold_client_core.models import (
     CancelResponse,
@@ -29,12 +35,20 @@ class ProducerClient:
     replay is safe; ``ProtocolError.retryable`` and ``retry_after_ms`` are hints.
     """
 
-    def __init__(self, transport: HttpJsonTransport, *, bearer_token: str) -> None:
+    def __init__(
+        self,
+        transport: HttpJsonTransport,
+        *,
+        bearer_token: str,
+        content_key: str | bytes | None = None,
+    ) -> None:
         if not bearer_token or not bearer_token.strip():
             raise ValueError("bearer_token is required")
         self._transport = transport
         # Stored for Authorization only; never included in __repr__/errors.
         self._bearer_token = bearer_token
+        # Explicit opt-in only; never read from the environment or __repr__.
+        self._content_key = parse_content_key(content_key)
 
     def __repr__(self) -> str:
         return "ProducerClient(transport=..., bearer_token=<redacted>)"
@@ -83,14 +97,22 @@ class ProducerClient:
         if limit is None and capabilities is not None:
             limit = capabilities.payload_runtime_max_bytes
         wire_payload = encode_payload(
-            payload, payload_encoder, max_bytes=limit
+            payload,
+            payload_encoder,
+            max_bytes=limit,
+            content_key=self._content_key,
         )
-        return self._enqueue_with_available_at_raw(
+        response = self._enqueue_with_available_at_raw(
             queue_name,
             idempotency_key=idempotency_key,
             payload=wire_payload,
             priority=wire_priority,
             available_at=wire_available_at,
+            content_sealed=True,
+        )
+        return replace(
+            response,
+            task=task_with_opened_payload(response.task, self._content_key),
         )
 
     def _enqueue_with_available_at_raw(
@@ -101,10 +123,13 @@ class ProducerClient:
         payload: Any,
         priority: int = PRIORITY_DEFAULT,
         available_at: str | None | object = _AVAILABLE_AT_OMITTED,
+        content_sealed: bool = False,
     ) -> EnqueueResponse:
         """Internal immutable-json adapter for trusted in-package bridge callers."""
 
         wire_priority = validate_priority(priority)
+        if self._content_key is not None and not content_sealed:
+            payload = seal_task_payload(payload, self._content_key)
         body: dict[str, Any] = {"payload": payload, "priority": wire_priority}
         if available_at is not _AVAILABLE_AT_OMITTED:
             body["available_at"] = available_at
@@ -137,8 +162,12 @@ class ProducerClient:
             headers=self._auth_headers(),
             json_body={"idempotency_key": idempotency_key},
         )
-        return self._parse(
+        parsed = self._parse(
             ResolveSubmissionResponse.parse, response.status_code, response.body
+        )
+        return replace(
+            parsed,
+            task=task_with_opened_payload(parsed.task, self._content_key),
         )
 
     def inspect_task(self, task_id: str) -> Task:
@@ -151,7 +180,8 @@ class ProducerClient:
             headers=self._auth_headers(),
             json_body=None,
         )
-        return self._parse(Task.parse, response.status_code, response.body)
+        task = self._parse(Task.parse, response.status_code, response.body)
+        return task_with_opened_payload(task, self._content_key)
 
     def cancel_task(self, task_id: str, *, reason: str | None = None) -> CancelResponse:
         """POST ``/v1/tasks/{task_id}:cancel`` (OpenAPI ``cancelTask``)."""
@@ -166,7 +196,11 @@ class ProducerClient:
             headers=self._auth_headers(),
             json_body=body,
         )
-        return self._parse(CancelResponse.parse, response.status_code, response.body)
+        parsed = self._parse(CancelResponse.parse, response.status_code, response.body)
+        return replace(
+            parsed,
+            task=task_with_opened_payload(parsed.task, self._content_key),
+        )
 
     @staticmethod
     def _parse(parser: Any, status_code: int, body: object | None) -> Any:
