@@ -12,6 +12,7 @@ on:
           - none
           - server
           - clients
+          - mcp
           - all
         default: none
 
@@ -34,6 +35,7 @@ jobs:
       server_version: ${{ steps.release.outputs.version }}
       publish_server: ${{ steps.targets.outputs.server }}
       publish_clients: ${{ steps.targets.outputs.clients }}
+      publish_mcp: ${{ steps.targets.outputs.mcp }}
     steps:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
@@ -47,20 +49,26 @@ jobs:
         env:
           SERVER_RELEASED: ${{ steps.release.outputs.release_created }}
           CLIENTS_RELEASED: ${{ steps.release.outputs['packages--release_created'] }}
+          MCP_RELEASED: ${{ steps.release.outputs['packages/workhold-mcp--release_created'] }}
           PUBLISH_EXISTING: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_existing || 'none' }}
         run: |
           set -euo pipefail
           server=false
           clients=false
+          mcp=false
           if [ "${SERVER_RELEASED}" = "true" ] || [ "${PUBLISH_EXISTING}" = "server" ] || [ "${PUBLISH_EXISTING}" = "all" ]; then
             server=true
           fi
           if [ "${CLIENTS_RELEASED}" = "true" ] || [ "${PUBLISH_EXISTING}" = "clients" ] || [ "${PUBLISH_EXISTING}" = "all" ]; then
             clients=true
           fi
+          if [ "${MCP_RELEASED}" = "true" ] || [ "${PUBLISH_EXISTING}" = "mcp" ]; then
+            mcp=true
+          fi
           echo "server=${server}" >> "$GITHUB_OUTPUT"
           echo "clients=${clients}" >> "$GITHUB_OUTPUT"
-          echo "Publish server image: ${server}; publish client packages: ${clients}"
+          echo "mcp=${mcp}" >> "$GITHUB_OUTPUT"
+          echo "Publish server image: ${server}; publish client packages: ${clients}; publish MCP package: ${mcp}"
 
   align-release-pr:
     name: Align release pull request
@@ -241,3 +249,31 @@ jobs:
           WORKHOLD_PUBLISH: "1"
           WORKHOLD_PUBLISH_ONLY: ${{ matrix.package }}
         run: uv run python tools/publish_client_packages.py
+
+  publish-mcp:
+    name: Publish workhold-mcp
+    needs: release-please
+    if: needs.release-please.outputs.publish_mcp == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi-workhold-mcp
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --frozen --all-packages --group dev
+
+      - name: Client release gate
+        run: uv run python tools/client_release_gate.py
+
+      - name: Publish workhold-mcp
+        env:
+          WORKHOLD_PUBLISH: "1"
+        run: uv run python tools/publish_mcp_package.py

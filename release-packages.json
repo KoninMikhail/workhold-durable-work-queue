@@ -5,6 +5,7 @@
     "workhold-consumer",
     "workhold-admin"
   ],
+  "mcp_package": "workhold-mcp",
   "extra_version_files": [
     "packages/workhold-client-core/pyproject.toml",
     "packages/workhold-producer/pyproject.toml",
