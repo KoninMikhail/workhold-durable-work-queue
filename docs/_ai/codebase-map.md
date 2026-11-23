@@ -41,7 +41,7 @@ Product: **Workhold - Durable work queue**. Runtime package: `workhold`.
 ├── SECURITY.md                 # private vulnerability reports
 ├── CODE_OF_CONDUCT.md
 ├── SUPPORT.md
-├── release-please-config.json  # Conventional Commits → changelog and tags
+├── release-please-config.json  # server and client release trains (ADR 031)
 ├── release-packages.json       # client publish order and version files
 └── CHANGELOG.md                # written by release-please
 ```

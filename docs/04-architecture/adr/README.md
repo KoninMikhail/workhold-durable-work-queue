@@ -36,10 +36,12 @@ Why repository-level decisions were accepted. Start with the [reading path](../.
 | [028-catalog-apply-process-role](028-catalog-apply-process-role.md) | Fifth process role `apply` for catalog ensure-exists | Accepted |
 | [029-role-split-python-clients](029-role-split-python-clients.md) | Role-split producer/consumer/admin Python clients | Accepted; distribution names superseded by [030](030-workhold-distribution-names.md) |
 | [030-workhold-distribution-names](030-workhold-distribution-names.md) | Public distributions use the workhold name base | Accepted |
+| [031-separate-server-and-client-release-trains](031-separate-server-and-client-release-trains.md) | Server and client set release and version independently | Accepted |
 
 Index, HASH, and payload selections from Phase 3.9 QUAL-03 are recorded in ADR 023.
 The engine pin, file secrets, GlitchTip, and stdlib HTTP are ADR 024–027.
 The catalog apply process role is ADR 028.
 Python client role split is ADR 029; distribution names are ADR 030.
+Separate server and client release trains are ADR 031.
 Post-benchmark production SLOs remain follow-up work under
 [12-physical-contract-benchmarks.md](../12-physical-contract-benchmarks.md).

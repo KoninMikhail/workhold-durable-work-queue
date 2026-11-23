@@ -38,6 +38,7 @@ def _write_synthetic_release_tree(
     root: Path,
     *,
     version: str = "1.2.7",
+    server_version: str | None = None,
     overrides: dict[tuple[str, str], list[str]] | None = None,
 ) -> None:
     overrides = overrides or {}
@@ -48,7 +49,7 @@ def _write_synthetic_release_tree(
         "workhold-admin": version,
     }
     (root / "pyproject.toml").write_text(
-        f'[project]\nname = "queue"\nversion = "{version}"\n',
+        f'[project]\nname = "queue"\nversion = "{server_version or version}"\n',
         encoding="utf-8",
     )
     for dist, package_version in package_versions.items():
@@ -96,6 +97,27 @@ def test_synthetic_nonzero_patch_derives_and_accepts_coordinated_minor(
     version, expected = gate._assert_coordinated_versions()
     assert version == "1.2.7"
     assert expected == ">=1.2.0,<1.3.0"
+
+
+def test_client_set_version_is_independent_of_server_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    gate = _load_gate()
+    _write_synthetic_release_tree(tmp_path, server_version="2.5.0")
+    monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
+    version, expected = gate._assert_coordinated_versions()
+    assert version == "1.2.7"
+    assert expected == ">=1.2.0,<1.3.0"
+
+
+def test_extra_file_paths_are_relative_to_client_release_path() -> None:
+    gate = _load_gate()
+    assert gate._repo_path(".", "pyproject.toml") == "pyproject.toml"
+    assert (
+        gate._repo_path("packages", "workhold-admin/pyproject.toml")
+        == "packages/workhold-admin/pyproject.toml"
+    )
+    assert gate._repo_path("packages", "/uv.lock") == "uv.lock"
 
 
 @pytest.mark.parametrize(

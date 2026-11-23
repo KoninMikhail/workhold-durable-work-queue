@@ -205,13 +205,16 @@ def test_lockfile_members_exclude_prototype() -> None:
     assert 'name = "queue-client"' not in lock
 
 
-def test_coordinated_repository_versions_match() -> None:
+def test_coordinated_client_versions_match_client_release_train() -> None:
     versions = {_project_version(_package_pyproject(dist)) for dist in CLIENT_DISTRIBUTIONS}
     assert len(versions) == 1, f"client package versions drifted: {versions}"
     version = next(iter(versions))
     assert _VERSION_RE.match(version), f"unexpected version format: {version}"
-    root_version = _project_version(REPO_ROOT / "pyproject.toml")
-    assert version == root_version, "client set must share root repository version"
+    manifest = json.loads(
+        (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["packages"] == version
+    assert manifest["."] == _project_version(REPO_ROOT / "pyproject.toml")
 
 
 def test_role_packages_declare_exact_minor_core_bounds() -> None:

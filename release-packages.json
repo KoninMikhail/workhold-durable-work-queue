@@ -12,10 +12,12 @@
     "packages/workhold-admin/pyproject.toml"
   ],
   "version_py_files": [
-    "src/workhold/__init__.py",
     "packages/workhold-client-core/src/_workhold_client_core/__init__.py",
     "packages/workhold-producer/src/workhold_producer/__init__.py",
     "packages/workhold-consumer/src/workhold_consumer/__init__.py",
     "packages/workhold-admin/src/workhold_admin/__init__.py"
+  ],
+  "server_version_py_files": [
+    "src/workhold/__init__.py"
   ]
 }

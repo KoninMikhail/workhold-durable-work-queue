@@ -31,13 +31,21 @@ uv lock --check
 
 Command reference: [../03-reference/01-commands.md](../03-reference/01-commands.md). Env: `DATABASE_URL` and allowlisted `*_FILE` siblings (see `.env.example`); on the host, `uv run` uses only `NAME`.
 
-Release: GitHub Actions release-please on `main`. The first release is `1.0.0`
-(`initial-version`; the manifest stays `0.0.0` until that tag exists).
-Conventional Commits open a release pull request; merging it tags `vX.Y.Z`,
-pushes the runtime image to GHCR as `X.Y.Z` and, when repository secrets
-`DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are set, also to
-`docker.io/<username>/workhold`. It publishes the client set in
-`release-packages.json` order to PyPI with trusted publishing (`id-token: write`).
+Release: GitHub Actions release-please on `main` with two release trains
+([ADR 031](../04-architecture/adr/031-separate-server-and-client-release-trains.md)),
+one combined release pull request (branch `release-please--branches--main`).
+`docs`/`ci`/`chore`/`test`/`style` commits never release.
+
+- Server (`.`, tag `vX.Y.Z`, `CHANGELOG.md`): ignores commits that only touch
+  `packages`, `tests`, `tools`, `benchmarks`, `docs`, `.github`. Its release
+  pushes the runtime image to GHCR as `X.Y.Z` and, when repository secrets
+  `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are set, also to
+  `docker.io/<username>/workhold`.
+- Clients (`packages`, tag `workhold-clients-vX.Y.Z`, `packages/CHANGELOG.md`):
+  counts only files under `packages/`. Its release publishes the client set in
+  `release-packages.json` order to PyPI with trusted publishing (`id-token: write`).
+
+Manual rerun: `workflow_dispatch` input `publish_existing` = `server` / `clients` / `all`.
 No API token is stored. `workhold-client-core` uses pending publisher
 `release.yml` with any environment. Each role package uses the same workflow
 and its own environment: `pypi-workhold-producer`, `pypi-workhold-consumer`,
@@ -63,6 +71,7 @@ Claim long polling env (enabled capability): `QUEUE_CLAIM_MAX_WAIT_SECONDS=20`,
 | `workhold-consumer` | `workhold_consumer` | Extra: `async` |
 | `workhold-admin` | `workhold_admin` | Extra: `async` |
 
-Coordinated version across core + three roles. CI publishes core first; gate
+Coordinated version across core + three roles, independent of the server
+version (`workhold-client-core` is the source). CI publishes core first; gate
 rejects `queue-client` and partial role sets. Guide:
 [06-client-sdk-ergonomics.md](../02-guides/06-client-sdk-ergonomics.md).
