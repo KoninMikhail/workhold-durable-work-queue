@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime
 from typing import Any
 
 from _workhold_client_core.async_transport import AsyncTransport
 from _workhold_client_core.capabilities import Capabilities
 from _workhold_client_core.codecs import PayloadEncoder, encode_payload
+from _workhold_client_core.content_key import (
+    parse_content_key,
+    seal_task_payload,
+    task_with_opened_payload,
+)
 from _workhold_client_core.errors import MalformedResponseError
 from _workhold_client_core.models import (
     CancelResponse,
@@ -30,12 +36,14 @@ class AsyncProducerClient:
         *,
         bearer_token: str,
         owns_transport: bool = False,
+        content_key: str | bytes | None = None,
     ) -> None:
         if not bearer_token or not bearer_token.strip():
             raise ValueError("bearer_token is required")
         self._transport = transport
         self._bearer_token = bearer_token
         self._owns_transport = owns_transport
+        self._content_key = parse_content_key(content_key)
 
     @classmethod
     def from_url(
@@ -44,11 +52,17 @@ class AsyncProducerClient:
         *,
         bearer_token: str,
         timeout_s: float = 30.0,
+        content_key: str | bytes | None = None,
     ) -> AsyncProducerClient:
         from _workhold_client_core.async_transport import HttpxAsyncTransport
 
         transport = HttpxAsyncTransport(base_url, timeout_s=timeout_s)
-        return cls(transport, bearer_token=bearer_token, owns_transport=True)
+        return cls(
+            transport,
+            bearer_token=bearer_token,
+            owns_transport=True,
+            content_key=content_key,
+        )
 
     async def __aenter__(self) -> AsyncProducerClient:
         return self
@@ -96,7 +110,10 @@ class AsyncProducerClient:
         if limit is None and capabilities is not None:
             limit = capabilities.payload_runtime_max_bytes
         wire_payload = encode_payload(
-            payload, payload_encoder, max_bytes=limit
+            payload,
+            payload_encoder,
+            max_bytes=limit,
+            content_key=self._content_key,
         )
         return await self._enqueue_with_available_at_raw(
             queue_name,
@@ -104,6 +121,7 @@ class AsyncProducerClient:
             payload=wire_payload,
             priority=wire_priority,
             available_at=wire_available_at,
+            content_sealed=True,
         )
 
     async def _enqueue_with_available_at_raw(
@@ -114,9 +132,13 @@ class AsyncProducerClient:
         payload: Any,
         priority: int = PRIORITY_DEFAULT,
         available_at: str | None | object = _AVAILABLE_AT_OMITTED,
+        content_sealed: bool = False,
     ) -> EnqueueResponse:
         wire_priority = validate_priority(priority)
-        body: dict[str, Any] = {"payload": payload, "priority": wire_priority}
+        wire_payload = payload
+        if self._content_key is not None and not content_sealed:
+            wire_payload = seal_task_payload(payload, self._content_key)
+        body: dict[str, Any] = {"payload": wire_payload, "priority": wire_priority}
         if available_at is not _AVAILABLE_AT_OMITTED:
             body["available_at"] = available_at
         path = f"/v1/queues/{encode_path_segment(queue_name)}/tasks"
@@ -126,7 +148,11 @@ class AsyncProducerClient:
             headers=self._auth_headers({"Idempotency-Key": idempotency_key}),
             json_body=body,
         )
-        return self._parse(EnqueueResponse.parse, response.status_code, response.body)
+        parsed = self._parse(EnqueueResponse.parse, response.status_code, response.body)
+        return replace(
+            parsed,
+            task=task_with_opened_payload(parsed.task, self._content_key),
+        )
 
     @staticmethod
     def _require_aware_datetime(value: datetime) -> None:
@@ -146,8 +172,12 @@ class AsyncProducerClient:
             headers=self._auth_headers(),
             json_body={"idempotency_key": idempotency_key},
         )
-        return self._parse(
+        parsed = self._parse(
             ResolveSubmissionResponse.parse, response.status_code, response.body
+        )
+        return replace(
+            parsed,
+            task=task_with_opened_payload(parsed.task, self._content_key),
         )
 
     async def inspect_task(self, task_id: str) -> Task:
@@ -158,7 +188,8 @@ class AsyncProducerClient:
             headers=self._auth_headers(),
             json_body=None,
         )
-        return self._parse(Task.parse, response.status_code, response.body)
+        task = self._parse(Task.parse, response.status_code, response.body)
+        return task_with_opened_payload(task, self._content_key)
 
     async def cancel_task(self, task_id: str, *, reason: str | None = None) -> CancelResponse:
         body: dict[str, Any] = {}
@@ -171,7 +202,11 @@ class AsyncProducerClient:
             headers=self._auth_headers(),
             json_body=body,
         )
-        return self._parse(CancelResponse.parse, response.status_code, response.body)
+        parsed = self._parse(CancelResponse.parse, response.status_code, response.body)
+        return replace(
+            parsed,
+            task=task_with_opened_payload(parsed.task, self._content_key),
+        )
 
     @staticmethod
     def _parse(parser: Any, status_code: int, body: object | None) -> Any:

@@ -48,6 +48,16 @@ def _assert_key_hidden(*parts: Any) -> None:
     assert SENTINEL not in blob
 
 
+def _transport_resp(status: int, body: object | None) -> TransportResponse:
+    raw = b"" if body is None else json.dumps(body).encode("utf-8")
+    return TransportResponse(
+        status_code=status,
+        headers={},
+        body=body,
+        raw_body=raw,
+    )
+
+
 class _AsyncProducerTransport:
     def __init__(self) -> None:
         self.calls: list[dict[str, Any]] = []
@@ -73,13 +83,13 @@ class _AsyncProducerTransport:
         if path == f"/v1/queues/{QUEUE}/tasks":
             wire = (json_body or {}).get("payload")
             self._echo_payload = wire
-            return TransportResponse(
+            return _transport_resp(
                 201,
                 {"task": _task_wire(payload=wire, state="ready"), "replayed": False},
             )
         if path == f"/v1/queues/{QUEUE}/submissions:resolve":
             wire = self._echo_payload if self._echo_payload is not None else PLAINTEXT
-            return TransportResponse(
+            return _transport_resp(
                 200,
                 {
                     "task": _task_wire(payload=wire),
@@ -89,14 +99,14 @@ class _AsyncProducerTransport:
             )
         if path == f"/v1/tasks/{TASK_ID}":
             wire = self._echo_payload if self._echo_payload is not None else PLAINTEXT
-            return TransportResponse(200, _task_wire(payload=wire))
+            return _transport_resp(200, _task_wire(payload=wire))
         if path == f"/v1/tasks/{TASK_ID}:cancel":
             wire = self._echo_payload if self._echo_payload is not None else PLAINTEXT
-            return TransportResponse(
+            return _transport_resp(
                 200,
                 {"task": _task_wire(payload=wire, state="cancelled")},
             )
-        return TransportResponse(404, None)
+        return _transport_resp(404, None)
 
 
 def _claim_body(payload: Any) -> dict[str, Any]:
@@ -145,10 +155,10 @@ class _AsyncConsumerTransport:
             }
         )
         if path == "/v1/claims":
-            return TransportResponse(200, self._claim_body)
+            return _transport_resp(200, self._claim_body)
         if path.endswith(":complete"):
             self.complete_bodies.append(dict(json_body or {}))
-            return TransportResponse(
+            return _transport_resp(
                 200,
                 {
                     "task_id": TASK_ID,
@@ -157,7 +167,7 @@ class _AsyncConsumerTransport:
                     "replayed": False,
                 },
             )
-        return TransportResponse(404, None)
+        return _transport_resp(404, None)
 
 
 def _caps(**overrides: object) -> Capabilities:
