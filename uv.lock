@@ -1125,6 +1125,7 @@ dependencies = [
     { name = "mcp" },
     { name = "workhold-admin" },
     { name = "workhold-client-core" },
+    { name = "workhold-producer" },
 ]
 
 [package.metadata]
@@ -1132,6 +1133,7 @@ requires-dist = [
     { name = "mcp", specifier = ">=2.3.0,<3" },
     { name = "workhold-admin", editable = "packages/workhold-admin" },
     { name = "workhold-client-core", editable = "packages/workhold-client-core" },
+    { name = "workhold-producer", editable = "packages/workhold-producer" },
 ]
 
 [[package]]
