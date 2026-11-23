@@ -185,6 +185,45 @@ Capability guards fail closed before HTTP:
 MVP keeps `batch_claim=false` / `max_tasks=1`. Do not invent query params or
 auth-provider paths around these gates.
 
+## Optional content key
+
+`ProducerClient` and `ConsumerClient` (and their async twins) accept one optional
+constructor argument, `content_key`. It protects the task `payload` before it
+leaves the client. The application passes the same key to every client that must
+write or read protected payloads.
+
+```python
+# Keyed: the task payload is encrypted before HTTP and restored on read.
+producer = ProducerClient(
+    transport, bearer_token=producer_secret, content_key=content_key
+)
+consumer = ConsumerClient(
+    transport, bearer_token=worker_secret, content_key=content_key
+)
+
+# Unkeyed: the task payload is plaintext JSON, exactly as without this option.
+producer = ProducerClient(transport, bearer_token=producer_secret)
+consumer = ConsumerClient(transport, bearer_token=worker_secret)
+```
+
+`content_key` is a variable your application already holds, for example one
+injected by your deployment's secret store. The samples never contain a key.
+
+- The parameter name is `content_key`. Omitting it, or passing `None`, leaves the
+  task payload as plaintext JSON.
+- Passing it encrypts the task payload before the HTTP request is built.
+- The SDK does not read the key from the environment. The application passes it
+  explicitly, the same way it passes `bearer_token`.
+- The key is not the bearer token and does not grant a role. Producer, worker, and
+  admin credentials stay distinct
+  ([ADR 013](../04-architecture/adr/013-separate-security-planes.md)).
+- The HTTP request does not contain the key.
+- The server does not decrypt. It stores and returns opaque JSON, so it cannot read
+  the business content of an encrypted payload.
+
+The decision is recorded in
+[ADR 032](../04-architecture/adr/032-client-side-content-key.md).
+
 ## Verification (maintainers)
 
 ```bash
