@@ -7,7 +7,7 @@ import os
 import sys
 from typing import NoReturn
 
-from workhold_mcp.config import ConfigError, build_observer, load_settings
+from workhold_mcp.config import ConfigError, load_settings
 from workhold_mcp.policy import resolve_tool_policy
 from workhold_mcp.registry import load_manifest
 from workhold_mcp.server import build_server
@@ -23,12 +23,11 @@ def main() -> None:
     logging.basicConfig(stream=sys.stderr, level=logging.INFO)
     try:
         known_names = frozenset(row.name for row in load_manifest())
-        resolve_tool_policy(sys.argv[1:], os.environ, known_names)
-        settings = load_settings()
+        policy = resolve_tool_policy(sys.argv[1:], os.environ, known_names)
+        settings = load_settings(names=policy)
+        server = build_server(settings, policy)
     except ConfigError as exc:
         _reject(exc.setting_name)
-    observer = build_observer(settings)
-    server = build_server(observer)
     server.run(transport="stdio")
     raise SystemExit(0)
 

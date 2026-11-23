@@ -17,8 +17,8 @@ from mcp import Client
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
-from workhold_admin.observer import ObserverClient
-from workhold_mcp.registry import REGISTRY, REGISTRY_BY_NAME
+from workhold_mcp.config import load_settings
+from workhold_mcp.registry import REGISTRY_BY_NAME
 from workhold_mcp.server import assert_published_schema, build_server
 
 _CANARY = "WHMCP-TOKEN-CANARY"
@@ -187,17 +187,22 @@ def test_schema_check_is_semantic() -> None:
     bad_required["required"] = ["task_id", "cursor"]
     _raises_schema_mismatch(tool_name, bad_required)
 
-    server = build_server(cast_observer())
+    policy = frozenset(_TOOL_NAMES)
+    settings = load_settings(
+        {
+            "WORKHOLD_MCP_PUBLIC_BASE_URL": "http://127.0.0.1:9",
+            "WORKHOLD_MCP_ADMIN_BASE_URL": "http://127.0.0.1:10",
+            "WORKHOLD_MCP_OBSERVER_TOKEN": _CANARY,
+        },
+        names=policy,
+    )
+    server = build_server(settings, policy)
     tools = server._tool_manager.list_tools()
-    assert sorted(tool.name for tool in tools) == sorted(_TOOL_NAMES)
-    assert len(tools) == len(REGISTRY)
+    assert [tool.name for tool in tools] == sorted(_TOOL_NAMES)
+    assert len(tools) == len(_TOOL_NAMES)
     for tool in tools:
         assert tool.is_async is False
         assert inspect.iscoroutinefunction(tool.fn) is False
-
-
-def cast_observer() -> ObserverClient:
-    return object()  # type: ignore[return-value]
 
 
 async def test_stdio_initialize_lists_nine_and_calls(recording_server: Any) -> None:
@@ -216,7 +221,7 @@ async def test_stdio_initialize_lists_nine_and_calls(recording_server: Any) -> N
         captured = errlog.read()
 
     names = [tool.name for tool in listed.tools]
-    assert sorted(names) == sorted(_TOOL_NAMES)
+    assert names == sorted(_TOOL_NAMES)
     assert len(names) == len(_TOOL_NAMES)
     assert list(resources.resources) == []
     assert list(prompts.prompts) == []
@@ -236,5 +241,5 @@ async def test_modern_discover_lists_the_same_nine(recording_server: Any) -> Non
     async with Client(params, mode="auto", read_timeout_seconds=_READ_TIMEOUT_SECONDS) as client:
         listed = await client.list_tools()
     names = [tool.name for tool in listed.tools]
-    assert sorted(names) == sorted(_TOOL_NAMES)
+    assert names == sorted(_TOOL_NAMES)
     assert len(names) == len(_TOOL_NAMES)
