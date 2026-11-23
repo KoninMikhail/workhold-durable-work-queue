@@ -36,6 +36,8 @@ CLIENT_DISTRIBUTIONS: tuple[str, ...] = (
 FORBIDDEN_DISTRIBUTIONS = frozenset(
     {"queue-client", "queue_client", "queue-service-client", "queue_service_client"}
 )
+SERVER_RELEASE_PATH = "."
+CLIENT_RELEASE_PATH = "packages"
 _PY_VERSION_RE = re.compile(r'^__version__\s*=\s*"([^"]+)"', re.MULTILINE)
 _RELEASE_PLEASE_VERSION_MARKER = re.compile(
     r'^__version__\s*=\s*"[^"]+"\s+#\s*x-release-please-version\s*$',
@@ -198,11 +200,6 @@ def _assert_coordinated_versions() -> tuple[str, str]:
     if len(versions) != 1:
         raise GateError(f"client package versions drifted: {versions}")
     version = next(iter(versions))
-    root_version = _project_version(REPO_ROOT / "pyproject.toml")
-    if version != root_version:
-        raise GateError(
-            f"client set version {version} != root repository version {root_version}"
-        )
     expected_lower, expected_upper, expected_spec = _expected_core_interval(version)
     for dist in CLIENT_DISTRIBUTIONS[1:]:
         project = _load_toml(_package_pyproject(dist))["project"]
@@ -230,9 +227,9 @@ def _assert_coordinated_versions() -> tuple[str, str]:
 
 
 def _assert_version_modules(root: Path, relative_paths: list[str], version: str) -> None:
-    """``__version__`` in each coordinated module must equal the root version."""
+    """``__version__`` in each listed module must equal its release train version."""
     if not isinstance(version, str) or not version:
-        raise GateError("root project.version must be a non-empty string")
+        raise GateError("project.version must be a non-empty string")
     for relative in relative_paths:
         path = root / relative
         if not path.is_file():
@@ -243,7 +240,7 @@ def _assert_version_modules(root: Path, relative_paths: list[str], version: str)
         module_version = match.group(1)
         if module_version != version:
             raise GateError(
-                f"{relative} __version__ {module_version} != root project.version {version}"
+                f"{relative} __version__ {module_version} != project.version {version}"
             )
 
 
@@ -252,6 +249,37 @@ def _string_list(data: dict[str, object], key: str) -> list[str]:
     if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
         raise GateError(f"release-packages.json {key} must be a list of strings")
     return list(value)
+
+
+def _repo_path(release_path: str, extra_file_path: str) -> str:
+    """Repository-relative path of a release-please extra-file entry."""
+    if release_path == SERVER_RELEASE_PATH or extra_file_path.startswith("/"):
+        return extra_file_path.lstrip("/")
+    return f"{release_path}/{extra_file_path}"
+
+
+def _assert_extra_files(
+    release_path: str,
+    package_config: dict[str, object],
+    expected_paths: list[str],
+    version_modules: set[str],
+) -> None:
+    extra = package_config.get("extra-files")
+    if not isinstance(extra, list) or not all(isinstance(item, dict) for item in extra):
+        raise GateError(f"release-please '{release_path}' extra-files must be a list of objects")
+    extra_paths = [_repo_path(release_path, str(item.get("path", ""))) for item in extra]
+    if extra_paths != expected_paths:
+        raise GateError(f"release-please '{release_path}' extra-files drifted: {extra_paths!r}")
+    for item, path in zip(extra, extra_paths, strict=True):
+        if path not in version_modules:
+            continue
+        if item.get("type") != "generic":
+            raise GateError(
+                f"release-please extra-file {path} must use the generic updater"
+            )
+        text = (REPO_ROOT / path).read_text(encoding="utf-8")
+        if _RELEASE_PLEASE_VERSION_MARKER.search(text) is None:
+            raise GateError(f"{path} must mark __version__ with x-release-please-version")
 
 
 def _workflow_text() -> str:
@@ -282,30 +310,46 @@ def _assert_ci_atomic_publish_shape() -> None:
     if version_files != expected:
         raise GateError(f"CI extra_version_files drifted: {version_files!r}")
     version_modules = _string_list(data, "version_py_files")
-    with (REPO_ROOT / "pyproject.toml").open("rb") as fh:
-        root_version = tomllib.load(fh)["project"]["version"]
-    _assert_version_modules(REPO_ROOT, version_modules, root_version)
+    server_modules = _string_list(data, "server_version_py_files")
+    root_version = _project_version(REPO_ROOT / "pyproject.toml")
+    client_version = _project_version(REPO_ROOT / version_files[0])
+    _assert_version_modules(REPO_ROOT, version_modules, client_version)
+    _assert_version_modules(REPO_ROOT, server_modules, root_version)
 
     config = json.loads((REPO_ROOT / "release-please-config.json").read_text(encoding="utf-8"))
-    package_config = config["packages"]["."]
-    extra = package_config["extra-files"]
-    extra_paths = [item["path"] for item in extra]
-    expected_extra = ["pyproject.toml", *version_files, *version_modules]
-    if extra_paths != expected_extra:
-        raise GateError(f"release-please extra-files drifted: {extra_paths!r}")
-    version_module_set = set(version_modules)
-    for item in extra:
-        path = item["path"]
-        if path not in version_module_set:
-            continue
-        if item.get("type") != "generic":
-            raise GateError(
-                f"release-please extra-file {path} must use the generic updater"
-            )
-        text = (REPO_ROOT / path).read_text(encoding="utf-8")
-        if _RELEASE_PLEASE_VERSION_MARKER.search(text) is None:
-            raise GateError(f"{path} must mark __version__ with x-release-please-version")
-    initial_version = package_config.get("initial-version") or config.get("initial-version")
+    packages_config = config.get("packages")
+    if not isinstance(packages_config, dict) or set(packages_config) != {
+        SERVER_RELEASE_PATH,
+        CLIENT_RELEASE_PATH,
+    }:
+        raise GateError(
+            "release-please packages must be exactly the server '.' and client "
+            f"'{CLIENT_RELEASE_PATH}' release trains"
+        )
+    server_config = packages_config[SERVER_RELEASE_PATH]
+    client_config = packages_config[CLIENT_RELEASE_PATH]
+    if CLIENT_RELEASE_PATH not in server_config.get("exclude-paths", []):
+        raise GateError(
+            f"server release train must exclude '{CLIENT_RELEASE_PATH}' so client "
+            "changes do not release the server"
+        )
+    if client_config.get("include-component-in-tag") is not True:
+        raise GateError("client release train must include its component in the tag")
+    if server_config.get("component") == client_config.get("component"):
+        raise GateError("server and client release trains must use distinct components")
+    _assert_extra_files(
+        SERVER_RELEASE_PATH,
+        server_config,
+        ["pyproject.toml", *server_modules],
+        set(server_modules),
+    )
+    _assert_extra_files(
+        CLIENT_RELEASE_PATH,
+        client_config,
+        [*version_files, *version_modules],
+        set(version_modules),
+    )
+    initial_version = config.get("initial-version")
     if initial_version != "1.0.0":
         raise GateError(
             "release-please initial-version must be 1.0.0 so the first release "
@@ -314,18 +358,22 @@ def _assert_ci_atomic_publish_shape() -> None:
     manifest = json.loads(
         (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
     )
-    manifest_version = manifest.get(".")
-    if manifest_version == "0.0.0":
-        if root_version != initial_version:
+    for release_path, version in (
+        (SERVER_RELEASE_PATH, root_version),
+        (CLIENT_RELEASE_PATH, client_version),
+    ):
+        manifest_version = manifest.get(release_path)
+        if manifest_version == "0.0.0":
+            if version != initial_version:
+                raise GateError(
+                    f"until the first '{release_path}' release, its version must equal "
+                    f"initial-version {initial_version}; got {version!r}"
+                )
+        elif manifest_version != version:
             raise GateError(
-                "until the first release, root project.version must equal "
-                f"initial-version {initial_version}; got {root_version!r}"
+                f"release-please manifest '{release_path}' drifted from project.version: "
+                f"{manifest_version!r} != {version!r}"
             )
-    elif manifest_version != root_version:
-        raise GateError(
-            "release-please manifest drifted from root project.version: "
-            f"{manifest_version!r} != {root_version!r}"
-        )
 
     workflow_text = _workflow_text()
     for token in (
@@ -347,6 +395,11 @@ def _assert_ci_atomic_publish_shape() -> None:
     )
     if "id-token: write" not in release_yml:
         raise GateError("release workflow must grant id-token: write for PyPI trusted publishing")
+    if f"{CLIENT_RELEASE_PATH}--release_created" not in release_yml:
+        raise GateError(
+            "release workflow must publish clients only when the client release train "
+            f"releases ({CLIENT_RELEASE_PATH}--release_created)"
+        )
     for environment in (
         "pypi-workhold-producer",
         "pypi-workhold-consumer",

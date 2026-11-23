@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Align package versions and exact-minor core bounds to the root version.
+"""Align the server and client-set version files with their release trains.
 
-``pyproject.toml`` ``project.version`` is the source of truth. Client
-pyprojects, ``__version__`` assignments, and role-package core bounds
-(``>=MAJOR.MINOR.0,<MAJOR.(MINOR+1).0``) are rewritten to match it.
+Two independent sources of truth:
+
+* the root ``pyproject.toml`` ``project.version`` (server and runtime image)
+  drives ``server_version_py_files``;
+* the ``workhold-client-core`` ``project.version`` (client set) drives the
+  role pyprojects, client ``__version__`` assignments, and role-package core
+  bounds (``>=MAJOR.MINOR.0,<MAJOR.(MINOR+1).0``).
 """
 
 from __future__ import annotations
@@ -69,11 +73,11 @@ def rewrite_version_module(text: str, version: str) -> str:
     return _PY_VERSION.sub(_replace, text, count=1)
 
 
-def _root_version(root: Path) -> str:
-    with (root / "pyproject.toml").open("rb") as fh:
+def _project_version(path: Path, label: str) -> str:
+    with path.open("rb") as fh:
         version = tomllib.load(fh)["project"]["version"]
     if not isinstance(version, str):
-        raise SyncError("root project.version must be a string")
+        raise SyncError(f"{label} project.version must be a string")
     exact_minor_bounds(version)
     return version
 
@@ -83,21 +87,34 @@ def _release_contract(root: Path) -> dict[str, list[str]]:
     packages = payload.get("pypi_packages")
     version_files = payload.get("extra_version_files")
     version_modules = payload.get("version_py_files")
+    server_modules = payload.get("server_version_py_files")
     if not isinstance(packages, list) or not packages:
         raise SyncError("release-packages.json pypi_packages must be a non-empty list")
-    if not isinstance(version_files, list) or not isinstance(version_modules, list):
+    if (
+        not isinstance(version_files, list)
+        or not isinstance(version_modules, list)
+        or not isinstance(server_modules, list)
+    ):
         raise SyncError("release-packages.json version file lists must be arrays")
-    return {
+    contract = {
         "pypi_packages": [str(item) for item in packages],
         "extra_version_files": [str(item) for item in version_files],
         "version_py_files": [str(item) for item in version_modules],
+        "server_version_py_files": [str(item) for item in server_modules],
     }
+    core_pyproject = f"packages/{contract['pypi_packages'][0]}/pyproject.toml"
+    if not contract["extra_version_files"] or contract["extra_version_files"][0] != core_pyproject:
+        raise SyncError(f"extra_version_files must start with {core_pyproject}")
+    return contract
 
 
 def sync_repository(root: Path) -> list[Path]:
     """Rewrite drifted files. Return paths that changed."""
-    version = _root_version(root)
     contract = _release_contract(root)
+    server_version = _project_version(root / "pyproject.toml", "root")
+    client_version = _project_version(
+        root / contract["extra_version_files"][0], contract["pypi_packages"][0]
+    )
     role_names = set(contract["pypi_packages"][1:])
     changed: list[Path] = []
     for relative in contract["extra_version_files"]:
@@ -105,12 +122,16 @@ def sync_repository(root: Path) -> list[Path]:
         package_name = path.parent.name
         updated = rewrite_pyproject(
             path.read_text(encoding="utf-8"),
-            version,
+            client_version,
             update_bounds=package_name in role_names,
         )
         if _write_if_changed(path, updated):
             changed.append(path)
-    for relative in contract["version_py_files"]:
+    modules = [
+        *((relative, client_version) for relative in contract["version_py_files"]),
+        *((relative, server_version) for relative in contract["server_version_py_files"]),
+    ]
+    for relative, version in modules:
         path = root / relative
         updated = rewrite_version_module(path.read_text(encoding="utf-8"), version)
         if _write_if_changed(path, updated):

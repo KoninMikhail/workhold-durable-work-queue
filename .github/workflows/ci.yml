@@ -36,7 +36,7 @@ jobs:
           set -euo pipefail
           uv run python tools/sync_coordinated_version.py
           if ! git diff --quiet -- pyproject.toml src/workhold/__init__.py packages; then
-            echo "Coordinated version files differ from the root version."
+            echo "Version files differ from their release train (server: root pyproject, clients: workhold-client-core)."
             git diff -- pyproject.toml src/workhold/__init__.py packages
             echo "Release Please should have updated these files on the release branch."
             exit 1

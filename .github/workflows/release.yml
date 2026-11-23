@@ -6,9 +6,14 @@ on:
   workflow_dispatch:
     inputs:
       publish_existing:
-        description: Publish the current checkout when a release tag already exists
-        type: boolean
-        default: false
+        description: Republish the current checkout when its release tag already exists
+        type: choice
+        options:
+          - none
+          - server
+          - clients
+          - all
+        default: none
 
 permissions:
   contents: write
@@ -18,14 +23,17 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  RELEASE_BRANCH: release-please--branches--main
+
 jobs:
   release-please:
     name: Release Please
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.release.outputs.version }}
+      server_version: ${{ steps.release.outputs.version }}
+      publish_server: ${{ steps.targets.outputs.server }}
+      publish_clients: ${{ steps.targets.outputs.clients }}
     steps:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
@@ -33,6 +41,26 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Select publish targets
+        id: targets
+        env:
+          SERVER_RELEASED: ${{ steps.release.outputs.release_created }}
+          CLIENTS_RELEASED: ${{ steps.release.outputs['packages--release_created'] }}
+          PUBLISH_EXISTING: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_existing || 'none' }}
+        run: |
+          set -euo pipefail
+          server=false
+          clients=false
+          if [ "${SERVER_RELEASED}" = "true" ] || [ "${PUBLISH_EXISTING}" = "server" ] || [ "${PUBLISH_EXISTING}" = "all" ]; then
+            server=true
+          fi
+          if [ "${CLIENTS_RELEASED}" = "true" ] || [ "${PUBLISH_EXISTING}" = "clients" ] || [ "${PUBLISH_EXISTING}" = "all" ]; then
+            clients=true
+          fi
+          echo "server=${server}" >> "$GITHUB_OUTPUT"
+          echo "clients=${clients}" >> "$GITHUB_OUTPUT"
+          echo "Publish server image: ${server}; publish client packages: ${clients}"
 
   align-release-pr:
     name: Align release pull request
@@ -50,8 +78,7 @@ jobs:
         id: release-branch
         run: |
           set -euo pipefail
-          branch="release-please--branches--main--components--workhold"
-          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+          if git ls-remote --exit-code --heads origin "${RELEASE_BRANCH}" >/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -68,8 +95,7 @@ jobs:
         if: steps.release-branch.outputs.exists == 'true'
         run: |
           set -euo pipefail
-          branch="release-please--branches--main--components--workhold"
-          git fetch --depth=1 origin "$branch"
+          git fetch --depth=1 origin "${RELEASE_BRANCH}"
           git checkout --detach FETCH_HEAD
           uv run python tools/sync_coordinated_version.py
           uv lock
@@ -81,37 +107,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore(release): sync coordinated versions and lockfile"
-          git push origin "HEAD:${branch}"
+          git push origin "HEAD:${RELEASE_BRANCH}"
 
-  publish:
-    name: Publish
+  publish-image:
+    name: Publish runtime image
     needs: release-please
-    if: >-
-      needs.release-please.outputs.release_created == 'true' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_existing == 'true')
+    if: needs.release-please.outputs.publish_server == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
       packages: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
-        with:
-          python-version: "3.13"
-          enable-cache: true
-
-      - name: Install
-        run: uv sync --frozen --all-packages --group dev
-
-      - name: Client release gate
-        run: uv run python tools/client_release_gate.py
-
       - name: Image name
         id: image
         env:
-          RELEASE_VERSION: ${{ needs.release-please.outputs.version }}
+          RELEASE_VERSION: ${{ needs.release-please.outputs.server_version }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
@@ -166,6 +178,28 @@ jobs:
           push: true
           tags: ${{ steps.image.outputs.tags }}
 
+  publish-client-core:
+    name: Publish workhold-client-core
+    needs: release-please
+    if: needs.release-please.outputs.publish_clients == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --frozen --all-packages --group dev
+
+      - name: Client release gate
+        run: uv run python tools/client_release_gate.py
+
       - name: Publish workhold-client-core
         env:
           WORKHOLD_PUBLISH: "1"
@@ -174,11 +208,8 @@ jobs:
 
   publish-roles:
     name: Publish ${{ matrix.package }}
-    needs: [release-please, publish]
-    if: >-
-      needs.publish.result == 'success' &&
-      (needs.release-please.outputs.release_created == 'true' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_existing == 'true'))
+    needs: [release-please, publish-client-core]
+    if: needs.publish-client-core.result == 'success'
     runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     permissions:
