@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from typing import Any, Generic, Protocol, TypeVar
 
+from _workhold_client_core.content_key import _canonical_json_bytes, seal_task_payload
 from _workhold_client_core.errors import QueueClientError
 from _workhold_client_core.models import Task
 
@@ -82,15 +82,7 @@ class PayloadDecodeError(QueueClientError):
 def measure_json_bytes(value: Any) -> int:
     """Byte size of a JSON value using the same compact encoding as admission."""
 
-    return len(
-        json.dumps(
-            value,
-            ensure_ascii=False,
-            separators=(",", ":"),
-            allow_nan=False,
-            sort_keys=True,
-        ).encode("utf-8")
-    )
+    return len(_canonical_json_bytes(value))
 
 
 def encode_payload(
@@ -98,14 +90,21 @@ def encode_payload(
     encoder: PayloadEncoder[Any] | None = None,
     *,
     max_bytes: int | None = None,
+    content_key: bytes | None = None,
 ) -> Any:
-    """Encode (optional) then enforce payload size before the HTTP request body.
+    """Encode (optional), seal (optional), then enforce payload size.
 
-    Default ``encoder is None`` keeps the application value as the opaque wire
-    JSON payload unchanged.
+    Default ``encoder is None`` and ``content_key is None`` keep the application
+    value as the opaque wire JSON payload unchanged. With ``content_key`` the
+    encoder output is sealed first, so ``max_bytes`` applies to the envelope.
     """
 
     wire = value if encoder is None else encoder.encode(value)
+    if content_key is not None:
+        try:
+            wire = seal_task_payload(wire, content_key)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("payload must be a JSON value") from exc
     if max_bytes is not None:
         if isinstance(max_bytes, bool) or type(max_bytes) is not int or max_bytes < 1:
             raise ValueError("max_bytes must be a positive integer")
