@@ -76,6 +76,22 @@ client classes. Credentials and packages are separated enough that application
 pods do not receive admin capabilities. Dual base URLs: public `/v1` and private
 `/admin/v1`.
 
+HTTP and OpenAPI stay normative. `workhold-mcp` is an optional local stdio
+adapter over `ObserverClient` and is not part of the coordinated client
+version
+([033-optional-local-mcp-adapter.md](adr/033-optional-local-mcp-adapter.md);
+[local guide](../02-guides/07-local-mcp-observer.md)).
+
+Optional MCP policy narrows `ObserverClient`, `ProducerClient`, and `AdminClient`.
+HTTP remains normative
+([034-mcp-tool-exposure-ceiling.md](adr/034-mcp-tool-exposure-ceiling.md)).
+
+MCP is an optional adapter over the HTTP contract. Its Streamable HTTP form is a
+separate resource-server process that calls these same clients with its own role
+tokens and adds no operation, no authority, and no exactly-once guarantee
+([035-remote-mcp-resource-server.md](adr/035-remote-mcp-resource-server.md);
+[guide](../02-guides/07-local-mcp-observer.md)).
+
 Machine-checked ownership of every authenticated OpenAPI `operationId` is
 recorded in [`packages/client-operation-ownership.json`](../../packages/client-operation-ownership.json)
 and enforced by `tools/check_client_operation_ownership.py`. That manifest is a

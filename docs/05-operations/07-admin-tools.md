@@ -95,6 +95,9 @@ duplicate window and therefore requires a queue pause and explicit acknowledgeme
   methods through the SDK and does **not** pass server authorization.
 - The SDK does **not** mint JIT, does **not** issue `claim_token`, and does **not** promise
   exactly-once recovery (replay remains at-least-once).
+- A routine MCP preset calls `AdminClient` only when that tool was selected
+  and the admin token is authorized. Routine MCP is not a break-glass path,
+  and preview and execute stay bound.
 
 Practical how-to: [04-admin-operations.md](../02-guides/04-admin-operations.md).
 

@@ -44,8 +44,13 @@ one combined release pull request (branch `release-please--branches--main`).
 - Clients (`packages`, tag `workhold-clients-vX.Y.Z`, `packages/CHANGELOG.md`):
   counts only files under `packages/`. Its release publishes the client set in
   `release-packages.json` order to PyPI with trusted publishing (`id-token: write`).
+  `workhold-mcp` (tag `workhold-mcp-vX.Y.Z`) is a third release train and is not
+  part of that coordinated client version.
 
-Manual rerun: `workflow_dispatch` input `publish_existing` = `server` / `clients` / `all`.
+Manual rerun: `workflow_dispatch` input `publish_existing` = `server` / `clients` / `mcp` / `all`.
+`all` republishes the server and the coordinated clients. `mcp` publishes `workhold-mcp`
+([ADR 033](../04-architecture/adr/033-optional-local-mcp-adapter.md);
+[guide](../02-guides/07-local-mcp-observer.md)).
 No API token is stored. `workhold-client-core` uses pending publisher
 `release.yml` with any environment. Each role package uses the same workflow
 and its own environment: `pypi-workhold-producer`, `pypi-workhold-consumer`,
@@ -70,6 +75,7 @@ Claim long polling env (enabled capability): `QUEUE_CLAIM_MAX_WAIT_SECONDS=20`,
 | `workhold-producer` | `workhold_producer` | Extras: `async`, `bridge-postgres` |
 | `workhold-consumer` | `workhold_consumer` | Extra: `async` |
 | `workhold-admin` | `workhold_admin` | Extra: `async` |
+| `workhold-mcp` | `workhold_mcp` | Optional MCP adapter, stdio or remote ([ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md)); own version, outside the coordinated set |
 
 Coordinated version across core + three roles, independent of the server
 version (`workhold-client-core` is the source). CI publishes core first; gate

@@ -38,6 +38,9 @@ FORBIDDEN_DISTRIBUTIONS = frozenset(
 )
 SERVER_RELEASE_PATH = "."
 CLIENT_RELEASE_PATH = "packages"
+MCP_RELEASE_PATH = "packages/workhold-mcp"
+MCP_DISTRIBUTION = "workhold-mcp"
+_MCP_FORBIDDEN_DEPENDENCIES = frozenset({"workhold", "sqlalchemy", "psycopg", "psycopg2"})
 _PY_VERSION_RE = re.compile(r'^__version__\s*=\s*"([^"]+)"', re.MULTILINE)
 _RELEASE_PLEASE_VERSION_MARKER = re.compile(
     r'^__version__\s*=\s*"[^"]+"\s+#\s*x-release-please-version\s*$',
@@ -104,6 +107,7 @@ def _assert_no_legacy_tree() -> None:
     if not isinstance(members, list):
         raise GateError("tool.uv.workspace.members missing")
     expected = [f"packages/{name}" for name in CLIENT_DISTRIBUTIONS]
+    expected.append(MCP_RELEASE_PATH)
     if [str(m).replace("\\", "/") for m in members] != expected:
         raise GateError(f"workspace members drifted: {members!r}")
 
@@ -116,6 +120,12 @@ def _expected_core_interval(version: str) -> tuple[str, str, str]:
     lower = f"{major}.{minor}.0"
     upper = f"{major}.{minor + 1}.0"
     return lower, upper, f">={lower},<{upper}"
+
+
+def _requirement_name(requirement: str) -> str:
+    base = requirement.split(";", 1)[0].strip()
+    name = re.split(r"[\s\[<>=!~]", base, maxsplit=1)[0]
+    return name.lower().replace("_", "-")
 
 
 def _is_core_requirement(requirement: object) -> bool:
@@ -303,6 +313,14 @@ def _assert_ci_atomic_publish_shape() -> None:
             "CI pypi_packages must list core then producer/consumer/admin only; "
             f"got {packages!r}"
         )
+    mcp_package = data.get("mcp_package")
+    if mcp_package != MCP_DISTRIBUTION:
+        raise GateError(
+            "release-packages.json mcp_package must be workhold-mcp; "
+            f"got {mcp_package!r}"
+        )
+    if mcp_package in packages:
+        raise GateError("mcp_package must stay outside pypi_packages")
     if FORBIDDEN_DISTRIBUTIONS.intersection(packages):
         raise GateError("CI pypi_packages includes forbidden legacy distribution")
     version_files = _string_list(data, "extra_version_files")
@@ -321,10 +339,11 @@ def _assert_ci_atomic_publish_shape() -> None:
     if not isinstance(packages_config, dict) or set(packages_config) != {
         SERVER_RELEASE_PATH,
         CLIENT_RELEASE_PATH,
+        MCP_RELEASE_PATH,
     }:
         raise GateError(
-            "release-please packages must be exactly the server '.' and client "
-            f"'{CLIENT_RELEASE_PATH}' release trains"
+            "release-please packages must be the server '.', the client "
+            f"'{CLIENT_RELEASE_PATH}' train, and '{MCP_RELEASE_PATH}'"
         )
     server_config = packages_config[SERVER_RELEASE_PATH]
     client_config = packages_config[CLIENT_RELEASE_PATH]
@@ -332,6 +351,12 @@ def _assert_ci_atomic_publish_shape() -> None:
         raise GateError(
             f"server release train must exclude '{CLIENT_RELEASE_PATH}' so client "
             "changes do not release the server"
+        )
+    client_excludes = client_config.get("exclude-paths", [])
+    if not isinstance(client_excludes, list) or MCP_RELEASE_PATH not in client_excludes:
+        raise GateError(
+            f"client release train must exclude '{MCP_RELEASE_PATH}' so MCP "
+            "changes do not release the coordinated clients"
         )
     if client_config.get("include-component-in-tag") is not True:
         raise GateError("client release train must include its component in the tag")
@@ -349,6 +374,23 @@ def _assert_ci_atomic_publish_shape() -> None:
         [*version_files, *version_modules],
         set(version_modules),
     )
+    mcp_config = packages_config[MCP_RELEASE_PATH]
+    if not isinstance(mcp_config, dict):
+        raise GateError(f"release-please '{MCP_RELEASE_PATH}' must be an object")
+    if mcp_config.get("component") != "workhold-mcp":
+        raise GateError("MCP release train component must be 'workhold-mcp'")
+    if mcp_config.get("include-component-in-tag") is not True:
+        raise GateError("MCP release train must include its component in the tag")
+    mcp_init = f"{MCP_RELEASE_PATH}/src/workhold_mcp/__init__.py"
+    _assert_extra_files(
+        MCP_RELEASE_PATH,
+        mcp_config,
+        [
+            f"{MCP_RELEASE_PATH}/pyproject.toml",
+            mcp_init,
+        ],
+        {mcp_init},
+    )
     initial_version = config.get("initial-version")
     if initial_version != "1.0.0":
         raise GateError(
@@ -358,9 +400,11 @@ def _assert_ci_atomic_publish_shape() -> None:
     manifest = json.loads(
         (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
     )
+    mcp_version = _project_version(REPO_ROOT / MCP_RELEASE_PATH / "pyproject.toml")
     for release_path, version in (
         (SERVER_RELEASE_PATH, root_version),
         (CLIENT_RELEASE_PATH, client_version),
+        (MCP_RELEASE_PATH, mcp_version),
     ):
         manifest_version = manifest.get(release_path)
         if manifest_version == "0.0.0":
@@ -411,6 +455,38 @@ def _assert_ci_atomic_publish_shape() -> None:
         raise GateError(
             "publish_client_packages.py must read release-packages.json and require WORKHOLD_PUBLISH"
         )
+    if not re.search(r"(?m)^\s+- mcp\s*$", release_yml):
+        raise GateError("release workflow missing mcp dispatch choice")
+    if "publish-mcp:" not in release_yml:
+        raise GateError("release workflow missing publish-mcp job")
+    if "publish_mcp:" not in release_yml:
+        raise GateError("release workflow missing publish_mcp output")
+    if "pypi-workhold-mcp" not in release_yml:
+        raise GateError("release workflow missing environment pypi-workhold-mcp")
+    if "tools/publish_mcp_package.py" not in release_yml:
+        raise GateError("missing publisher tools/publish_mcp_package.py")
+    mcp_publisher = REPO_ROOT / "tools" / "publish_mcp_package.py"
+    if not mcp_publisher.is_file():
+        raise GateError("missing publisher tools/publish_mcp_package.py")
+    mcp_publisher_text = mcp_publisher.read_text(encoding="utf-8")
+    if "WORKHOLD_PUBLISH" not in mcp_publisher_text or MCP_DISTRIBUTION not in mcp_publisher_text:
+        raise GateError(
+            "publish_mcp_package.py must publish workhold-mcp only when WORKHOLD_PUBLISH=1"
+        )
+    if "pypi_packages" not in mcp_publisher_text:
+        raise GateError("publish_mcp_package.py must refuse a name that is in pypi_packages")
+    mcp_job = release_yml.split("publish-mcp:", 1)[1]
+    if "packages--release_created" in mcp_job or "publish_clients" in mcp_job:
+        raise GateError("publish-mcp must not run on the coordinated client release")
+    for line in release_yml.splitlines():
+        if "mcp=true" in line.replace(" ", "") and "all" in line:
+            raise GateError("all dispatch must not set the MCP flag")
+        if (
+            "PUBLISH_EXISTING" in line
+            and re.search(r'=\s*"all"', line)
+            and "mcp" in line
+        ):
+            raise GateError("all dispatch must not select the MCP package")
 
 
 def _latest_wheel(dist_name: str) -> Path:
@@ -453,18 +529,45 @@ def _clean_client_wheels() -> None:
         name.replace("-", "_") + "-" for name in (*CLIENT_DISTRIBUTIONS, "queue_client")
     )
     for stale in DIST_DIR.glob("*.whl"):
-        if stale.name.startswith(prefixes) or stale.name.startswith("queue-client-"):
+        if (
+            stale.name.startswith(prefixes)
+            or stale.name.startswith("queue-client-")
+            or stale.name.startswith("workhold_mcp-")
+            or stale.name.startswith("workhold-")
+        ):
             stale.unlink()
 
 
 def _build_wheels() -> dict[str, Path]:
     _clean_client_wheels()
     wheels: dict[str, Path] = {}
-    # Core first, then roles — dependents must not publish without core artifacts.
-    for dist in CLIENT_DISTRIBUTIONS:
+    # Core first, then roles. Server and MCP wheels are boundary checks only.
+    for dist in (*CLIENT_DISTRIBUTIONS, "workhold", MCP_DISTRIBUTION):
         _run(["uv", "build", "--package", dist, "--out-dir", str(DIST_DIR)])
         wheels[dist] = _latest_wheel(dist)
     return wheels
+
+
+def _dependency_names(wheel: Path) -> set[str]:
+    meta = _wheel_metadata(wheel)
+    requires = meta["requires_dist"]
+    if not isinstance(requires, list):
+        raise GateError(f"missing Requires-Dist list for {wheel.name}")
+    return {_requirement_name(str(item)) for item in requires}
+
+
+def _assert_mcp_wheel_boundaries(wheels: dict[str, Path]) -> None:
+    forbidden = _dependency_names(wheels[MCP_DISTRIBUTION]).intersection(
+        _MCP_FORBIDDEN_DEPENDENCIES
+    )
+    if forbidden:
+        raise GateError(
+            "workhold-mcp wheel depends on forbidden packages: "
+            + ", ".join(sorted(forbidden))
+        )
+    for dist in ("workhold", *CLIENT_DISTRIBUTIONS):
+        if "mcp" in _dependency_names(wheels[dist]):
+            raise GateError(f"{dist} wheel must not depend on mcp")
 
 
 def _assert_role_wheel_core_dependencies(
@@ -602,8 +705,7 @@ def _write_inventory(
     return INVENTORY_PATH
 
 
-def _dry_run_publish(wheels: dict[str, Path]) -> str:
-    files = [str(wheels[dist]) for dist in CLIENT_DISTRIBUTIONS]
+def _uv_publish_dry_run(files: list[str]) -> str:
     # No-upload package-index dry run: validates artifacts without registry write.
     # Trusted-publishing discovery can exit non-zero outside CI OIDC; still require
     # every wheel to be enumerated for the dry-run upload plan.
@@ -644,6 +746,13 @@ def _dry_run_publish(wheels: dict[str, Path]) -> str:
     if result.returncode != 0 and "checking" not in lowered:
         raise GateError(f"uv publish --dry-run failed:\n{combined}")
     return combined.strip() or "uv publish --dry-run ok"
+
+
+def _dry_run_publish(wheels: dict[str, Path]) -> str:
+    client_files = [str(wheels[dist]) for dist in CLIENT_DISTRIBUTIONS]
+    client_out = _uv_publish_dry_run(client_files)
+    mcp_out = _uv_publish_dry_run([str(wheels[MCP_DISTRIBUTION])])
+    return f"{client_out}\n{mcp_out}"
 
 
 
@@ -713,6 +822,7 @@ def run() -> dict[str, object]:
     _assert_ci_atomic_publish_shape()
     git_sha = _git_sha()
     wheels = _build_wheels()
+    _assert_mcp_wheel_boundaries(wheels)
     inventory = _write_inventory(
         wheels,
         version=version,
@@ -726,7 +836,7 @@ def run() -> dict[str, object]:
         "version": version,
         "inventory": str(inventory.relative_to(REPO_ROOT)),
         "wheels": {dist: path.name for dist, path in wheels.items()},
-        "dry_run": dry_run.splitlines()[-1] if dry_run else "ok",
+        "dry_run": dry_run,
     }
 
 

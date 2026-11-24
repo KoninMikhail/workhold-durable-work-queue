@@ -26,6 +26,35 @@ opt-in error reporting: a non-empty `SENTRY_DSN` (or `SENTRY_DSN_FILE` in the
 image) initializes `sentry_sdk` when the role starts; unset/empty leaves the SDK off
 ([ADR 026](../04-architecture/adr/026-optional-glitchtip-sentry-dsn.md)).
 
+### Remote MCP resource server (not an image role)
+
+The optional `workhold-mcp` adapter is a separate process, installed from its own
+package ([ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md);
+[guide](../02-guides/07-local-mcp-observer.md)).
+`workhold-mcp` is not one of `api`, `migrate`, `maintain`, `relay`, or `apply`,
+the runtime image does not contain it, and `PROCESS_ROLES` does not list it.
+
+- Run one process per trust boundary behind a reverse proxy that terminates TLS
+  and forwards the public `Host`. The process serves only `/mcp`; bind
+  `127.0.0.1` unless the proxy is on another host.
+- Set the resource URL (for example `https://mcp.example.invalid/mcp`), the issuer
+  (`https://idp.example.invalid`) and its JWKS URL. The issuer is external; there
+  is no identity provider in Workhold.
+- Set the Host allowlist to the public host name. Set an Origin allowlist for
+  browser clients, or choose no-browser mode with `--no-browser-origins`. Add
+  `--forwarded-allow-ip` for the proxy address when it sets forwarded headers.
+- Grant callers `workhold-mcp:read`, `workhold-mcp:produce`, or
+  `workhold-mcp:operate` at the issuer. These are the MCP caller scope. They do
+  not replace the startup tool policy or the Workhold role and queue scope
+  of the role tokens in the process environment.
+- Issue those role tokens as Workhold principals with exact queue scopes
+  ([01-security.md](01-security.md#remote-mcp-resource-server)). Keep them in the
+  process environment, never in arguments or logs.
+- MCP does not add Workhold authority. MCP does not add exactly-once delivery.
+- To repeat the setup locally, run `uv run pytest tests/sdk/mcp/test_remote_smoke.py -q`.
+  It binds only `127.0.0.1` and signs tokens with a test-only key fixture that is
+  not a product identity provider.
+
 ### File secrets and image ENTRYPOINT
 
 The runtime image uses exec-form `ENTRYPOINT ["/app/entrypoint.sh"]` and

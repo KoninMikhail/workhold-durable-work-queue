@@ -37,10 +37,14 @@ members = [
     "packages/workhold-producer",
     "packages/workhold-consumer",
     "packages/workhold-admin",
+    "packages/workhold-mcp",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Two package-boundary modules share a basename. importlib gives each a
+# path-based module name so one pytest process can collect both.
+addopts = "--import-mode=importlib"
 asyncio_mode = "auto"
 # pytest-asyncio 1.5 warns when this is unset. fixture-scope is the
 # current implicit behavior; function scope would change fixture loops.

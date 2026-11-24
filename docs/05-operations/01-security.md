@@ -55,6 +55,36 @@ General inspection and the admin API redact it.
 - break-glass does **not** mint a worker `claim_token`, does **not** promise exactly-once
   recovery, and does **not** provide a dual-control UI.
 
+## Remote MCP resource server
+
+The optional `workhold-mcp` process serves `/mcp` over Streamable HTTP as an
+OAuth 2.0 resource server for an external issuer
+([ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md);
+[guide](../02-guides/07-local-mcp-observer.md)). It is a separate process and
+`workhold-mcp` is not one of `api`, `migrate`, `maintain`, `relay`, or `apply`.
+
+Three authorization layers apply, and each one only narrows the previous one:
+
+1. the startup tool policy selects the tools for the process lifetime;
+2. the MCP caller scope on the bearer token (`workhold-mcp:read`,
+   `workhold-mcp:produce`, `workhold-mcp:operate`) narrows which of them a caller
+   sees and may call;
+3. the Workhold role and queue scope decides whether the Workhold API accepts the
+   request made with the process's own role token.
+
+MCP caller OAuth is not a service principal. The caller token is never forwarded
+to Workhold. The role tokens in the `workhold-mcp` environment must be credentials
+of the Workhold principals described above, with exact queue scopes, and all
+callers of one process share them. MCP does not add Workhold authority.
+MCP does not add exactly-once delivery.
+
+The transport checks the Host allowlist and the Origin allowlist (or no-browser
+mode, which rejects every request that carries an `Origin`) before it reads the
+token. DNS-rebinding protection cannot be disabled. Examples use the
+placeholders `https://mcp.example.invalid/mcp` and `https://idp.example.invalid`;
+the loopback signing key in the smoke test is test-only and is not a product
+identity provider. Do not log, paste, or commit a bearer token or a signing key.
+
 ## Payload handling
 
 workhold treats the payload as application-owned opaque JSON:
