@@ -93,8 +93,8 @@ def test_non_bulk_admin_names_are_callable() -> None:
     for name in names:
         assert name in REGISTRY_BY_NAME, name
         assert callable(REGISTRY_BY_NAME[name].call)
-    for excluded in _BULK_EXECUTE_NAMES:
-        assert excluded not in REGISTRY_BY_NAME
+    for bulk_name in _BULK_EXECUTE_NAMES:
+        assert callable(REGISTRY_BY_NAME[bulk_name].call)
 
 
 def test_activate_forwards_expected_version() -> None:

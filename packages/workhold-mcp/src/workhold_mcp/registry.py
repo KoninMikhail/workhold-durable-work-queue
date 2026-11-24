@@ -19,6 +19,7 @@ from workhold_admin.models import (
     PAGE_LIMIT_DEFAULT,
     PAGE_LIMIT_MAX,
     PAGE_LIMIT_MIN,
+    BulkPreviewResult,
     RetryPolicyDraft,
 )
 from _workhold_client_core.priority import PRIORITY_DEFAULT
@@ -744,6 +745,53 @@ def _admin_preview_bulk_cancel(
     return admin.preview_bulk_cancel(queue_name, filters=filters)
 
 
+def _admin_execute_bulk_replay(
+    admin: AdminClient,
+    queue_name: str,
+    *,
+    preview: Any = None,
+    idempotency_key: str | None = None,
+    reason: str | None = None,
+    filters: Any = None,
+    start_index: int = 0,
+    batch_limit: int | None = None,
+) -> Any:
+    bound_preview = BulkPreviewResult.parse(preview)
+    wire_key = _require_idempotency_key(idempotency_key)
+    wire_reason = _require_reason(reason)
+    return admin.execute_bulk_replay(
+        queue_name,
+        preview=bound_preview,
+        idempotency_key=wire_key,
+        reason=wire_reason,
+        filters=filters,
+        start_index=start_index,
+        batch_limit=batch_limit,
+    )
+
+
+def _admin_execute_bulk_cancel(
+    admin: AdminClient,
+    queue_name: str,
+    *,
+    preview: Any = None,
+    reason: str | None = None,
+    filters: Any = None,
+    start_index: int = 0,
+    batch_limit: int | None = None,
+) -> Any:
+    bound_preview = BulkPreviewResult.parse(preview)
+    wire_reason = _require_reason(reason)
+    return admin.execute_bulk_cancel(
+        queue_name,
+        preview=bound_preview,
+        reason=wire_reason,
+        filters=filters,
+        start_index=start_index,
+        batch_limit=batch_limit,
+    )
+
+
 _ADMIN_CALLS: dict[str, tuple[str, dict[str, Any], Callable[..., Any], bool]] = {
     "list_queues": (
         "Admin one page of queue registrations.",
@@ -941,6 +989,39 @@ _ADMIN_CALLS: dict[str, tuple[str, dict[str, Any], Callable[..., Any], bool]] = 
         ),
         _admin_preview_bulk_cancel,
         True,
+    ),
+    "execute_bulk_replay": (
+        "Execute one bulk replay batch from the complete preview object.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "preview": _loose_object_schema(),
+                "idempotency_key": _string_schema(),
+                "reason": _string_schema(),
+                "filters": _loose_object_schema(),
+                "start_index": {"type": "integer", "default": 0},
+                "batch_limit": {"type": "integer", "default": None},
+            },
+            ("queue_name", "preview", "idempotency_key", "reason", "filters"),
+        ),
+        _admin_execute_bulk_replay,
+        False,
+    ),
+    "execute_bulk_cancel": (
+        "Execute one bulk cancel batch from the complete preview object.",
+        _object_schema(
+            {
+                "queue_name": _string_schema(),
+                "preview": _loose_object_schema(),
+                "reason": _string_schema(),
+                "filters": _loose_object_schema(),
+                "start_index": {"type": "integer", "default": 0},
+                "batch_limit": {"type": "integer", "default": None},
+            },
+            ("queue_name", "preview", "reason", "filters"),
+        ),
+        _admin_execute_bulk_cancel,
+        False,
     ),
 }
 
