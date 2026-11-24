@@ -7,6 +7,7 @@ from typing import Annotated, Any
 
 from _workhold_client_core.transport import HttpJsonTransport
 from mcp.server import MCPServer
+from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.auth.provider import TokenVerifier
 from mcp.server.auth.settings import AuthSettings
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
@@ -23,6 +24,7 @@ from workhold_mcp.config import (
 )
 from workhold_mcp.errors import project_error
 from workhold_mcp.registry import REGISTRY, REGISTRY_BY_NAME, ToolSpec
+from workhold_mcp.scopes import scopes_allow
 from workhold_mcp.serialize import canonical_json, to_tool_payload
 
 _PUBLIC_BASE_URL = "WORKHOLD_MCP_PUBLIC_BASE_URL"
@@ -39,15 +41,25 @@ def build_server(
     *,
     token_verifier: TokenVerifier | None = None,
     auth: AuthSettings | None = None,
+    oauth_scopes: bool | None = None,
 ) -> MCPServer:
     """Register the selected registry tools and refuse a semantic schema drift.
 
     Stdio passes neither ``token_verifier`` nor ``auth``. Streamable HTTP passes
     both onto this same server. Passing only one of them raises ``ValueError``.
+
+    ``oauth_scopes`` switches on the caller-scope gate for ``tools/list`` and
+    ``tools/call``. It defaults to on exactly when a token verifier is supplied,
+    and it cannot be turned off for an HTTP server. Stdio never reads the OAuth
+    context.
     """
 
     if (token_verifier is None) != (auth is None):
         raise ValueError("token_verifier and auth must be supplied together")
+    if oauth_scopes is None:
+        oauth_scopes = token_verifier is not None
+    elif token_verifier is not None and not oauth_scopes:
+        raise ValueError("oauth_scopes cannot be disabled when a token verifier is supplied")
     server = MCPServer(
         "workhold-mcp",
         subscriptions=False,
@@ -71,7 +83,43 @@ def build_server(
             ),
         )
     _check_published_schemas(server)
+    if oauth_scopes:
+        _install_scope_gate(server, names)
     return server
+
+
+def _granted_scopes() -> frozenset[str]:
+    """Scopes on the current HTTP access token. No token means no scopes."""
+
+    access_token = get_access_token()
+    if access_token is None:
+        return frozenset()
+    return frozenset(access_token.scopes)
+
+
+def _install_scope_gate(server: MCPServer, selected: frozenset[str]) -> None:
+    """Filter ``tools/list`` and recheck ``tools/call`` by the caller's scopes.
+
+    Startup policy decides what is registered. Scopes only narrow that set, and
+    a denied call returns before any role client runs.
+    """
+
+    list_tools = server.list_tools
+    call_registered = server.call_tool
+
+    async def scoped_list_tools() -> Any:
+        granted = _granted_scopes()
+        return [tool for tool in await list_tools() if scopes_allow(tool.name, granted)]
+
+    async def scoped_call_tool(
+        name: str, arguments: dict[str, Any], context: Any = None
+    ) -> Any:
+        if name in selected and not scopes_allow(name, _granted_scopes()):
+            return _insufficient_scope_result()
+        return await call_registered(name, arguments, context)
+
+    server.list_tools = scoped_list_tools  # type: ignore[method-assign]
+    server.call_tool = scoped_call_tool  # type: ignore[method-assign]
 
 
 def call_tool(
@@ -280,6 +328,22 @@ def _success_result(payload: Any) -> CallToolResult:
         content=[TextContent(type="text", text=text)],
         structured_content=payload,
         is_error=False,
+    )
+
+
+def _insufficient_scope_result() -> CallToolResult:
+    payload = {
+        "kind": "insufficient_scope",
+        "code": None,
+        "retryable": None,
+        "status_code": None,
+        "request_id": None,
+        "retry_after_ms": None,
+    }
+    return CallToolResult(
+        content=[TextContent(type="text", text=canonical_json(payload))],
+        structured_content=payload,
+        is_error=True,
     )
 
 

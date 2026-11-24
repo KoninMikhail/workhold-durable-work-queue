@@ -544,6 +544,20 @@ async def test_stdio_unselected_tool_is_absent_and_never_called(
     assert _calls(built) == []
 
 
+def test_scope_gate_cannot_be_disabled_on_http(monkeypatch: pytest.MonkeyPatch) -> None:
+    from workhold_mcp.http_app import build_auth_settings
+
+    _patch_transports(monkeypatch, [])
+    with pytest.raises(ValueError, match="oauth_scopes"):
+        build_server(
+            load_settings(_env(), names=_ALL_TOOL_NAMES),
+            _ALL_TOOL_NAMES,
+            token_verifier=_ScopedVerifier(ALL_SCOPES),
+            auth=build_auth_settings(RESOURCE, ISSUER),
+            oauth_scopes=False,
+        )
+
+
 def test_handlers_never_forward_the_caller_token() -> None:
     for path in MCP_SRC.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
