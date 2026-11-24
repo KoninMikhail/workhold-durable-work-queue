@@ -7,7 +7,7 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "workhold-client-core>=1.0.0,<1.1.0",
+    "workhold-client-core>=1.1.0,<1.2.0",
 ]
 
 [project.optional-dependencies]
@@ -18,7 +18,7 @@ bridge-postgres = [
     "psycopg[binary]>=3.3.5",
 ]
 async = [
-    "workhold-client-core[async]>=1.0.0,<1.1.0",
+    "workhold-client-core[async]>=1.1.0,<1.2.0",
 ]
 
 [build-system]
