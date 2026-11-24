@@ -23,7 +23,7 @@ Compressed repository context for an agent. Product: **Workhold - Durable work q
 | Delivery Outbox / who sends HTTP | [../01-concepts/12-delivery-outbox.md](../01-concepts/12-delivery-outbox.md) |
 | How-to guides | [../02-guides/](../02-guides/) |
 | Client SDK (sync/async, ergonomics) | [../02-guides/06-client-sdk-ergonomics.md](../02-guides/06-client-sdk-ergonomics.md) |
-| Local and remote MCP | [guide](../02-guides/07-local-mcp-observer.md), [ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md) |
+| Local and remote MCP | [guide](../02-guides/07-local-mcp-observer.md), [how it works](../04-architecture/13-mcp-adapter.md), [ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md) |
 | FAQ | [../06-faq/](../06-faq/) |
 | Troubleshooting | [../07-troubleshooting/](../07-troubleshooting/) |
 | Examples | [../08-examples/](../08-examples/) |

@@ -109,7 +109,8 @@ Optional `workhold-mcp` is a stdio adapter over `ObserverClient` on its own rele
 ([ADR 033](../04-architecture/adr/033-optional-local-mcp-adapter.md);
 [guide](../02-guides/07-local-mcp-observer.md)). It can also run as a separate
 remote resource server ([ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md)).
-Startup policy can select producer and routine admin tools.
+Startup policy can select producer and routine admin tools. Internals:
+[13-mcp-adapter.md](../04-architecture/13-mcp-adapter.md).
 
 The detailed tree is [codebase-map.md](codebase-map.md). Normative docs are
 [../04-architecture/](../04-architecture/README.md).

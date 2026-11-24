@@ -14,6 +14,8 @@ the coordinated client version
 MCP does not add Workhold authority. MCP does not add exactly-once delivery:
 task execution stays at-least-once and fenced by the Workhold API. A tool call
 is one HTTP request to Workhold made with the role token you configured.
+For the startup sequence, the request flow, and the error shape, read
+[How the MCP adapter works](../04-architecture/13-mcp-adapter.md).
 
 ## Install
 

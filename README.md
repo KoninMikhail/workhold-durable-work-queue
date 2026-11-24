@@ -11,6 +11,7 @@
 [Quick start](#quick-start) ·
 [Features](#what-you-get) ·
 [Python clients](#python-clients) ·
+[MCP server](#mcp-server-for-ai-assistants) ·
 [Documentation](docs/README.md) ·
 [Examples](docs/08-examples/README.md) ·
 [Contributing](CONTRIBUTING.md)
@@ -90,6 +91,7 @@ read the [deployment guide](docs/05-operations/02-deployment.md) and
 | See concrete workflows | [Examples](docs/08-examples/README.md) |
 | Understand guarantees and failure behavior | [Guarantees](docs/01-concepts/09-guarantees.md) |
 | Use the Python clients | [Client SDK guide](docs/02-guides/06-client-sdk-ergonomics.md) |
+| Connect an AI assistant over MCP | [MCP setup guide](docs/02-guides/07-local-mcp-observer.md) |
 | Deploy and operate in production | [Operations](docs/05-operations/README.md) |
 | Explore architecture and decisions | [Architecture and ADRs](docs/04-architecture/README.md) |
 | Find a specific document | [Documentation index](docs/README.md) |
@@ -206,6 +208,60 @@ The packages share a coordinated version and depend on
 `workhold-client-core` for transport, errors, retries, and the public test
 kit. OpenAPI 3.1 remains the authoritative wire contract.
 
+## MCP server for AI assistants
+
+`workhold-mcp` is an optional
+[Model Context Protocol](https://modelcontextprotocol.io/) server. It lets an
+AI assistant such as Cursor or Claude inspect queues, look up tasks, diagnose
+dead letters, and, when you allow it, enqueue work or run routine admin
+operations. It runs as its own process next to Workhold and is not part of the
+runtime image.
+
+```mermaid
+flowchart LR
+  assistant["AI assistant"] -->|"MCP: stdio or HTTPS /mcp"| mcp["workhold-mcp"]
+  mcp -->|"HTTP + role token"| api["Workhold API"]
+```
+
+- **Read-only by default:** without a policy the server exposes only the
+  observer tools.
+- **No new authority:** every tool call is one Workhold API request made with a
+  role token from the environment, and Workhold still checks the role and queue
+  scope.
+- **No worker or break-glass tools:** claim, heartbeat, complete, fail, and
+  break-glass operations are never exposed.
+- **Local or remote:** stdio for a desktop assistant, or Streamable HTTP as an
+  OAuth 2.0 resource server behind your reverse proxy and identity provider.
+
+| Preset | Tools | Role token |
+| --- | --- | --- |
+| `observer` (default) | Capabilities, tasks, attempts, queues, stats, maintenance status, dead letters | Observer |
+| `producer` | Enqueue, resolve a submission, inspect and cancel tasks | Producer |
+| `operator` | Queues, retry policies, pause and drain, maintenance, audit, replay, bulk preview and execute | Admin |
+| `routine` | All of the above | All three |
+
+Connect a local assistant by adding the server to its MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "workhold": {
+      "command": "workhold-mcp",
+      "env": {
+        "WORKHOLD_MCP_PUBLIC_BASE_URL": "http://127.0.0.1:8080",
+        "WORKHOLD_MCP_ADMIN_BASE_URL": "http://127.0.0.1:8080",
+        "WORKHOLD_MCP_OBSERVER_TOKEN": "<observer service principal token>"
+      }
+    }
+  }
+}
+```
+
+Read the [MCP setup guide](docs/02-guides/07-local-mcp-observer.md) for
+presets, remote deployment, and scopes, and
+[How the MCP adapter works](docs/04-architecture/13-mcp-adapter.md) for the
+request flow and security model.
+
 ## Roadmap
 
 - [ ] **Kafka Delivery Relay adapter** — publish committed Delivery Outbox
@@ -238,7 +294,7 @@ comparison.
 ```text
 .
 ├── src/workhold/      # service runtime
-├── packages/               # role-split Python clients
+├── packages/               # role-split Python clients and the MCP server
 ├── alembic/                # PostgreSQL migrations
 ├── openapi/                # OpenAPI 3.1 contract
 ├── tests/                  # unit, integration, conformance, and chaos tests

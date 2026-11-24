@@ -59,6 +59,8 @@ table `break_glass_elevations` (`storage/models.py` → `BreakGlassElevation`).
 Ops catalog: [07-admin-tools.md](../05-operations/07-admin-tools.md#break-glass-operations).
 
 Client docs: [06-client-sdk-ergonomics.md](../02-guides/06-client-sdk-ergonomics.md).
-Optional local observer adapter: [07-local-mcp-observer.md](../02-guides/07-local-mcp-observer.md)
-([ADR 033](../04-architecture/adr/033-optional-local-mcp-adapter.md)).
+Optional MCP adapter (`packages/workhold-mcp/`, stdio and remote Streamable HTTP):
+setup [07-local-mcp-observer.md](../02-guides/07-local-mcp-observer.md), module map and
+request flow [13-mcp-adapter.md](../04-architecture/13-mcp-adapter.md)
+([ADR 033](../04-architecture/adr/033-optional-local-mcp-adapter.md)–[035](../04-architecture/adr/035-remote-mcp-resource-server.md)).
 Release gate: `tools/client_release_gate.py` (wheels + `uv publish --dry-run`).

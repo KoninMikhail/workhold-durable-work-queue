@@ -20,6 +20,7 @@ Start with the [reading path](../00-onboarding/01-reading-path.md) if you have n
 | 10 | [10-application-outbox-bridge.md](10-application-outbox-bridge.md) | Application outbox bridge protocol |
 | 11 | [11-application-outbox-bridge-compatibility.md](11-application-outbox-bridge-compatibility.md) | Bridge compatibility and evolution |
 | 12 | [12-physical-contract-benchmarks.md](12-physical-contract-benchmarks.md) | Physical-contract benchmark hypotheses |
+| 13 | [13-mcp-adapter.md](13-mcp-adapter.md) | How the optional MCP adapter works: startup, tool catalog, request flow, authority |
 | — | [adr/](adr/README.md) | Why repository-level architecture decisions were accepted |
 
 > **Non-normative.** Current `docs/03-reference/03-formats.md`, `04-storage.md`, and `05-http-api.md` predate these decisions and remain drafts until they are replaced.
