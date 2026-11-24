@@ -241,14 +241,12 @@ def test_missing_client_identity_is_rejected(rsa_key: KeyMaterial) -> None:
     _assert_rejected(_verify(_verifier(rsa_key), token), token)
 
 
-def test_non_string_subject_is_not_exposed(rsa_key: KeyMaterial) -> None:
+def test_non_string_subject_is_rejected(rsa_key: KeyMaterial) -> None:
+    # PyJWT validates `sub` as a string, so such a token never reaches the
+    # AccessToken and `subject` is only ever a string.
     token = mint(rsa_key, base_claims(sub=12345, azp="client-1"))
 
-    access = _verify(_verifier(rsa_key), token)
-
-    assert access is not None
-    assert access.client_id == "client-1"
-    assert access.subject is None
+    _assert_rejected(_verify(_verifier(rsa_key), token), token)
 
 
 def test_hostile_jku_does_not_choose_the_key(
