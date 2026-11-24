@@ -6,6 +6,7 @@ import math
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass
+from ipaddress import ip_address
 from urllib.parse import urlparse
 
 from _workhold_client_core.config import ClientConfig
@@ -16,12 +17,14 @@ from workhold_mcp.registry import load_manifest, preset_names
 
 __all__ = [
     "ConfigError",
+    "HttpSettings",
     "McpSettings",
     "SelectionNeeds",
     "build_observer",
     "configs_for",
     "load_settings",
     "origin_config",
+    "resolve_http_config",
     "selection_needs",
 ]
 
@@ -38,6 +41,18 @@ _ALLOWED_TOOLS = "WORKHOLD_MCP_ALLOWED_TOOLS"
 _PRODUCER_TOKEN = "WORKHOLD_MCP_PRODUCER_TOKEN"
 _ADMIN_TOKEN = "WORKHOLD_MCP_ADMIN_TOKEN"
 _CONTENT_KEY = "WORKHOLD_MCP_CONTENT_KEY"
+_TRANSPORT = "WORKHOLD_MCP_TRANSPORT"
+_RESOURCE_URL = "WORKHOLD_MCP_RESOURCE_URL"
+_ISSUER_URL = "WORKHOLD_MCP_ISSUER_URL"
+_JWKS_URL = "WORKHOLD_MCP_JWKS_URL"
+_ALLOWED_HOSTS = "WORKHOLD_MCP_ALLOWED_HOSTS"
+_ALLOWED_ORIGINS = "WORKHOLD_MCP_ALLOWED_ORIGINS"
+_NO_BROWSER_ORIGINS = "WORKHOLD_MCP_NO_BROWSER_ORIGINS"
+_BIND_HOST = "WORKHOLD_MCP_BIND_HOST"
+_BIND_PORT = "WORKHOLD_MCP_BIND_PORT"
+_FORWARDED_ALLOW_IPS = "WORKHOLD_MCP_FORWARDED_ALLOW_IPS"
+_CLOCK_SKEW_SECONDS = "WORKHOLD_MCP_CLOCK_SKEW_SECONDS"
+_DNS_REBINDING_PROTECTION = "WORKHOLD_MCP_DNS_REBINDING_PROTECTION"
 _KNOWN = frozenset(
     {
         _PUBLIC_BASE_URL,
@@ -52,9 +67,51 @@ _KNOWN = frozenset(
         _PRODUCER_TOKEN,
         _ADMIN_TOKEN,
         _CONTENT_KEY,
+        _TRANSPORT,
+        _RESOURCE_URL,
+        _ISSUER_URL,
+        _JWKS_URL,
+        _ALLOWED_HOSTS,
+        _ALLOWED_ORIGINS,
+        _NO_BROWSER_ORIGINS,
+        _BIND_HOST,
+        _BIND_PORT,
+        _FORWARDED_ALLOW_IPS,
+        _CLOCK_SKEW_SECONDS,
+        _DNS_REBINDING_PROTECTION,
     }
 )
 _HTTP_SCHEMES = frozenset({"http", "https"})
+_HTTP_ONLY_NAMES = frozenset(
+    {
+        _RESOURCE_URL,
+        _ISSUER_URL,
+        _JWKS_URL,
+        _ALLOWED_HOSTS,
+        _ALLOWED_ORIGINS,
+        _NO_BROWSER_ORIGINS,
+        _BIND_HOST,
+        _BIND_PORT,
+        _FORWARDED_ALLOW_IPS,
+        _CLOCK_SKEW_SECONDS,
+        _DNS_REBINDING_PROTECTION,
+    }
+)
+_HTTP_VALUE_FLAGS = {
+    "--resource-url": (_RESOURCE_URL, False),
+    "--issuer-url": (_ISSUER_URL, False),
+    "--jwks-url": (_JWKS_URL, False),
+    "--allowed-host": (_ALLOWED_HOSTS, True),
+    "--allowed-origin": (_ALLOWED_ORIGINS, True),
+    "--bind-host": (_BIND_HOST, False),
+    "--bind-port": (_BIND_PORT, False),
+    "--forwarded-allow-ip": (_FORWARDED_ALLOW_IPS, True),
+    "--clock-skew-seconds": (_CLOCK_SKEW_SECONDS, False),
+}
+_HTTP_BOOLEAN_FLAGS = {
+    "--no-browser-origins": _NO_BROWSER_ORIGINS,
+    "--disable-dns-rebinding-protection": _DNS_REBINDING_PROTECTION,
+}
 
 
 class ConfigError(Exception):
@@ -112,6 +169,147 @@ class McpSettings:
 
     def __str__(self) -> str:
         return self.__repr__()
+
+
+@dataclass(frozen=True, slots=True)
+class HttpSettings:
+    """Validated transport settings resolved before either server can start."""
+
+    transport: str
+    resource_url: str | None
+    issuer_url: str | None
+    jwks_url: str | None
+    allowed_hosts: tuple[str, ...]
+    allowed_origins: tuple[str, ...]
+    no_browser_origins: bool
+    bind_host: str
+    bind_port: int
+    forwarded_allow_ips: tuple[str, ...]
+    clock_skew_seconds: int
+    dns_rebinding_protection: bool = True
+    policy_argv: tuple[str, ...] = ()
+
+
+def resolve_http_config(
+    argv: list[str],
+    environ: Mapping[str, str],
+) -> HttpSettings:
+    """Resolve stdio or fail-closed Streamable HTTP startup settings."""
+
+    cli, policy_argv = _parse_http_argv(argv)
+    transport = _one_value(cli, "--transport", _TRANSPORT, environ, "stdio")
+    if transport not in {"stdio", "streamable-http"}:
+        raise ConfigError(_TRANSPORT if _TRANSPORT in environ else "--transport")
+
+    present_http_flags = [
+        flag
+        for flag in (*_HTTP_VALUE_FLAGS, *_HTTP_BOOLEAN_FLAGS)
+        if flag in cli
+    ]
+    present_http_names = [name for name in _HTTP_ONLY_NAMES if name in environ]
+    if transport == "stdio":
+        if present_http_flags:
+            raise ConfigError(present_http_flags[0])
+        if present_http_names:
+            raise ConfigError(present_http_names[0])
+        return HttpSettings(
+            transport="stdio",
+            resource_url=None,
+            issuer_url=None,
+            jwks_url=None,
+            allowed_hosts=(),
+            allowed_origins=(),
+            no_browser_origins=False,
+            bind_host="127.0.0.1",
+            bind_port=8000,
+            forwarded_allow_ips=(),
+            clock_skew_seconds=60,
+            policy_argv=policy_argv,
+        )
+
+    if "--disable-dns-rebinding-protection" in cli:
+        raise ConfigError("--disable-dns-rebinding-protection")
+    if _DNS_REBINDING_PROTECTION in environ:
+        raise ConfigError(_DNS_REBINDING_PROTECTION)
+
+    resource_url = _required_http_value(cli, "--resource-url", _RESOURCE_URL, environ)
+    issuer_url = _required_http_value(cli, "--issuer-url", _ISSUER_URL, environ)
+    jwks_url = _required_http_value(cli, "--jwks-url", _JWKS_URL, environ)
+    _resource_url(resource_url)
+    _url_without_query_or_fragment(issuer_url, _ISSUER_URL)
+    _url_without_query_or_fragment(jwks_url, _JWKS_URL)
+
+    allowed_hosts = _list_value(cli, "--allowed-host", _ALLOWED_HOSTS, environ)
+    if not allowed_hosts:
+        raise ConfigError(_ALLOWED_HOSTS)
+    for host in allowed_hosts:
+        _allowed_host(host)
+
+    allowed_origins = _list_value(
+        cli,
+        "--allowed-origin",
+        _ALLOWED_ORIGINS,
+        environ,
+    )
+    no_browser_origins = _boolean_true(
+        cli,
+        "--no-browser-origins",
+        _NO_BROWSER_ORIGINS,
+        environ,
+    )
+    if allowed_origins and no_browser_origins:
+        raise ConfigError(_ALLOWED_ORIGINS)
+    if not allowed_origins and not no_browser_origins:
+        raise ConfigError(_NO_BROWSER_ORIGINS)
+    for origin in allowed_origins:
+        _url_without_query_or_fragment(origin, _ALLOWED_ORIGINS)
+
+    bind_host = _one_value(cli, "--bind-host", _BIND_HOST, environ, "127.0.0.1")
+    if not bind_host.strip():
+        raise ConfigError(_BIND_HOST)
+    bind_port = _bounded_integer(
+        _one_value(cli, "--bind-port", _BIND_PORT, environ, "8000"),
+        _BIND_PORT,
+        minimum=1,
+        maximum=65535,
+    )
+    forwarded_allow_ips = _list_value(
+        cli,
+        "--forwarded-allow-ip",
+        _FORWARDED_ALLOW_IPS,
+        environ,
+    )
+    for value in forwarded_allow_ips:
+        try:
+            ip_address(value)
+        except ValueError:
+            raise ConfigError(_FORWARDED_ALLOW_IPS) from None
+    clock_skew_seconds = _bounded_integer(
+        _one_value(
+            cli,
+            "--clock-skew-seconds",
+            _CLOCK_SKEW_SECONDS,
+            environ,
+            "60",
+        ),
+        _CLOCK_SKEW_SECONDS,
+        minimum=0,
+        maximum=300,
+    )
+    return HttpSettings(
+        transport=transport,
+        resource_url=resource_url,
+        issuer_url=issuer_url,
+        jwks_url=jwks_url,
+        allowed_hosts=allowed_hosts,
+        allowed_origins=allowed_origins,
+        no_browser_origins=no_browser_origins,
+        bind_host=bind_host,
+        bind_port=bind_port,
+        forwarded_allow_ips=forwarded_allow_ips,
+        clock_skew_seconds=clock_skew_seconds,
+        policy_argv=policy_argv,
+    )
 
 
 def selection_needs(names: frozenset[str]) -> SelectionNeeds:
@@ -297,3 +495,148 @@ def _verify_tls(source: Mapping[str, str]) -> bool:
     if raw == "false":
         return False
     raise ConfigError(_VERIFY_TLS)
+
+
+def _parse_http_argv(
+    argv: list[str],
+) -> tuple[dict[str, list[str]], tuple[str, ...]]:
+    parsed: dict[str, list[str]] = {}
+    remaining: list[str] = []
+    index = 0
+    while index < len(argv):
+        token = argv[index]
+        flag, separator, attached = token.partition("=")
+        if flag == "--transport" or flag in _HTTP_VALUE_FLAGS:
+            repeatable = flag in _HTTP_VALUE_FLAGS and _HTTP_VALUE_FLAGS[flag][1]
+            if flag in parsed and not repeatable:
+                raise ConfigError(flag)
+            if separator:
+                value = attached
+            else:
+                index += 1
+                if index >= len(argv) or argv[index].startswith("--"):
+                    raise ConfigError(flag)
+                value = argv[index]
+            parsed.setdefault(flag, []).append(value)
+        elif flag in _HTTP_BOOLEAN_FLAGS:
+            if separator or flag in parsed:
+                raise ConfigError(flag)
+            parsed[flag] = ["true"]
+        else:
+            remaining.append(token)
+        index += 1
+    return parsed, tuple(remaining)
+
+
+def _one_value(
+    cli: Mapping[str, list[str]],
+    flag: str,
+    env_name: str,
+    environ: Mapping[str, str],
+    default: str,
+) -> str:
+    if flag in cli and env_name in environ:
+        raise ConfigError(env_name)
+    if flag in cli:
+        value = cli[flag][0]
+    elif env_name in environ:
+        value = environ[env_name]
+    else:
+        return default
+    if value.strip() == "":
+        raise ConfigError(env_name if env_name in environ else flag)
+    return value.strip()
+
+
+def _required_http_value(
+    cli: Mapping[str, list[str]],
+    flag: str,
+    env_name: str,
+    environ: Mapping[str, str],
+) -> str:
+    value = _one_value(cli, flag, env_name, environ, "")
+    if value == "":
+        raise ConfigError(env_name)
+    return value
+
+
+def _list_value(
+    cli: Mapping[str, list[str]],
+    flag: str,
+    env_name: str,
+    environ: Mapping[str, str],
+) -> tuple[str, ...]:
+    if flag in cli and env_name in environ:
+        raise ConfigError(env_name)
+    if flag in cli:
+        raw_values = cli[flag]
+    elif env_name in environ:
+        raw_values = environ[env_name].split(",")
+    else:
+        return ()
+    values = tuple(value.strip() for value in raw_values)
+    if not values or any(not value for value in values):
+        raise ConfigError(env_name if env_name in environ else flag)
+    return values
+
+
+def _boolean_true(
+    cli: Mapping[str, list[str]],
+    flag: str,
+    env_name: str,
+    environ: Mapping[str, str],
+) -> bool:
+    if flag in cli and env_name in environ:
+        raise ConfigError(env_name)
+    if flag in cli:
+        return True
+    if env_name not in environ:
+        return False
+    if environ[env_name] != "true":
+        raise ConfigError(env_name)
+    return True
+
+
+def _resource_url(value: str) -> None:
+    parsed = _url_without_query_or_fragment(value, _RESOURCE_URL)
+    if not parsed.path.endswith("/mcp") or parsed.path.endswith("/mcp/"):
+        raise ConfigError(_RESOURCE_URL)
+
+
+def _url_without_query_or_fragment(value: str, setting_name: str):
+    parsed = urlparse(value)
+    if (
+        parsed.scheme.lower() not in _HTTP_SCHEMES
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ConfigError(setting_name)
+    return parsed
+
+
+def _allowed_host(value: str) -> None:
+    if "://" in value or value in {"*", ":*"}:
+        raise ConfigError(_ALLOWED_HOSTS)
+    if "*" not in value:
+        return
+    if not value.endswith(":*") or "*" in value[:-2] or not value[:-2]:
+        raise ConfigError(_ALLOWED_HOSTS)
+
+
+def _bounded_integer(
+    value: str,
+    setting_name: str,
+    *,
+    minimum: int,
+    maximum: int,
+) -> int:
+    try:
+        parsed = int(value)
+    except ValueError:
+        raise ConfigError(setting_name) from None
+    if parsed < minimum or parsed > maximum:
+        raise ConfigError(setting_name)
+    return parsed
