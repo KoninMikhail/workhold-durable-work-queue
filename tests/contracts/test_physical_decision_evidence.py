@@ -8,10 +8,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ADR_PATH = ROOT / "docs" / "04-architecture" / "adr" / "022-physical-contract-baseline.md"
-BENCH_PATH = ROOT / "docs" / "04-architecture" / "physical-contract-benchmarks.md"
+BENCH_PATH = ROOT / "docs" / "04-architecture" / "12-physical-contract-benchmarks.md"
 ADR_README = ROOT / "docs" / "04-architecture" / "adr" / "README.md"
 OPENAPI_PATH = ROOT / "openapi" / "queue.openapi.json"
-STORAGE_CONTRACT = ROOT / "docs" / "03-reference" / "storage-contract.md"
+STORAGE_CONTRACT = ROOT / "docs" / "03-reference" / "02-storage-contract.md"
 
 REQUIREMENTS = (
     "STOR-01",
@@ -242,6 +242,6 @@ def test_linked_openapi_and_storage_paths_resolve() -> None:
     # Relative links used in References must resolve from ADR directory
     adr_dir = ADR_PATH.parent
     assert (ROOT / "openapi" / "queue.openapi.json").is_file()
-    assert (ROOT / "docs" / "03-reference" / "storage-contract.md").is_file()
-    assert (adr_dir / ".." / "physical-contract-benchmarks.md").resolve().is_file()
+    assert (ROOT / "docs" / "03-reference" / "02-storage-contract.md").is_file()
+    assert (adr_dir / ".." / "12-physical-contract-benchmarks.md").resolve().is_file()
     assert "022-physical-contract-baseline" in adr or "physical contract baseline" in adr.lower()

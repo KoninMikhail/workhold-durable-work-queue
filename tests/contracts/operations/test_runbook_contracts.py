@@ -17,12 +17,12 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
 OPS = ROOT / "docs" / "05-operations"
-RUNBOOKS = OPS / "runbooks.md"
-DEPLOYMENT = OPS / "deployment.md"
-OBSERVABILITY = OPS / "observability.md"
-ADMIN_TOOLS = OPS / "admin-tools.md"
-SECURITY = OPS / "security.md"
-STORAGE = ROOT / "docs" / "04-architecture" / "storage-topology.md"
+RUNBOOKS = OPS / "05-runbooks.md"
+DEPLOYMENT = OPS / "02-deployment.md"
+OBSERVABILITY = OPS / "03-observability.md"
+ADMIN_TOOLS = OPS / "07-admin-tools.md"
+SECURITY = OPS / "01-security.md"
+STORAGE = ROOT / "docs" / "04-architecture" / "04-storage-topology.md"
 OPENAPI = ROOT / "openapi" / "queue.openapi.json"
 
 REQUIRED_RUNBOOK_HEADINGS = (
@@ -40,7 +40,7 @@ REQUIRED_SECTION_LABELS = (
     "### Detection signals",
     "### Severity",
     "### Prerequisites",
-    "### Safe diagnosis",
+    "### Safe diagnostics",
     "### Supported private operations",
     "### Stop conditions",
     "### Rollback / containment",
@@ -88,7 +88,7 @@ PITR_REQUIRED_PHRASES = (
     "non-authoritative counters",
     "at-least-once",
     "duplicate",
-    "retention is not backup",
+    "retention is not a backup",
     "idempoten",
 )
 

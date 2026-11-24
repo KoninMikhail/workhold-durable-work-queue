@@ -130,6 +130,16 @@ def _requirement_name(req: str) -> str:
     return name.lower().replace("_", "-")
 
 
+def _core_release_minor() -> tuple[int, int]:
+    """Minor line published for workhold-client-core. Release automation owns the number."""
+    text = (REPO_ROOT / "packages" / "workhold-client-core" / "pyproject.toml").read_text(
+        encoding="utf-8"
+    )
+    match = re.search(r'(?m)^version\s*=\s*"(\d+)\.(\d+)\.\d+"\s*$', text)
+    assert match is not None, "workhold-client-core version is missing"
+    return int(match.group(1)), int(match.group(2))
+
+
 def _assert_exact_minor_core(requires: list[str]) -> None:
     core_reqs = [r for r in requires if _requirement_name(r) == "workhold-client-core"]
     assert len(core_reqs) == 1, f"expected exactly one core dependency, got {requires}"
@@ -137,12 +147,17 @@ def _assert_exact_minor_core(requires: list[str]) -> None:
     assert m is not None, core_reqs[0]
     spec = m.group("spec").strip()
     assert spec, f"core dependency must pin a compatible exact-minor range: {core_reqs[0]}"
-    ok = False
-    if re.search(r"~=\s*0\.1(\.0)?\b", spec):
-        ok = True
-    if re.search(r">=\s*0\.1(\.0)?\b", spec) and re.search(r"<\s*0\.2(\.0)?\b", spec):
-        ok = True
-    assert ok, f"core dependency must be exact-minor compatible with 0.1.x: {core_reqs[0]}"
+    major, minor = _core_release_minor()
+    floor = f"{major}.{minor}"
+    ceiling = f"{major}.{minor + 1}"
+    compatible = re.search(rf"~=\s*{re.escape(floor)}(?:\.0)?\b", spec) is not None
+    if re.search(rf">=\s*{re.escape(floor)}(?:\.\d+)?\b", spec) and re.search(
+        rf"<\s*{re.escape(ceiling)}(?:\.0)?\b", spec
+    ):
+        compatible = True
+    assert compatible, (
+        f"core dependency must be exact-minor compatible with {floor}.x: {core_reqs[0]}"
+    )
 
 
 @pytest.fixture(scope="module")

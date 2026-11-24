@@ -29,6 +29,7 @@ UNPARTITIONED = {
     "completion_effects",
     "queue_counters",
     "partition_maintenance_status",
+    "break_glass_elevations",
 }
 
 DAILY_RANGE_PARENTS = {
@@ -94,7 +95,7 @@ CODE_MAPS = {
         1: "create_queue",
         2: "create_policy",
         3: "activate_policy",
-        4: "set_state",
+        4: "set_queue_state",
         5: "run_maintenance",
     },
     "completion_effect": {1: "spawn", 2: "event"},
