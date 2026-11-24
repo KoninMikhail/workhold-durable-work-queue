@@ -16,6 +16,7 @@ from _workhold_client_core.codecs import (
     PayloadDecoder,
     PayloadEncoder,
 )
+from _workhold_client_core.content_key import parse_content_key, task_with_opened_payload
 from _workhold_client_core.errors import (
     LeaseLostError,
     MalformedResponseError,
@@ -35,6 +36,7 @@ from _workhold_client_core.transport import encode_path_segment
 
 from workhold_consumer.client import (
     _CLAIM_TOKEN_HEADER,
+    _encode_event_items,
     _encode_spawn_items,
     _fingerprint,
     _require_bool,
@@ -58,12 +60,14 @@ class AsyncConsumerClient:
         *,
         bearer_token: str,
         owns_transport: bool = False,
+        content_key: str | bytes | None = None,
     ) -> None:
         if not bearer_token or not bearer_token.strip():
             raise ValueError("bearer_token is required")
         self._transport = transport
         self._bearer_token = bearer_token
         self._owns_transport = owns_transport
+        self._content_key = parse_content_key(content_key)
 
     @classmethod
     def from_url(
@@ -72,11 +76,17 @@ class AsyncConsumerClient:
         *,
         bearer_token: str,
         timeout_s: float = 30.0,
+        content_key: str | bytes | None = None,
     ) -> AsyncConsumerClient:
         from _workhold_client_core.async_transport import HttpxAsyncTransport
 
         transport = HttpxAsyncTransport(base_url, timeout_s=timeout_s)
-        return cls(transport, bearer_token=bearer_token, owns_transport=True)
+        return cls(
+            transport,
+            bearer_token=bearer_token,
+            owns_transport=True,
+            content_key=content_key,
+        )
 
     async def __aenter__(self) -> AsyncConsumerClient:
         return self
@@ -321,7 +331,7 @@ class AsyncClaim:
             raise ValueError(f"claim grant missing fields: {missing}")
         return cls(
             client,
-            task=Task.parse(raw["task"]),
+            task=task_with_opened_payload(Task.parse(raw["task"]), client._content_key),
             claim_id=_require_str(claim_raw["claim_id"], "claim.claim_id"),
             generation=_require_int(claim_raw["generation"], "claim.generation"),
             claimed_at=_require_str(claim_raw["claimed_at"], "claim.claimed_at"),
@@ -379,7 +389,10 @@ class AsyncClaim:
         if limit is None and capabilities is not None:
             limit = capabilities.payload_runtime_max_bytes
         wire_spawn = _encode_spawn_items(
-            spawn, encoder=spawn_encoder, max_payload_bytes=limit
+            spawn,
+            encoder=spawn_encoder,
+            max_payload_bytes=limit,
+            content_key=self._client._content_key,
         )
         if events:
             caps = (
@@ -393,7 +406,11 @@ class AsyncClaim:
             "spawn": wire_spawn,
         }
         if events:
-            body["events"] = [dict(item) for item in events]
+            body["events"] = _encode_event_items(
+                events,
+                content_key=self._client._content_key,
+                max_payload_bytes=limit,
+            )
         fingerprint = self._check_terminal("complete", body)
         result = await self._request_lease("complete", body, CompleteResult.parse)
         self._terminal = ("complete", fingerprint)

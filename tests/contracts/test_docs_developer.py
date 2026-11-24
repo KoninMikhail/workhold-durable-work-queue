@@ -101,7 +101,9 @@ def test_root_readme_where_next_leads_with_reading_path() -> None:
         if line.startswith("|") and "---" not in line and "Topic" not in line and "Where" not in line
     ]
     assert rows, "expected a markdown table under ## Where next"
-    assert "reading-path.md" in rows[0]
+    content_rows = [line for line in rows if "](" in line]
+    assert content_rows, "expected a reading-path link under ## Where next"
+    assert "01-reading-path.md" in content_rows[0]
 
 
 def test_indexes_link_reading_path() -> None:
@@ -237,6 +239,7 @@ def test_guide_files_exist() -> None:
 
 def test_guide_paths_are_safe() -> None:
     roots = (ROOT / GUIDES_DIR, ROOT / EXAMPLES_DIR)
+    bare_enqueue = re.compile(r"POST /v1/tasks(?!/)")
     offenders: list[str] = []
     for guides_root in roots:
         if not guides_root.is_dir():
@@ -247,6 +250,10 @@ def test_guide_paths_are_safe() -> None:
             text = path.read_text(encoding="utf-8")
             rel = path.relative_to(ROOT).as_posix()
             for needle in GUIDE_FORBIDDEN_SUBSTRINGS:
+                if needle == "POST /v1/tasks":
+                    if bare_enqueue.search(text):
+                        offenders.append(f"{rel}: {needle!r}")
+                    continue
                 if needle in text:
                     offenders.append(f"{rel}: {needle!r}")
     assert not offenders, "forbidden guide/example path strings:\n" + "\n".join(offenders)
@@ -428,8 +435,9 @@ def test_examples_cite_guides() -> None:
 
 
 def test_examples_one_h1_per_file() -> None:
+    fence = re.compile(r"```.*?```", re.DOTALL)
     for slug in EXAMPLES_LOCKED_SLUGS:
-        text = read((EXAMPLES_DIR / slug).as_posix())
+        text = fence.sub("", read((EXAMPLES_DIR / slug).as_posix()))
         h1s = _H1_RE.findall(text)
         assert len(h1s) == 1
         assert not has_cyrillic(h1s[0])

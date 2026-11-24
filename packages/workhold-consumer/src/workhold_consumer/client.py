@@ -16,6 +16,11 @@ from _workhold_client_core.codecs import (
     PayloadEncoder,
     encode_payload,
 )
+from _workhold_client_core.content_key import (
+    parse_content_key,
+    seal_task_payload,
+    task_with_opened_payload,
+)
 from _workhold_client_core.errors import (
     LeaseLostError,
     MalformedResponseError,
@@ -44,12 +49,20 @@ class ConsumerClient:
     replay of terminal bodies after uncertain transport outcomes.
     """
 
-    def __init__(self, transport: HttpJsonTransport, *, bearer_token: str) -> None:
+    def __init__(
+        self,
+        transport: HttpJsonTransport,
+        *,
+        bearer_token: str,
+        content_key: str | bytes | None = None,
+    ) -> None:
         if not bearer_token or not bearer_token.strip():
             raise ValueError("bearer_token is required")
         self._transport = transport
         # Stored for Authorization only; never included in __repr__/errors.
         self._bearer_token = bearer_token
+        # Explicit opt-in only; never read from the environment or __repr__.
+        self._content_key = parse_content_key(content_key)
 
     def __repr__(self) -> str:
         return "ConsumerClient(transport=..., bearer_token=<redacted>)"
@@ -282,7 +295,7 @@ class Claim:
             raise ValueError(f"claim grant missing fields: {missing}")
         return cls(
             client,
-            task=Task.parse(raw["task"]),
+            task=task_with_opened_payload(Task.parse(raw["task"]), client._content_key),
             claim_id=_require_str(claim_raw["claim_id"], "claim.claim_id"),
             generation=_require_int(claim_raw["generation"], "claim.generation"),
             claimed_at=_require_str(claim_raw["claimed_at"], "claim.claimed_at"),
@@ -351,7 +364,10 @@ class Claim:
         if limit is None and capabilities is not None:
             limit = capabilities.payload_runtime_max_bytes
         wire_spawn = _encode_spawn_items(
-            spawn, encoder=spawn_encoder, max_payload_bytes=limit
+            spawn,
+            encoder=spawn_encoder,
+            max_payload_bytes=limit,
+            content_key=self._client._content_key,
         )
         if events:
             caps = capabilities if capabilities is not None else self._client.get_capabilities()
@@ -361,7 +377,11 @@ class Claim:
             "spawn": wire_spawn,
         }
         if events:
-            body["events"] = [dict(item) for item in events]
+            body["events"] = _encode_event_items(
+                events,
+                content_key=self._client._content_key,
+                max_payload_bytes=limit,
+            )
         fingerprint = self._check_terminal("complete", body)
         result = self._request_lease("complete", body, CompleteResult.parse)
         self._terminal = ("complete", fingerprint)
@@ -453,15 +473,47 @@ def _encode_spawn_items(
     *,
     encoder: PayloadEncoder[Any] | None,
     max_payload_bytes: int | None,
+    content_key: bytes | None = None,
 ) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for item in spawn or ():
         wire = dict(item)
         if "payload" in wire:
-            # Always encode+gate via core helper, including encoder=None so an
-            # explicit max_payload_bytes still rejects oversize before transport.
-            wire["payload"] = encode_payload(
-                wire["payload"], encoder, max_bytes=max_payload_bytes
+            if content_key is None:
+                # Always encode+gate via core helper, including encoder=None so an
+                # explicit max_payload_bytes still rejects oversize before transport.
+                # Pass no content key: an omitted key must keep today's JSON.
+                wire["payload"] = encode_payload(
+                    wire["payload"], encoder, max_bytes=max_payload_bytes
+                )
+            else:
+                encoded = (
+                    wire["payload"]
+                    if encoder is None
+                    else encoder.encode(wire["payload"])
+                )
+                sealed = seal_task_payload(encoded, content_key)
+                wire["payload"] = encode_payload(
+                    sealed, None, max_bytes=max_payload_bytes
+                )
+        items.append(wire)
+    return items
+
+
+def _encode_event_items(
+    events: Sequence[Mapping[str, Any]],
+    *,
+    content_key: bytes | None,
+    max_payload_bytes: int | None,
+) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    for item in events:
+        wire = dict(item)
+        if content_key is not None and "data" in wire:
+            wire["data"] = encode_payload(
+                seal_task_payload(wire["data"], content_key),
+                None,
+                max_bytes=max_payload_bytes,
             )
         items.append(wire)
     return items

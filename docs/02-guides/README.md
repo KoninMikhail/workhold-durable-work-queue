@@ -15,6 +15,7 @@ Start with the [reading path](../00-onboarding/01-reading-path.md) (~15 minutes)
 | 4a | [04-admin-operations.md](04-admin-operations.md) | AdminClient recovery + BreakGlassClient (separate tokens) |
 | 5 | [05-app-outbox-bridge.md](05-app-outbox-bridge.md) | Install extras, bridge imports, producer-only credentials |
 | 6 | [06-client-sdk-ergonomics.md](06-client-sdk-ergonomics.md) | Sync/async install, bearer tokens, TLS/timeouts, pagination, retry, instrumentation, test kit, codecs |
+| 7 | [07-local-mcp-observer.md](07-local-mcp-observer.md) | Optional MCP adapter, stdio and remote Streamable HTTP: install, environment, scopes, authorization layers, tools |
 
 ---
 

@@ -105,6 +105,11 @@ storage models on `workhold.db.Base`. Process roles: `api`, `migrate`,
 packages: `workhold-client-core` plus
 `workhold-producer` / `workhold-consumer` / `workhold-admin`
 ([ADR 029](../04-architecture/adr/029-role-split-python-clients.md); names: [ADR 030](../04-architecture/adr/030-workhold-distribution-names.md)).
+Optional `workhold-mcp` is a stdio adapter over `ObserverClient` on its own release train
+([ADR 033](../04-architecture/adr/033-optional-local-mcp-adapter.md);
+[guide](../02-guides/07-local-mcp-observer.md)). It can also run as a separate
+remote resource server ([ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md)).
+Startup policy can select producer and routine admin tools.
 
 The detailed tree is [codebase-map.md](codebase-map.md). Normative docs are
 [../04-architecture/](../04-architecture/README.md).

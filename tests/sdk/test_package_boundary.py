@@ -62,6 +62,15 @@ def _wheel_metadata(wheel: Path) -> email.message.Message:
     return email.parser.Parser().parsestr(raw)
 
 
+def _requirement_name(req: str) -> str:
+    base = req.split(";", 1)[0].strip()
+    for index, char in enumerate(base):
+        if char in " \t[<>=!~":
+            base = base[:index]
+            break
+    return base.lower().replace("_", "-")
+
+
 def _top_level_packages(wheel: Path) -> set[str]:
     with zipfile.ZipFile(wheel) as zf:
         tops: set[str] = set()
@@ -81,10 +90,10 @@ def built_wheels() -> dict[str, Path]:
     for stale in DIST_DIR.glob("*.whl"):
         stale.unlink()
     _run(["uv", "build", "--package", "workhold", "--out-dir", str(DIST_DIR)])
-    for dist in CLIENT_DISTRIBUTIONS:
+    for dist in (*CLIENT_DISTRIBUTIONS, "workhold-mcp"):
         _run(["uv", "build", "--package", dist, "--out-dir", str(DIST_DIR)])
     wheels = {"workhold": _latest_wheel("workhold")}
-    for dist in CLIENT_DISTRIBUTIONS:
+    for dist in (*CLIENT_DISTRIBUTIONS, "workhold-mcp"):
         wheels[dist] = _latest_wheel(dist.replace("-", "_"))
     return wheels
 
@@ -112,6 +121,14 @@ def test_client_wheels_contain_only_own_import_package(built_wheels: dict[str, P
         assert tops == CLIENT_IMPORTS[dist], f"{dist} tops={tops}"
         assert "workhold" not in tops
         assert "queue_service_client" not in tops
+
+
+def test_server_and_role_wheels_do_not_depend_on_mcp(built_wheels: dict[str, Path]) -> None:
+    for dist in ("workhold", *CLIENT_DISTRIBUTIONS):
+        meta = _wheel_metadata(built_wheels[dist])
+        requires = meta.get_all("Requires-Dist") or []
+        names = {_requirement_name(req) for req in requires}
+        assert "mcp" not in names, f"{dist} must not depend on mcp: {requires}"
 
 
 def test_server_wheel_does_not_ship_client_packages(built_wheels: dict[str, Path]) -> None:

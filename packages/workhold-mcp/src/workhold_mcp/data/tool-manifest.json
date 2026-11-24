@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "tools": [
+    {
+      "name": "admin_activate_queue_policy",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "activate_queue_policy",
+      "operation_id": "activateQueuePolicy",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_create_queue",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "create_queue",
+      "operation_id": "createQueue",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_create_queue_policy",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "create_queue_policy",
+      "operation_id": "createQueuePolicy",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_execute_bulk_cancel",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "execute_bulk_cancel",
+      "operation_id": "executeBulkCancel",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_execute_bulk_replay",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "execute_bulk_replay",
+      "operation_id": "executeBulkReplay",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_get_capabilities",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "get_capabilities",
+      "operation_id": "getCapabilities",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_get_maintenance_status",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "get_maintenance_status",
+      "operation_id": "getMaintenanceStatus",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_get_queue",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "get_queue",
+      "operation_id": "getQueue",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_get_stats",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "get_stats",
+      "operation_id": "getStats",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_list_admin_audit",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "list_admin_audit",
+      "operation_id": "listAdminAudit",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_list_dead_letters",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "list_dead_letters",
+      "operation_id": "listDeadLetters",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_list_inspection_attempts",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "list_inspection_attempts",
+      "operation_id": "listInspectionAttempts",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_list_inspection_tasks",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "list_inspection_tasks",
+      "operation_id": "listInspectionTasks",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_list_queues",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "list_queues",
+      "operation_id": "listQueues",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_preview_bulk_cancel",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "preview_bulk_cancel",
+      "operation_id": "previewBulkCancel",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_preview_bulk_replay",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "preview_bulk_replay",
+      "operation_id": "previewBulkReplay",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_replay_dead_letter",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "replay_dead_letter",
+      "operation_id": "replayDeadLetter",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_run_maintenance",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "run_maintenance",
+      "operation_id": "runMaintenance",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "admin_set_queue_state",
+      "role": "admin",
+      "client": "AdminClient",
+      "method": "set_queue_state",
+      "operation_id": "setQueueState",
+      "presets": [
+        "operator",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_get_capabilities",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "get_capabilities",
+      "operation_id": "getCapabilities",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_get_maintenance_status",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "get_maintenance_status",
+      "operation_id": "getMaintenanceStatus",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_get_queue",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "get_queue",
+      "operation_id": "getQueue",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_get_stats",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "get_stats",
+      "operation_id": "getStats",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_get_task",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "get_task",
+      "operation_id": "getTask",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_list_dead_letters",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "list_dead_letters",
+      "operation_id": "listDeadLetters",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_list_inspection_attempts",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "list_inspection_attempts",
+      "operation_id": "listInspectionAttempts",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_list_inspection_tasks",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "list_inspection_tasks",
+      "operation_id": "listInspectionTasks",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "observer_list_task_attempts",
+      "role": "observer",
+      "client": "ObserverClient",
+      "method": "list_task_attempts",
+      "operation_id": "listTaskAttempts",
+      "presets": [
+        "observer",
+        "routine"
+      ]
+    },
+    {
+      "name": "producer_cancel_task",
+      "role": "producer",
+      "client": "ProducerClient",
+      "method": "cancel_task",
+      "operation_id": "cancelTask",
+      "presets": [
+        "producer",
+        "routine"
+      ]
+    },
+    {
+      "name": "producer_enqueue",
+      "role": "producer",
+      "client": "ProducerClient",
+      "method": "enqueue",
+      "operation_id": "enqueueTask",
+      "presets": [
+        "producer",
+        "routine"
+      ]
+    },
+    {
+      "name": "producer_get_capabilities",
+      "role": "producer",
+      "client": "ProducerClient",
+      "method": "get_capabilities",
+      "operation_id": "getCapabilities",
+      "presets": [
+        "producer",
+        "routine"
+      ]
+    },
+    {
+      "name": "producer_inspect_task",
+      "role": "producer",
+      "client": "ProducerClient",
+      "method": "inspect_task",
+      "operation_id": "getTask",
+      "presets": [
+        "producer",
+        "routine"
+      ]
+    },
+    {
+      "name": "producer_resolve_submission",
+      "role": "producer",
+      "client": "ProducerClient",
+      "method": "resolve_submission",
+      "operation_id": "resolveSubmission",
+      "presets": [
+        "producer",
+        "routine"
+      ]
+    }
+  ]
+}

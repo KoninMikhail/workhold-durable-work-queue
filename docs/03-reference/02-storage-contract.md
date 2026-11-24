@@ -26,6 +26,7 @@ ADR 008, ADR 017, ADR 024, [state machine](../04-architecture/01-state-machine.m
 | `completion_effects` | `id`, `source_claim_id`, `effect_kind_code`, `ordinal`, `resource_id`, `created_at` | none |
 | `queue_counters` | `queue_id` (PK/FK), `delayed_count`, `ready_count`, `leased_count`, `as_of` | none |
 | `partition_maintenance_status` | `singleton_id` (PK=1), `last_started_at`, `last_succeeded_at`, `premade_through`, `retained_from`, `last_error_code`, `last_error_detail`, `updated_at` | none |
+| `break_glass_elevations` | `queue_name` (PK), `factor`, `expires_at`, `actor_id`, `incident_ref_hash`, `raised_at` | none |
 | `admin_audit_log` | `id`, `audit_at`, `queue_id`, `actor_id`, `operation_code`, `previous_config_version`, `new_config_version`, `request_id`, `details` | daily `RANGE (audit_at)` |
 | `task_attempts` | `id`, `task_id`, `claim_id`, `generation`, `claimed_at`, `worker_id`, `lease_expires_at`, `ended_at`, `outcome_code`, `failure_code`, `failure_detail` | daily `RANGE (claimed_at)` |
 | `tasks_terminal` | `id`, `task_id`, `queue_id`, `producer_id`, `state_code`, `priority`, `available_at`, `retry_policy_version`, `payload`, `payload_bytes`, `created_at`, `terminal_at`, `failure_code`, `failure_detail`, `source_task_id`, `spawn_ordinal` | daily `RANGE (terminal_at)` |
@@ -296,6 +297,22 @@ UNIQUE `(source_claim_id, effect_kind_code, ordinal)`.
 | last_error_code | text | YES | — | length 1..128 when non-null |
 | last_error_detail | text | YES | — | length at most 4096 when non-null |
 | updated_at | timestamptz | NO | statement_timestamp() | |
+
+### `break_glass_elevations`
+
+One row per named queue while a break-glass replay-rate elevation is in force.
+`queue_name` is the primary key; there is no identity column and no foreign key.
+
+| Column | Type | Null | Default | Notes |
+| --- | --- | --- | --- | --- |
+| queue_name | text | NO | — | PK; length 1..128 |
+| factor | double precision | NO | — | CHECK 1.0..10.0 |
+| expires_at | timestamptz | NO | — | CHECK `expires_at > raised_at` |
+| actor_id | text | NO | — | length 1..128 |
+| incident_ref_hash | text | NO | — | length exactly 16 |
+| raised_at | timestamptz | NO | — | |
+
+`break_glass_elevations_expires_at_idx` on `expires_at`.
 
 ## Daily UTC RANGE parents
 

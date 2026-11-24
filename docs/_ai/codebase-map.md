@@ -24,6 +24,7 @@ Product: **Workhold - Durable work queue**. Runtime package: `workhold`.
 │   ├── workhold-producer/      # workhold_producer (+ bridge)
 │   ├── workhold-consumer/      # workhold_consumer
 │   ├── workhold-admin/         # workhold_admin
+│   ├── workhold-mcp/           # workhold_mcp
 │   └── client-operation-ownership.json
 ├── alembic/                    # migrations
 ├── openapi/                    # queue.openapi.json
@@ -41,7 +42,7 @@ Product: **Workhold - Durable work queue**. Runtime package: `workhold`.
 ├── SECURITY.md                 # private vulnerability reports
 ├── CODE_OF_CONDUCT.md
 ├── SUPPORT.md
-├── release-please-config.json  # server and client release trains (ADR 031)
+├── release-please-config.json  # server, client, and workhold-mcp trains (ADR 031, ADR 033)
 ├── release-packages.json       # client publish order and version files
 └── CHANGELOG.md                # written by release-please
 ```
@@ -58,4 +59,6 @@ table `break_glass_elevations` (`storage/models.py` → `BreakGlassElevation`).
 Ops catalog: [07-admin-tools.md](../05-operations/07-admin-tools.md#break-glass-operations).
 
 Client docs: [06-client-sdk-ergonomics.md](../02-guides/06-client-sdk-ergonomics.md).
+Optional local observer adapter: [07-local-mcp-observer.md](../02-guides/07-local-mcp-observer.md)
+([ADR 033](../04-architecture/adr/033-optional-local-mcp-adapter.md)).
 Release gate: `tools/client_release_gate.py` (wheels + `uv publish --dry-run`).

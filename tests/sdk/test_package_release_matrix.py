@@ -184,11 +184,12 @@ def test_runtime_import_of_old_package_fails() -> None:
         __import__("queue_service_client")
 
 
-def test_workspace_members_are_core_and_three_roles_only() -> None:
+def test_workspace_members_are_clients_then_mcp() -> None:
     members = _workspace_members()
     expected = [f"packages/{name}" for name in CLIENT_DISTRIBUTIONS]
+    expected.append("packages/workhold-mcp")
     assert members == expected
-    assert all("queue-client" not in m for m in members)
+    assert all("queue-client" not in member for member in members)
 
 
 def test_lockfile_members_exclude_prototype() -> None:
@@ -200,9 +201,68 @@ def test_lockfile_members_exclude_prototype() -> None:
     assert "queue-client" not in listed
     for dist in CLIENT_DISTRIBUTIONS:
         assert dist in listed
+    assert "workhold-mcp" in listed
     # No editable source for the deleted distribution.
     assert 'editable = "packages/queue-client"' not in lock
     assert 'name = "queue-client"' not in lock
+
+
+def test_mcp_release_train_is_fenced() -> None:
+    config = json.loads(
+        (REPO_ROOT / "release-please-config.json").read_text(encoding="utf-8")
+    )
+    assert list(config["packages"]) == [
+        ".",
+        "packages",
+        "packages/workhold-mcp",
+    ]
+    excludes = config["packages"]["packages"]["exclude-paths"]
+    assert "packages/workhold-mcp" in excludes
+    manifest = json.loads(
+        (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["packages/workhold-mcp"] == "0.0.0"
+    assert _project_version(REPO_ROOT / "packages" / "workhold-mcp" / "pyproject.toml") == "1.0.0"
+
+
+def test_mcp_package_is_not_a_coordinated_client() -> None:
+    payload = json.loads((REPO_ROOT / "release-packages.json").read_text(encoding="utf-8"))
+    assert payload.get("mcp_package") == "workhold-mcp", (
+        "release-packages.json mcp_package must be workhold-mcp"
+    )
+    assert payload["pypi_packages"] == list(CLIENT_DISTRIBUTIONS)
+    assert "workhold-mcp" not in payload["pypi_packages"]
+    version_files = payload["extra_version_files"]
+    assert all("workhold-mcp" not in path for path in version_files)
+
+
+def test_release_workflow_publishes_mcp_independently() -> None:
+    workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    publisher = REPO_ROOT / "tools" / "publish_mcp_package.py"
+    assert publisher.is_file(), "missing publisher tools/publish_mcp_package.py"
+    assert re.search(r"(?m)^\s+- mcp\s*$", workflow), "missing mcp dispatch choice"
+    assert "publish-mcp:" in workflow, "missing publish-mcp job"
+    assert "publish_mcp:" in workflow, "missing publish_mcp output"
+    assert "pypi-workhold-mcp" in workflow, "missing environment pypi-workhold-mcp"
+    assert "tools/publish_mcp_package.py" in workflow
+    job = workflow.split("publish-mcp:", 1)[1]
+    assert "packages--release_created" not in job, (
+        "publish-mcp must not run when only the coordinated client train releases"
+    )
+    assert "publish_clients" not in job
+
+
+def test_dispatch_all_does_not_publish_mcp() -> None:
+    workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    for line in workflow.splitlines():
+        if "mcp=true" in line.replace(" ", ""):
+            assert "all" not in line, "all dispatch must not set the MCP flag"
+        if (
+            "PUBLISH_EXISTING" in line
+            and re.search(r'=\s*"all"', line)
+            and "mcp" in line
+        ):
+            raise AssertionError(f"all dispatch selects mcp: {line.strip()}")
 
 
 def test_coordinated_client_versions_match_client_release_train() -> None:
@@ -285,7 +345,13 @@ def test_built_wheels_share_version_and_metadata(
         if dist == "workhold-client-core":
             requires = meta.get_all("Requires-Dist") or []
             pure = [r for r in requires if ";" not in r or "extra" not in r.split(";", 1)[1]]
-            assert pure == []
+            assert len(pure) == 1, f"core must have exactly one base dependency, got {pure}"
+            parsed_core = re.match(
+                r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)\s*\(?\s*(.*?)\s*\)?\s*$", pure[0]
+            )
+            assert parsed_core is not None, f"unparseable requirement {pure[0]!r}"
+            assert parsed_core.group(1).lower() == "cryptography"
+            assert ">=50.0.2" in parsed_core.group(2).replace(" ", "")
         else:
             requires = meta.get_all("Requires-Dist") or []
             core_reqs = [

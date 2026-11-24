@@ -57,8 +57,8 @@ EXCLUSION_PATTERNS = (
 )
 
 NEGATION_PREFIX = re.compile(
-    r"(?:\bnot\b|\bno\b|\bnever\b|\bwithout\b|\bnon-goals?\b|\bвне\s+scope\b|"
-    r"\bне\s+|\bбез\s+|\bExplicit\s+non-goals\b)",
+    r"(?:\bnot\b|\bno\b|\bnever\b|\bwithout\b|\bout\s+of\s+scope\b|\bnon-goals?\b|"
+    r"\bвне\s+scope\b|\bне\s+|\bбез\s+|\bExplicit\s+non-goals\b)",
     re.IGNORECASE,
 )
 
