@@ -108,6 +108,7 @@ packages: `workhold-client-core` plus
 Optional `workhold-mcp` is a local stdio adapter over `ObserverClient` on its own release train
 ([ADR 033](../04-architecture/adr/033-optional-local-mcp-adapter.md);
 [guide](../02-guides/07-local-mcp-observer.md)).
+Startup policy can select producer and routine admin tools.
 
 The detailed tree is [codebase-map.md](codebase-map.md). Normative docs are
 [../04-architecture/](../04-architecture/README.md).

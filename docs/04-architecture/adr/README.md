@@ -39,6 +39,7 @@ Why repository-level decisions were accepted. Start with the [reading path](../.
 | [031-separate-server-and-client-release-trains](031-separate-server-and-client-release-trains.md) | Server and client set release and version independently | Accepted |
 | [032-client-side-content-key](032-client-side-content-key.md) | Content key stays in the client; the server does not decrypt | Accepted |
 | [033-optional-local-mcp-adapter](033-optional-local-mcp-adapter.md) | Optional local MCP adapter | Accepted |
+| [034-mcp-tool-exposure-ceiling](034-mcp-tool-exposure-ceiling.md) | MCP tool exposure ceiling | Accepted |
 
 Index, HASH, and payload selections from Phase 3.9 QUAL-03 are recorded in ADR 023.
 The engine pin, file secrets, GlitchTip, and stdlib HTTP are ADR 024–027.
@@ -47,5 +48,6 @@ Python client role split is ADR 029; distribution names are ADR 030.
 Separate server and client release trains are ADR 031.
 The optional client-side content key is ADR 032.
 The optional local MCP adapter and its third release train are ADR 033.
+The MCP catalog is an exposure ceiling (ADR 034).
 Post-benchmark production SLOs remain follow-up work under
 [12-physical-contract-benchmarks.md](../12-physical-contract-benchmarks.md).
