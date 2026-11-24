@@ -26,15 +26,15 @@ def main() -> None:
         known_names = frozenset(row.name for row in load_manifest())
         policy = resolve_tool_policy(http.policy_argv, os.environ, known_names)
         settings = load_settings(names=policy)
+        if http.transport == "streamable-http":
+            from workhold_mcp.http_app import serve_streamable_http
+
+            serve_streamable_http(http, settings, policy)
+            raise SystemExit(0)
         server = build_server(settings, policy)
     except ConfigError as exc:
         _reject(exc.setting_name)
-    if http.transport == "streamable-http":
-        from workhold_mcp.http_app import serve_streamable_http
-
-        serve_streamable_http(server, http)
-    else:
-        server.run(transport="stdio")
+    server.run(transport="stdio")
     raise SystemExit(0)
 
 

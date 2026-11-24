@@ -7,6 +7,8 @@ from typing import Annotated, Any
 
 from _workhold_client_core.transport import HttpJsonTransport
 from mcp.server import MCPServer
+from mcp.server.auth.provider import TokenVerifier
+from mcp.server.auth.settings import AuthSettings
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from pydantic import Field
 from workhold_admin.admin import AdminClient
@@ -31,10 +33,27 @@ _ADMIN_TOKEN = "WORKHOLD_MCP_ADMIN_TOKEN"
 _CONTENT_KEY = "WORKHOLD_MCP_CONTENT_KEY"
 
 
-def build_server(settings: McpSettings, names: frozenset[str]) -> MCPServer:
-    """Register the selected registry tools and refuse a semantic schema drift."""
+def build_server(
+    settings: McpSettings,
+    names: frozenset[str],
+    *,
+    token_verifier: TokenVerifier | None = None,
+    auth: AuthSettings | None = None,
+) -> MCPServer:
+    """Register the selected registry tools and refuse a semantic schema drift.
 
-    server = MCPServer("workhold-mcp", subscriptions=False)
+    Stdio passes neither ``token_verifier`` nor ``auth``. Streamable HTTP passes
+    both onto this same server. Passing only one of them raises ``ValueError``.
+    """
+
+    if (token_verifier is None) != (auth is None):
+        raise ValueError("token_verifier and auth must be supplied together")
+    server = MCPServer(
+        "workhold-mcp",
+        subscriptions=False,
+        token_verifier=token_verifier,
+        auth=auth,
+    )
     clients = _role_clients(settings, names)
     selected = [spec for spec in REGISTRY if spec.name in names]
     selected.sort(key=lambda spec: spec.name)
