@@ -52,7 +52,7 @@ from workhold_consumer.supervisor import (
     LeaseLostEvent,
 )
 
-__version__ = "1.0.4"  # x-release-please-version
+__version__ = "1.1.0"  # x-release-please-version
 
 
 __all__ = [

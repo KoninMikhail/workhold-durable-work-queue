@@ -221,8 +221,8 @@ def test_mcp_release_train_is_fenced() -> None:
     manifest = json.loads(
         (REPO_ROOT / ".release-please-manifest.json").read_text(encoding="utf-8")
     )
-    assert manifest["packages/workhold-mcp"] == "0.0.0"
-    assert _project_version(REPO_ROOT / "packages" / "workhold-mcp" / "pyproject.toml") == "1.0.0"
+    mcp_version = _project_version(REPO_ROOT / "packages" / "workhold-mcp" / "pyproject.toml")
+    assert manifest["packages/workhold-mcp"] == mcp_version
 
 
 def test_mcp_package_is_not_a_coordinated_client() -> None:

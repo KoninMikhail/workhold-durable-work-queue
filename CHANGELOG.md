@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.0](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.4...v1.1.0) (2026-11-24)
+
+
+### Features
+
+* add content key and MCP adapter ([0f2812d](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/0f2812d1f9e5f9c035ab3138fbb98158f87b7260))
+* **mcp:** merge producer tool callables ([93b0cc9](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/93b0cc9c4db6d6753d76ee040f8a2425021c416a))
+* **mcp:** merge the JWKS token verifier ([f3fdebe](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/f3fdebe519f41e183f2fa376d11f172dc398b305))
+* **mcp:** merge the local and remote MCP adapter ([5608a53](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/5608a532a8a06f1b733efbcf26bd43a3fe565d7c))
+* **sdk:** depend on cryptography from client core ([5d9db85](https://github.com/KoninMikhail/workhold-durable-work-queue/commit/5d9db853ef17716d40ee045a9ce8688c68c9bba3))
+
 ## [1.0.4](https://github.com/KoninMikhail/workhold-durable-work-queue/compare/v1.0.3...v1.0.4) (2026-10-10)
 
 
