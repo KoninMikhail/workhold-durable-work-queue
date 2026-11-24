@@ -74,7 +74,9 @@ def test_adr_is_exposure_ceiling() -> None:
         if path != adr
     ]
     assert others
-    assert prefix == max(others) + 1
+    assert prefix not in others
+    adapter_prefix = int(_one("*-optional-local-mcp-adapter.md").name[:3])
+    assert prefix == adapter_prefix + 1
     assert prefix != 32
     readme = README.read_text(encoding="utf-8")
     assert adr.name in readme

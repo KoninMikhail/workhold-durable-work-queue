@@ -86,6 +86,12 @@ Optional MCP policy narrows `ObserverClient`, `ProducerClient`, and `AdminClient
 HTTP remains normative
 ([034-mcp-tool-exposure-ceiling.md](adr/034-mcp-tool-exposure-ceiling.md)).
 
+MCP is an optional adapter over the HTTP contract. Its Streamable HTTP form is a
+separate resource-server process that calls these same clients with its own role
+tokens and adds no operation, no authority, and no exactly-once guarantee
+([035-remote-mcp-resource-server.md](adr/035-remote-mcp-resource-server.md);
+[guide](../02-guides/07-local-mcp-observer.md)).
+
 Machine-checked ownership of every authenticated OpenAPI `operationId` is
 recorded in [`packages/client-operation-ownership.json`](../../packages/client-operation-ownership.json)
 and enforced by `tools/check_client_operation_ownership.py`. That manifest is a

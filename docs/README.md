@@ -46,7 +46,7 @@ Commands, schema, and architecture contracts: [03-reference](03-reference/01-com
 | --- | --- |
 | [00-onboarding](00-onboarding/01-reading-path.md) | [Reading path](00-onboarding/01-reading-path.md), [local setup](00-onboarding/02-local-setup.md) |
 | [01-concepts](01-concepts/README.md) | Why the service exists, lifecycle, named queues, spawn, Delivery Outbox, boundary, guarantees, outbox/inbox |
-| [02-guides](02-guides/README.md) | How-to: integration, producer, worker, admin, [client SDK](02-guides/06-client-sdk-ergonomics.md), [local MCP observer](02-guides/07-local-mcp-observer.md) |
+| [02-guides](02-guides/README.md) | How-to: integration, producer, worker, admin, [client SDK](02-guides/06-client-sdk-ergonomics.md), [local and remote MCP](02-guides/07-local-mcp-observer.md) |
 | [03-reference](03-reference/01-commands.md) | Commands and env; [storage contract](03-reference/02-storage-contract.md) — live schema catalog. Old [formats](03-reference/03-formats.md), [storage](03-reference/04-storage.md), [HTTP](03-reference/05-http-api.md) — superseded proposals |
 | [04-architecture](04-architecture/README.md) | State machines, concurrency, [storage topology](04-architecture/04-storage-topology.md), data flow, [ADR](04-architecture/adr/README.md) |
 | [05-operations](05-operations/README.md) | Security, deployment/recovery, observability, admin tools |
