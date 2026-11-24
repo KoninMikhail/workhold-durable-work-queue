@@ -267,4 +267,3 @@ def test_one_mcp_server_constructor_inside_build_server() -> None:
     assert sorted(set(sites)) == [("server.py", "build_server")]
     http_source = (MCP_SRC / "workhold_mcp" / "http_app.py").read_text(encoding="utf-8")
     assert "MCPServer(" not in http_source
-    assert "HostOriginGuard" not in http_source

@@ -1,7 +1,7 @@
 """Serve the shared MCP registry over stateless JSON Streamable HTTP at ``/mcp``.
 
-``build_http_app`` returns the official SDK Starlette app after one metadata
-route replacement. ``serve_streamable_http`` wires the JWKS token verifier,
+``build_http_app`` wraps the official SDK Starlette app, after one metadata
+route replacement, in the outer Host and Origin guard. ``serve_streamable_http`` wires the JWKS token verifier,
 the shared ``build_server`` registration, and an explicit uvicorn config whose
 proxy trust follows the configured forward list.
 """
@@ -26,6 +26,7 @@ from starlette.routing import Route
 from workhold_mcp.config import ConfigError, HttpSettings, McpSettings
 from workhold_mcp.jwt_verifier import JwtJwksTokenVerifier
 from workhold_mcp.server import build_server
+from workhold_mcp.transport_guard import HostOriginGuard
 
 __all__ = [
     "MCP_PATH",
@@ -63,11 +64,14 @@ def build_http_app(
     resource_url: str,
     issuer_url: str,
     security: TransportSecuritySettings,
-) -> Starlette:
-    """Return the SDK app for ``mcp`` with the three-scope metadata route.
+) -> HostOriginGuard:
+    """Return the Host and Origin guard around the SDK app for ``mcp``.
 
-    ``mcp`` already carries its token verifier and auth settings, because
-    ``build_server`` attached them. The SDK lifespan is kept as registered.
+    The inner SDK app carries the three-scope metadata route. ``mcp`` already
+    carries its token verifier and auth settings, because ``build_server``
+    attached them. The SDK lifespan is kept as registered, and the guard
+    forwards it. The guard rejects bad Host and Origin values before the
+    verifier runs, and ``security`` also stays on the SDK app.
     """
 
     app = mcp.streamable_http_app(
@@ -78,7 +82,7 @@ def build_http_app(
         transport_security=security,
     )
     _replace_metadata_route(app, resource_url=resource_url, issuer_url=issuer_url)
-    return app
+    return HostOriginGuard(app, security)
 
 
 def _replace_metadata_route(app: Starlette, *, resource_url: str, issuer_url: str) -> None:
