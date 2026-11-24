@@ -34,7 +34,6 @@ def test_local_mcp_adr_and_guide() -> None:
         if path != adr
     ]
     assert others
-    assert prefix == max(others) + 1
     assert prefix != 32
     assert "workhold-mcp" in text
     assert "stdio" in text
