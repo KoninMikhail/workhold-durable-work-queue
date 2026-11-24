@@ -75,7 +75,7 @@ Claim long polling env (enabled capability): `QUEUE_CLAIM_MAX_WAIT_SECONDS=20`,
 | `workhold-producer` | `workhold_producer` | Extras: `async`, `bridge-postgres` |
 | `workhold-consumer` | `workhold_consumer` | Extra: `async` |
 | `workhold-admin` | `workhold_admin` | Extra: `async` |
-| `workhold-mcp` | `workhold_mcp` | Optional local stdio adapter; own version, outside the coordinated set |
+| `workhold-mcp` | `workhold_mcp` | Optional MCP adapter, stdio or remote ([ADR 035](../04-architecture/adr/035-remote-mcp-resource-server.md)); own version, outside the coordinated set |
 
 Coordinated version across core + three roles, independent of the server
 version (`workhold-client-core` is the source). CI publishes core first; gate
