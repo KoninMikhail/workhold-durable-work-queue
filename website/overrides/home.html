@@ -1,0 +1,34 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <section class="wh-hero">
+    <div class="wh-hero__bg" aria-hidden="true"><canvas data-wh-net></canvas></div>
+    <div class="md-grid wh-hero__in">
+      <a class="wh-hero__badge" href="{{ config.repo_url }}">
+        <span>Open source</span><b>MIT</b>
+      </a>
+      <h1 class="wh-hero__title">Workhold</h1>
+      <p class="wh-hero__sub">
+        Durable background work for applications that run on many replicas
+      </p>
+      <ul class="wh-hero__tags" aria-label="Highlights">
+        <li>idempotent enqueue</li>
+        <li>fenced leases</li>
+        <li>bounded retries</li>
+        <li>atomic spawn[]</li>
+        <li>PostgreSQL 18</li>
+        <li>Python 3.13+</li>
+      </ul>
+      <div class="wh-hero__ctas">
+        <a class="wh-hero__btn" href="{{ '00-onboarding/01-reading-path/' | url }}">Get started</a>
+        <a class="wh-hero__link" href="#quick-start"><span>Quick start</span></a>
+        <a class="wh-hero__link" href="{{ config.repo_url }}"><span>GitHub</span>&nbsp;↗</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  {{ page.content }}
+{% endblock %}

@@ -11,6 +11,9 @@ htmlcov/
 dist/
 build/
 
+# MkDocs build output
+site/
+
 # Environments
 .venv/
 venv/

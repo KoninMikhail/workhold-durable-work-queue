@@ -1,0 +1,118 @@
+site_name: Workhold
+site_description: >-
+  A durable Work Queue for applications that run across multiple replicas:
+  idempotent intake, fenced leases, bounded retries, and atomic follow-up tasks.
+site_author: Mikhail Konin
+site_url: https://koninmikhail.github.io/workhold-durable-work-queue/
+repo_url: https://github.com/KoninMikhail/workhold-durable-work-queue
+repo_name: KoninMikhail/workhold-durable-work-queue
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; Mikhail Konin &middot; MIT License
+
+docs_dir: docs
+site_dir: site
+
+# The navigation is generated from the numbered docs/ sections by website/hooks.py.
+exclude_docs: |
+  _ai/
+
+hooks:
+  - website/hooks.py
+
+theme:
+  name: material
+  custom_dir: website/overrides
+  language: en
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  icon:
+    repo: fontawesome/brands/github
+  # Pretendard and Geist Mono are loaded from workhold.css.
+  font: false
+  palette:
+    scheme: slate
+    primary: custom
+    accent: custom
+  features:
+    - content.action.edit
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+
+extra_css:
+  - assets/stylesheets/workhold.css
+
+extra_javascript:
+  - assets/javascripts/hero-net.js
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/KoninMikhail/workhold-durable-work-queue
+      name: Workhold on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/workhold-producer/
+      name: Python clients on PyPI
+    - icon: fontawesome/brands/docker
+      link: https://github.com/users/KoninMikhail/packages/container/package/workhold-durable-work-queue
+      name: Runtime image on GHCR
+
+plugins:
+  - search
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      # GitHub-compatible heading ids, so docs/ anchors work both on GitHub and on the site.
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.betterem
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn

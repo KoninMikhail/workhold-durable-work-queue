@@ -59,6 +59,9 @@ Name examples: `.env.example`. The `.env` file is not committed to git.
 | `docker compose -f docker-compose.dev.yml up --build` | `postgres`, one-shot `migrate`, `api` (port 8080) |
 | `docker compose -f docker-compose.dev.yml --profile apply run --rm apply` | One-shot catalog apply (mount example JSON) |
 | `docker compose -f docker-compose.dev.yml down` | Stop compose |
+| `uv sync --only-group docs` | Install MkDocs Material for the documentation site |
+| `uv run mkdocs serve` | Preview the documentation site from `docs/` and `website/` |
+| `uv run mkdocs build --strict` | Build the site into `site/`; any broken link or anchor fails the build |
 
 Roles `maintain`, `relay`, and `apply` in compose run via profiles (`--profile maintain`,
 `--profile relay`, `--profile apply`) or `compose run`. `api` does not `depends_on`

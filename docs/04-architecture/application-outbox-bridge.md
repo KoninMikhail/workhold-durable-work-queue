@@ -42,7 +42,7 @@ This integration is **optional**.
 | Payload meaning | Application |
 
 Bridge principals are dedicated service principals scoped to idempotent enqueue
-on allowed named queues (see [security contract](../05-operations/security.md)).
+on allowed named queues (see [security contract](../05-operations/01-security.md)).
 Producer identity of the bridge principal is part of workhold idempotency scope.
 
 ## Intent envelope
@@ -174,7 +174,7 @@ MUST NOT successfully mark delivered or failed after losing the lease.
 ### Retry classification
 
 Bridges classify workhold structured errors using workhold’s explicit `retryable`
-contract ([error model](error-model.md)). Retryable outcomes back off; non-retryable
+contract ([error model](07-error-model.md)). Retryable outcomes back off; non-retryable
 fingerprint conflicts terminate to operator action. Uncertain transport outcomes
 (timeout after possible commit) MUST replay the **same** idempotency key and
 immutable body.
@@ -219,8 +219,8 @@ durations are application policy; workhold enqueue dedup TTL remains workhold’
 Keep payload bodies, `source_namespace`, `source_row_id`, idempotency keys, and
 free-text error detail **out of metric labels and default logs**. Prefer bounded
 labels (queue, result, retryability) and redacted correlation. Align with
-[observability](../05-operations/observability.md) and
-[security](../05-operations/security.md) contracts. Traces may propagate W3C
+[observability](../05-operations/03-observability.md) and
+[security](../05-operations/01-security.md) contracts. Traces may propagate W3C
 context from optional intent fields without logging payloads.
 
 ## Compatibility and rolling upgrade
@@ -248,10 +248,10 @@ context from optional intent fields without logging payloads.
 ## References
 
 - [ADR 004 — App-local outbox bridge](adr/004-app-local-outbox-bridge.md)
-- [Transactional outbox concept](../01-concepts/transactional-outbox.md)
-- [Guarantees](../01-concepts/guarantees.md)
-- [Product boundary](../01-concepts/product-boundary.md)
-- [Data flow](data-flow.md)
-- [Client protocol](client-protocol.md)
-- [Error model](error-model.md)
+- [Transactional outbox concept](../01-concepts/10-transactional-outbox.md)
+- [Guarantees](../01-concepts/09-guarantees.md)
+- [Product boundary](../01-concepts/07-product-boundary.md)
+- [Data flow](03-data-flow.md)
+- [Client protocol](09-client-protocol.md)
+- [Error model](07-error-model.md)
 - OpenAPI `EnqueueTaskRequest` / `Idempotency-Key` (1..256)

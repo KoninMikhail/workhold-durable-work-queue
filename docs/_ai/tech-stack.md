@@ -27,7 +27,11 @@ docker compose -f docker-compose.dev.yml up --build
 uv run python tools/check_client_operation_ownership.py
 uv run python tools/client_release_gate.py
 uv lock --check
+uv sync --only-group docs && uv run mkdocs build --strict
 ```
+
+Documentation site: MkDocs Material (`docs` dependency group), config `mkdocs.yml`,
+landing and theme in `website/`, deployed to GitHub Pages by `.github/workflows/pages.yml`.
 
 Command reference: [../03-reference/01-commands.md](../03-reference/01-commands.md). Env: `DATABASE_URL` and allowlisted `*_FILE` siblings (see `.env.example`); on the host, `uv run` uses only `NAME`.
 

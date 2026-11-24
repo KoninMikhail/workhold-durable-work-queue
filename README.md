@@ -1,6 +1,7 @@
 # Workhold - Durable work queue
 
 [![CI](https://github.com/KoninMikhail/workhold-durable-work-queue/actions/workflows/ci.yml/badge.svg)](https://github.com/KoninMikhail/workhold-durable-work-queue/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-1a77ff)](https://koninmikhail.github.io/workhold-durable-work-queue/)
 [![GitHub release](https://img.shields.io/github/v/release/KoninMikhail/workhold-durable-work-queue)](https://github.com/KoninMikhail/workhold-durable-work-queue/releases/latest)
 [![PyPI clients](https://img.shields.io/pypi/v/workhold-producer?label=PyPI%20clients)](https://pypi.org/project/workhold-producer/)
 [![Python 3.13+](https://img.shields.io/badge/Python-3.13%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
@@ -11,7 +12,8 @@
 [Quick start](#quick-start) ·
 [Features](#what-you-get) ·
 [Python clients](#python-clients) ·
-[Documentation](docs/README.md) ·
+[Documentation site](https://koninmikhail.github.io/workhold-durable-work-queue/) ·
+[Docs in repo](docs/README.md) ·
 [Examples](docs/08-examples/README.md) ·
 [Contributing](CONTRIBUTING.md)
 
